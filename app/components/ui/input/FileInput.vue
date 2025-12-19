@@ -1,10 +1,11 @@
 <template>
-  <FormElementContainer :label="label">
+  <FormElementContainer :label="label" :error="error">
     <div v-if="!image" class="flex items-center gap-2">
       <input
         ref="file"
         type="file"
         class="file-input w-full"
+        :class="{ 'file-input-error': !!error }"
         :multiple="multiple"
         @change="inputChange"
       >
@@ -30,6 +31,7 @@ interface Props {
   disabled?: boolean
   imageUrl?: string | null
   multiple?: boolean
+  error?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -39,6 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   imageUrl: undefined,
   multiple: false,
+  error: undefined,
 })
 
 

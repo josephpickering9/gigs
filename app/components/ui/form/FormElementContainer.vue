@@ -1,10 +1,13 @@
 <template>
-  <label v-if="label" class="w-full flex flex-col gap-1">
-    <span class="label">
+  <div v-if="label || error" class="w-full flex flex-col gap-1">
+    <div v-if="label" class="label">
       <span class="label-text">{{ label }}</span>
-    </span>
+    </div>
     <slot />
-  </label>
+    <div v-if="error" class="label">
+       <span class="label-text-alt text-error">{{ error }}</span>
+    </div>
+  </div>
   <span v-else class="relative w-full">
     <slot />
   </span>
@@ -13,9 +16,11 @@
 <script setup lang="ts">
 interface Props {
   label?: string | null
+  error?: string | null
 }
 
 withDefaults(defineProps<Props>(), {
   label: undefined,
+  error: undefined,
 })
 </script>
