@@ -88,14 +88,28 @@
         </div>
     </div>
 
-    <div class="flex justify-end gap-4 mt-8 col-span-1 md:col-span-2">
-        <slot name="actions">
-            <button type="button" class="btn btn-ghost" @click="$emit('cancel')">Cancel</button>
-            <button type="submit" class="btn btn-primary" :disabled="loading">
-                <span v-if="loading" class="loading loading-spinner"></span>
-                {{ submitLabel }}
+    <div class="flex justify-between gap-4 mt-8 col-span-1 md:col-span-2">
+        <div>
+            <button 
+                v-if="initialData?.id" 
+                type="button" 
+                class="btn btn-secondary" 
+                @click="handleEnrich"
+                :disabled="enriching"
+            >
+                <span v-if="enriching" class="loading loading-spinner"></span>
+                Enrich Gig
             </button>
-        </slot>
+        </div>
+        <div class="flex gap-4">
+            <slot name="actions">
+                <button type="button" class="btn btn-ghost" @click="$emit('cancel')">Cancel</button>
+                <button type="submit" class="btn btn-primary" :disabled="loading">
+                    <span v-if="loading" class="loading loading-spinner"></span>
+                    {{ submitLabel }}
+                </button>
+            </slot>
+        </div>
     </div>
   </form>
 </template>
@@ -136,6 +150,7 @@ const imageUrlProxy = ref('');
 const headliners = ref<SelectListItem[]>([]);
 const supportActs = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
+const enriching = ref(false);
 
 const form = ref<UpsertGigRequest>({
   venueId: '',
@@ -249,6 +264,50 @@ const validate = () => {
     }
 
     return isValid;
+};
+
+const handleEnrich = async () => {
+    if (!props.initialData?.id) return;
+    
+    enriching.value = true;
+    try {
+        await gigStore.enrichGig(props.initialData.id);
+        
+        // Fetch the updated gig data
+        const enrichedGig = await gigStore.fetchGig(props.initialData.id);
+        
+        // Update form with enriched data
+        if (enrichedGig) {
+            form.value = {
+                venueId: enrichedGig.venueId || '',
+                date: enrichedGig.date || '',
+                ticketType: enrichedGig.ticketType || TicketType.STANDING,
+                ticketCost: enrichedGig.ticketCost,
+                imageUrl: enrichedGig.imageUrl || '',
+                artistIds: enrichedGig.acts?.map(a => a.artistId || '') || [],
+            };
+            
+            datePart.value = enrichedGig.date || '';
+            
+            // Update artists
+            if (enrichedGig.acts?.length) {
+                headliners.value = enrichedGig.acts.filter(a => a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
+                supportActs.value = enrichedGig.acts.filter(a => !a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
+            }
+            
+            // Update venue
+            if (enrichedGig.venueId) {
+                const v = venues.value.find(v => v.id === enrichedGig.venueId);
+                if (v) {
+                    selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to enrich gig:', error);
+    } finally {
+        enriching.value = false;
+    }
 };
 
 const handleSubmit = () => {

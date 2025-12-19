@@ -8,7 +8,8 @@ import {
     putApiGigsById,
     getApiGigsById,
     getApiV1Artists,
-    getApiV1Venues
+    getApiV1Venues,
+    postApiGigsByIdEnrich
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -90,6 +91,18 @@ export const useGigStore = defineStore('gig', {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await putApiGigsById({ path: { id }, body: gig });
                 await this.fetchGigs(); // Refresh list
+                return response.data;
+            });
+        },
+
+        async enrichGig(id: string) {
+            await tryCatchFinally(ref(this.upsertForm), async () => {
+                // Call enrich endpoint
+                await postApiGigsByIdEnrich({ path: { id } });
+                // Fetch the updated gig data
+                const response = await getApiGigsById({ path: { id } });
+                // Refresh the gigs list
+                await this.fetchGigs();
                 return response.data;
             });
         },
