@@ -36,11 +36,7 @@
             Back
           </button>
           
-          <div class="flex-1 overflow-y-auto">
-
-
-
-          </div>
+          <div class="flex-1 overflow-y-auto"/>
         </div>
 
         <!-- Main Menu View -->

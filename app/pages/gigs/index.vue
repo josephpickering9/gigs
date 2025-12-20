@@ -15,7 +15,7 @@
     </div>
     
     <div v-if="gigStore.loading" class="flex justify-center items-center h-64">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <span class="loading loading-spinner loading-lg text-primary"/>
     </div>
 
     <div v-else-if="gigStore.error" class="alert alert-error">

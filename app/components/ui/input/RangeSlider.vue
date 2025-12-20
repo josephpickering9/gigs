@@ -9,7 +9,7 @@
         :value="modelValue || 0" 
         class="range range-primary range-sm flex-1" 
         @input="handleInput"
-      />
+      >
       <div class="badge badge-lg font-mono min-w-[3rem]">
         £{{ Number(modelValue || 0).toFixed(2) }}
       </div>

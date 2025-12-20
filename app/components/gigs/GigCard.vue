@@ -1,7 +1,7 @@
 <template>
   <NuxtLink :to="`/gigs/edit/${gig.id}`" class="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300 border border-primary/20 block h-full">
     <figure v-if="gig.imageUrl">
-      <img :src="gig.imageUrl" :alt="gig.venueName" class="h-48 w-full object-cover" />
+      <img :src="gig.imageUrl" :alt="gig.venueName" class="h-48 w-full object-cover" >
     </figure>
     <div class="card-body">
       <h2 class="card-title text-2xl font-bold text-primary">{{ headliner }}</h2>

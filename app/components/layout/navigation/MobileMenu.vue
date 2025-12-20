@@ -9,8 +9,8 @@
         <div class="divider my-4 animate-fade-in-up" style="animation-delay: 150ms" />
 
         <li class="animate-fade-in-up" style="animation-delay: 200ms">
-          <NuxtLink to="/" class="active:bg-primary/10 active:text-primary" @click="$emit('close')">
-            <Icon name="mdi:robot-happy-outline" size="1.5em" class="text-primary" />
+          <NuxtLink to="/dashboard" class="active:bg-primary/10 active:text-primary" @click="$emit('close')">
+            <Icon name="mdi:chart-box" size="1.5em" class="text-primary" />
             Dashboard
           </NuxtLink>
         </li>
@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import ThemeController from '~/components/layout/ThemeController.vue'
 import FormButton from '~/components/ui/form/FormButton.vue'
-import Spinner from '~/components/feedback/loading/Spinner.vue'
 
 defineProps<{
   linkedInUrl: string

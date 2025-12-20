@@ -256,9 +256,9 @@ const hasAnyData = computed(() => {
 });
 
 useHead({
-  title: 'Home - Gig Stats',
+  title: 'Dashboard - Gig Stats',
   meta: [
-    { name: 'description', content: 'Welcome to my gigs dashboard with statistics and trends.' }
+    { name: 'description', content: 'Overview of your gig statistics and trends.' }
   ]
 });
 

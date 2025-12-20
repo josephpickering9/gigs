@@ -41,7 +41,7 @@ const handleCreate = async (data: UpsertGigRequest) => {
     try {
         await gigStore.createGig(data);
         router.push('/gigs');
-    } catch (e) {
+    } catch {
         // Error handled in store
     }
 };

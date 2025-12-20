@@ -12,7 +12,7 @@
             class="badge badge-primary gap-1 p-3"
         >
             {{ item.text }}
-            <button type="button" @click.stop="removeItem(index)" class="hover:text-white/80">
+            <button type="button" class="hover:text-white/80" @click.stop="removeItem(index)">
                 <Icon name="heroicons:x-mark" class="w-4 h-4" />
             </button>
         </span>
@@ -31,7 +31,7 @@
             @keydown.up.prevent="highlightPrev"
             @keydown.tab="close"
             @keydown.escape="close"
-        />
+        >
         
          <!-- Clear Button -->
          <button 

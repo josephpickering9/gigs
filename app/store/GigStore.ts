@@ -9,15 +9,17 @@ import {
     getApiGigsById,
     getApiV1Artists,
     getApiV1Venues,
-    postApiGigsByIdEnrich
+    postApiGigsByIdEnrich,
+    deleteApiGigsById
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
 
 interface GigState {
     gigForm: AsyncForm<GetGigResponse[]>;
-    importForm: AsyncForm<void>;
+    importForm: AsyncForm<any>;
     upsertForm: AsyncForm<GetGigResponse>;
+    enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
 }
@@ -25,8 +27,9 @@ interface GigState {
 export const useGigStore = defineStore('gig', {
     state: (): GigState => ({
         gigForm: asyncForm<GetGigResponse[]>(),
-        importForm: asyncForm<void>(),
+        importForm: asyncForm<any>(),
         upsertForm: asyncForm<GetGigResponse>(),
+        enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
     }),
@@ -39,6 +42,8 @@ export const useGigStore = defineStore('gig', {
         importError: (state) => state.importForm.error,
         saving: (state) => state.upsertForm.loading,
         saveError: (state) => state.upsertForm.error,
+        enriching: (state) => state.enrichForm.loading,
+        enrichError: (state) => state.enrichForm.error,
         artists: (state) => state.artistsForm.data || [],
         loadingArtists: (state) => state.artistsForm.loading,
         venues: (state) => state.venuesForm.data || [],
@@ -96,7 +101,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async enrichGig(id: string) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            await tryCatchFinally(ref(this.enrichForm), async () => {
                 // Call enrich endpoint
                 await postApiGigsByIdEnrich({ path: { id } });
                 // Fetch the updated gig data
@@ -104,6 +109,15 @@ export const useGigStore = defineStore('gig', {
                 // Refresh the gigs list
                 await this.fetchGigs();
                 return response.data;
+            });
+        },
+
+        async deleteGig(id: string) {
+            await tryCatchFinally(ref(this.upsertForm), async () => {
+                await deleteApiGigsById({ path: { id } });
+                // Refresh the gigs list after deletion
+                await this.fetchGigs();
+                return undefined;
             });
         },
 

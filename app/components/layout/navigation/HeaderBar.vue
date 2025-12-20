@@ -7,8 +7,8 @@
     <div class="hidden flex-none gap-2 md:flex md:items-center">
       <ul class="menu menu-horizontal px-1">
         <li>
-          <NuxtLink to="/">
-            <Icon name="mdi:home" size="1.2em" />
+          <NuxtLink to="/dashboard">
+            <Icon name="mdi:chart-box" size="1.2em" />
             Dashboard
           </NuxtLink>
         </li>
