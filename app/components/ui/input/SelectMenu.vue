@@ -1,11 +1,11 @@
 <template>
   <div ref="containerRef" class="relative w-full">
-    <FormElementContainer :label="label">
+    <FormElementContainer :label="label" :error="error">
       <div class="relative">
         <button
           type="button"
           class="select w-full"
-          :class="selectClass"
+          :class="[selectClass, { 'select-error': !!error }]"
           :disabled="disabled"
           @click="toggle"
         >
@@ -88,6 +88,7 @@ interface Props {
   size?: 'sm' | 'md' | 'lg' | null
   placeholder?: string | null
   clearable?: boolean
+  error?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -98,6 +99,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'md',
   placeholder: undefined,
   clearable: true,
+  error: undefined,
 })
 
 const emit = defineEmits<{

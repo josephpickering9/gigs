@@ -1,5 +1,5 @@
 <template>
-  <FormElementContainer :label="label">
+  <FormElementContainer :label="label" :error="error">
     <div class="relative flex items-center">
       <input
         ref="inputRef"
@@ -9,7 +9,7 @@
         :required="required"
         :disabled="disabled"
         class="input w-full pr-8"
-        :class="inputClass"
+        :class="[inputClass, { 'input-error': !!error }]"
         @focus="$emit('focus')"
         @blur="$emit('blur')"
         @keyup.enter="$emit('keyup.enter')"
@@ -31,6 +31,7 @@ interface Props {
   required?: boolean
   disabled?: boolean
   size?: string | undefined
+  error?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -41,6 +42,7 @@ const props = withDefaults(defineProps<Props>(), {
   required: false,
   disabled: false,
   size: undefined,
+  error: undefined,
 })
 
 

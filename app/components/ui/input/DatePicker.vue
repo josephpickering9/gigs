@@ -1,5 +1,5 @@
 <template>
-  <FormElementContainer :label="label">
+  <FormElementContainer :label="label" :error="error">
     <div ref="container" class="dropdown w-full" :class="{ 'dropdown-open': isOpen }">
       <div class="relative flex items-center">
         <input
@@ -9,7 +9,7 @@
           :value="inputValue"
           :disabled="disabled"
           class="input input-bordered w-full pr-10"
-          :class="{ 'input-error': hasInputError }"
+          :class="{ 'input-error': hasInputError || !!error }"
           @input="handleInput"
           @focus="handleFocus"
           @blur="handleBlur"
@@ -93,6 +93,7 @@ interface Props {
   label?: string
   placeholder?: string
   disabled?: boolean
+  error?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -100,6 +101,7 @@ const props = withDefaults(defineProps<Props>(), {
   label: undefined,
   placeholder: 'Select date (e.g., MM/DD/YYYY)',
   disabled: false,
+  error: undefined,
 })
 
 const emit = defineEmits<{
