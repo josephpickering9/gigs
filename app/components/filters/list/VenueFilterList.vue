@@ -48,7 +48,6 @@ const filteredVenues = computed(() => {
 });
 
 function selectVenue(venueId: string) {
-  console.log('VenueFilterList: selectVenue called with', venueId);
   emit('select', venueId);
 }
 
