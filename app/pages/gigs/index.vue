@@ -115,22 +115,8 @@ const viewMode = computed({
 });
 
 const sortedGigs = computed(() => {
-    // If backend sorting is implemented, this local sort might be redundant or sorting only current page
-    // Retaining current behavior for now as sorting params weren't added to API call yet
-    const list = gigStore.gigs || [];
-    if (!sortColumn.value) return list;
-
-    return orderBy(
-        list,
-        [(g) => {
-             if (sortColumn.value === 'date') return new Date(g.date || 0).getTime();
-             if (sortColumn.value === 'headliner') return g.acts?.find(a => a.isHeadliner)?.name || '';
-             if (sortColumn.value === 'venue') return g.venueName || '';
-             if (sortColumn.value === 'cost') return g.ticketCost || 0;
-             return '';
-        }],
-        [sortDirection.value]
-    );
+    // Rely on server-side sorting
+    return gigStore.gigs || [];
 });
 
 // Sync filters from UI to Store
@@ -141,14 +127,22 @@ watch(activeFilters, (filters) => {
         if (f.type === FilterType.VENUE) storeFilters.venueId = f.value;
         if (f.type === FilterType.ARTIST) storeFilters.artistId = f.value;
         if (f.type === FilterType.CITY) storeFilters.city = f.value;
-        if (f.type === FilterType.SEARCH) storeFilters.search = f.value; // Search param not yet in API but let's pass it
+        if (f.type === FilterType.SEARCH) storeFilters.search = f.value;
     });
+
+    storeFilters.sortBy = sortColumn.value || undefined;
+    storeFilters.sortDirection = sortDirection.value;
 
     gigStore.setFilters(storeFilters);
 }, { deep: true });
 
 function handlePageChange(page: number) {
-    gigStore.setPagination(page);
+    // Keep current sort/filters
+    gigStore.fetchGigs({ 
+        page, 
+        sortBy: sortColumn.value || undefined, 
+        sortDirection: sortDirection.value 
+    });
 }
 
 function handleSort(column: string) {
@@ -158,6 +152,13 @@ function handleSort(column: string) {
         sortColumn.value = column;
         sortDirection.value = 'asc';
     }
+    
+    // Fetch with new sort
+    gigStore.fetchGigs({ 
+        page: gigStore.pagination.page, // Stay on current page? Or reset? Usually stay if just sorting.
+        sortBy: column, 
+        sortDirection: sortDirection.value 
+    });
 }
 
 const handleImportSuccess = () => {

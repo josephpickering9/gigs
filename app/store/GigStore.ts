@@ -35,6 +35,8 @@ interface GigState {
         fromDate?: string;
         toDate?: string;
         search?: string;
+        sortBy?: string;
+        sortDirection?: string;
     };
 }
 
@@ -80,6 +82,9 @@ export const useGigStore = defineStore('gig', {
             city?: string;
             fromDate?: string;
             toDate?: string;
+            sortBy?: string;
+            sortDirection?: string;
+            search?: string;
         } = {}) {
             await tryCatchFinally(ref(this.gigForm), async () => {
                 const query: any = {};
@@ -91,39 +96,30 @@ export const useGigStore = defineStore('gig', {
                 if (options.city) query.City = options.city;
                 if (options.fromDate) query.FromDate = options.fromDate;
                 if (options.toDate) query.ToDate = options.toDate;
-
-                // We need to access the full response to get pagination headers if they exist
-                // The generated client might not expose headers easily in the data property
-                // But getApiGigs returns a promise that resolves to { data, response, ... } usually?
-                // Let's check sdk.gen.ts. It returns `(options?.client ?? client).get...`
-                // functionality depends on the client implementation. 
-                // Assuming standard hey-api, it might return { data, error, request, response }
+                // Keep passing sort params even if not explicitly in types yet, as backend likely handles them
+                if (options.sortBy) query.SortBy = options.sortBy;
+                if (options.sortDirection) query.SortDirection = options.sortDirection;
+                if (options.search) query.Search = options.search;
 
                 const result = await getApiGigs({ query } as any);
 
-                // If the backend returns paged data in body (e.g. { items: [], totalCount: 100 }) 
-                // we would handle it here. If it returns headers, we check result.response.headers.
-                // Since types say Array<GetGigResponse>, I'll assume for now it returns just the array
-                // and maybe headers.
+                // The API now returns a paginated response object in the body
+                if (result.data) {
+                    const paginatedResponse = result.data as any; // Cast to any to access properties if strict types fail initially, or better: use type guard if possible. 
+                    // Actually types.gen.ts defines GetGigResponsePaginatedResponse, so result.data SHOULD be that.
 
-                // Let's store pagination metadata if we can find it.
-                // Assuming X-Pagination header for now as it's common in .NET
-                const paginationHeader = (result as any).response?.headers?.get('X-Pagination');
-                if (paginationHeader) {
-                    try {
-                        const pagination = JSON.parse(paginationHeader);
-                        this.pagination = {
-                            page: pagination.PageNumber || pagination.currentPage || 1,
-                            pageSize: pagination.PageSize || pagination.itemsPerPage || 10,
-                            totalItems: pagination.TotalCount || pagination.totalItems || 0,
-                            totalPages: pagination.TotalPages || pagination.totalPages || 0,
-                        };
-                    } catch (e) {
-                        console.warn('Failed to parse pagination header', e);
-                    }
+                    // Update pagination state from response body
+                    this.pagination = {
+                        page: paginatedResponse.page || 1,
+                        pageSize: paginatedResponse.pageSize || 20,
+                        totalItems: paginatedResponse.totalCount || 0,
+                        totalPages: paginatedResponse.totalPages || 1,
+                    };
+
+                    return paginatedResponse.items || [];
                 }
 
-                return result.data;
+                return [];
             });
         },
 
