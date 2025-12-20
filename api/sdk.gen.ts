@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
+import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -29,6 +29,17 @@ export const postApiV1ArtistsByIdEnrich = <ThrowOnError extends boolean = false>
     url: '/api/v1/artists/{id}/enrich',
     ...options
 });
+
+export const postApiCalendarImport = <ThrowOnError extends boolean = false>(options?: Options<PostApiCalendarImportData, ThrowOnError>) => (options?.client ?? client).post<PostApiCalendarImportResponses, unknown, ThrowOnError>({
+    url: '/api/calendar/import',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+export const getApiCalendarEvents = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendarEventsData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendarEventsResponses, unknown, ThrowOnError>({ url: '/api/calendar/events', ...options });
 
 export const getApiDashboardStats = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardStatsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardStatsResponses, unknown, ThrowOnError>({
     responseType: 'json',

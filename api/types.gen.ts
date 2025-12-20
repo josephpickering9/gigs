@@ -66,6 +66,11 @@ export type GigsPerYearResponse = {
     gigCount?: number;
 };
 
+export type ImportCalendarEventsRequest = {
+    startDate?: string | null;
+    endDate?: string | null;
+};
+
 export type InterestingInsightsResponse = {
     longestSetlist?: LongestSetlistInfo;
     longestGigStreak?: number | null;
@@ -184,6 +189,37 @@ export type PostApiV1ArtistsByIdEnrichResponses = {
 };
 
 export type PostApiV1ArtistsByIdEnrichResponse = PostApiV1ArtistsByIdEnrichResponses[keyof PostApiV1ArtistsByIdEnrichResponses];
+
+export type PostApiCalendarImportData = {
+    body?: ImportCalendarEventsRequest;
+    path?: never;
+    query?: never;
+    url: '/api/calendar/import';
+};
+
+export type PostApiCalendarImportResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetApiCalendarEventsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        startDate?: string;
+        endDate?: string;
+    };
+    url: '/api/calendar/events';
+};
+
+export type GetApiCalendarEventsResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
 
 export type GetApiDashboardStatsData = {
     body?: never;

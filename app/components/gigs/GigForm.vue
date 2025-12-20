@@ -1,108 +1,168 @@
 <template>
-  <form class="grid grid-cols-1 md:grid-cols-2 gap-6" @submit.prevent="handleSubmit">
-     <Combobox
-        v-model="headliners"
-        :options="artistOptions"
-        label="Headliners"
-        placeholder="Search or add headliners..."
-        class="w-full col-span-1 md:col-span-2"
-        :error="errors['artistIds']"
-    />
+  <form class="space-y-8" @submit.prevent="handleSubmit">
+    <!-- Artists Section -->
+    <div class="card bg-base-200/50 shadow-sm">
+      <div class="card-body">
+        <div class="flex items-center gap-2 mb-6">
+          <div class="badge badge-primary badge-lg gap-2">
+            <Icon name="mdi:account-music" class="w-4 h-4" />
+            Artists
+          </div>
+          <div class="text-sm text-base-content/60">
+            Select the performers for this gig
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Headliners -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="badge badge-accent gap-1">
+                <Icon name="mdi:star" class="w-3 h-3" />
+                Headliners
+              </div>
+              <span class="text-xs text-base-content/50">Main acts</span>
+            </div>
+            <Combobox
+              v-model="headliners"
+              :options="artistOptions"
+              placeholder="Search or add headliners..."
+              class="w-full"
+              :error="errors['artistIds']"
+            />
+          </div>
 
-    <div class="col-span-1 md:col-span-2">
-         <Combobox
-            v-model="supportActs"
-            :options="artistOptions"
-            label="Support Acts"
-            placeholder="Search or add support acts..."
-            class="w-full"
-            :error="errors['artistIds']"
-        />
-        <label class="label">
-            <span class="label-text-alt text-gray-500">
-                Note: Can select multiple. New artists can be typed but may not be saved without ID.
-            </span>
-        </label>
+          <!-- Support Acts -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="badge badge-ghost gap-1">
+                <Icon name="mdi:account-group" class="w-3 h-3" />
+                Support Acts
+              </div>
+              <span class="text-xs text-base-content/50">Optional</span>
+            </div>
+            <Combobox
+              v-model="supportActs"
+              :options="artistOptions"
+              placeholder="Search or add support..."
+              class="w-full"
+            />
+          </div>
+        </div>
+        
+        <div class="mt-4 flex items-start gap-2 text-sm text-base-content/70 bg-base-300/30 rounded-lg p-3">
+          <Icon name="mdi:lightbulb-outline" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <span>You can select multiple artists. New artists can be typed in but may need to be saved separately.</span>
+        </div>
+      </div>
     </div>
 
-    <Combobox
-        v-model="selectedVenue"
-        label="Venue"
-        placeholder="Search or add venue..."
-        :options="venueOptions"
-        :multiple="false"
-        class="w-full col-span-1"
-        :error="errors['venueId']"
-    />
+    <!-- Event Details Section -->
+    <div class="card bg-base-200/50 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title text-lg mb-4">
+          <Icon name="mdi:calendar-clock" class="w-5 h-5" />
+          Event Details
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Combobox
+            v-model="selectedVenue"
+            label="Venue"
+            placeholder="Search or add venue..."
+            :options="venueOptions"
+            :multiple="false"
+            class="w-full"
+            :error="errors['venueId']"
+          />
 
-    <DatePicker
-        v-model="datePart"
-        label="Date"
-        placeholder="Pick a date"
-        class="w-full col-span-1"
-        :error="errors['date']"
-    />
+          <DatePicker
+            v-model="datePart"
+            label="Date"
+            placeholder="Pick a date"
+            class="w-full"
+            :error="errors['date']"
+          />
+        </div>
+      </div>
+    </div>
 
-    <SelectMenu
-        v-model="form.ticketType"
-        label="Ticket Type"
-        :options="ticketTypeOptions"
-        class="w-full col-span-1"
-        :error="errors['ticketType']"
-    />
+    <!-- Ticket Information Section -->
+    <div class="card bg-base-200/50 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title text-lg mb-4">
+          <Icon name="mdi:ticket" class="w-5 h-5" />
+          Ticket Information
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SelectMenu
+            v-model="form.ticketType"
+            label="Ticket Type"
+            :options="ticketTypeOptions"
+            class="w-full"
+            :error="errors['ticketType']"
+          />
 
-    <RangeSlider
-        v-model="form.ticketCost"
-        label="Ticket Cost"
-        :min="0"
-        :max="100"
-        :step="1"
-        class="col-span-1"
-        :error="errors['ticketCost']"
-    />
+          <RangeSlider
+            v-model="form.ticketCost"
+            label="Ticket Cost (£)"
+            :min="0"
+            :max="100"
+            :step="1"
+            class="w-full"
+            :error="errors['ticketCost']"
+          />
+        </div>
+      </div>
+    </div>
 
-    <div class="form-control w-full col-span-1 md:col-span-2">
-        <label class="label">
-            <span class="label-text">Gig Image</span>
-        </label>
-        <FileInput 
+    <!-- Media Section -->
+    <div class="card bg-base-200/50 shadow-sm">
+      <div class="card-body">
+        <h3 class="card-title text-lg mb-4">
+          <Icon name="mdi:image" class="w-5 h-5" />
+          Gig Image
+        </h3>
+        
+        <div class="space-y-4">
+          <FileInput 
             v-model="imageFiles" 
             :image-url="form.imageUrl" 
             @update:file="handleFileSelect"
             @update:image-url="handleImageUrlUpdate"
-        />
-        <div class="mt-2">
-             <TextInput
-                v-model="imageUrlProxy"
-                label="Or enter Image URL manually"
-                placeholder="https://example.com/image.jpg"
-                type="url"
-            />
+          />
+          
+          <div class="divider">OR</div>
+          
+          <TextInput
+            v-model="imageUrlProxy"
+            label="Image URL"
+            placeholder="https://example.com/image.jpg"
+            type="url"
+          />
         </div>
+      </div>
     </div>
 
-    <div class="flex justify-between gap-4 mt-8 col-span-1 md:col-span-2">
-        <div>
-            <button 
-                v-if="initialData?.id" 
-                type="button" 
-                class="btn btn-secondary" 
-                :disabled="gigStore.enriching"
-                @click="handleEnrich"
-            >
-                <span v-if="gigStore.enriching" class="loading loading-spinner"/>
-                Enrich Gig
-            </button>
-        </div>
-        <div class="flex gap-4">
-            <slot name="actions">
-                <button type="button" class="btn btn-ghost" @click="$emit('cancel')">Cancel</button>
-                <button type="submit" class="btn btn-primary" :disabled="loading">
-                    <span v-if="loading" class="loading loading-spinner"/>
-                    {{ submitLabel }}
-                </button>
-            </slot>
-        </div>
+    <!-- Form Actions -->
+    <div class="flex justify-between items-center gap-3 pt-4">
+      <div>
+        <slot name="left-actions" />
+      </div>
+      
+      <div class="flex gap-3">
+        <slot name="actions">
+          <button type="button" class="btn btn-ghost" @click="$emit('cancel')">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary gap-2" :disabled="loading">
+            <span v-if="loading" class="loading loading-spinner" />
+            <Icon v-else name="mdi:content-save" class="w-5 h-5" />
+            {{ submitLabel }}
+          </button>
+        </slot>
+      </div>
     </div>
   </form>
 </template>
@@ -212,7 +272,18 @@ watch(() => props.initialData, (newData) => {
     if (newData) {
         form.value = {
             venueId: newData.venueId || '',
+            date: newData.date || '',
+            ticketType: newData.ticketType || TicketType.STANDING,
+            ticketCost: newData.ticketCost,
+            imageUrl: newData.imageUrl || '',
+            artistIds: newData.acts?.map(a => a.artistId || '') || [],
         };
+        
+        // Set the date picker value
+        datePart.value = newData.date || '';
+        
+        // Set the image URL proxy
+        imageUrlProxy.value = newData.imageUrl || '';
         
         if (newData.venueId) {
             const v = venues.value.find(v => v.id === newData.venueId);
@@ -222,7 +293,6 @@ watch(() => props.initialData, (newData) => {
         }
 
         if (newData.acts?.length) {
-            form.value.artistIds = newData.acts.map(a => a.artistId || '');
             headliners.value = newData.acts.filter(a => a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
             supportActs.value = newData.acts.filter(a => !a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
         }
@@ -237,6 +307,26 @@ watch(venues, (newVenues) => {
         }
     }
 });
+
+watch(datePart, (val) => {
+    if (val) {
+        form.value.date = val;
+    }
+});
+
+watch(headliners, () => {
+    updateArtistIds();
+});
+
+watch(supportActs, () => {
+    updateArtistIds();
+});
+
+const updateArtistIds = () => {
+    const headlinerIds = headliners.value.map(h => String(h.value));
+    const supportIds = supportActs.value.map(s => String(s.value));
+    form.value.artistIds = [...headlinerIds, ...supportIds];
+};
 
 const validate = () => {
     errors.value = {};
@@ -258,46 +348,6 @@ const validate = () => {
     return isValid;
 };
 
-const handleEnrich = async () => {
-    if (!props.initialData?.id) return;
-    
-    try {
-        await gigStore.enrichGig(props.initialData.id);
-        
-        // Fetch the updated gig data
-        const enrichedGig = await gigStore.fetchGig(props.initialData.id);
-        
-        // Update form with enriched data
-        if (enrichedGig) {
-            form.value = {
-                venueId: enrichedGig.venueId || '',
-                date: enrichedGig.date || '',
-                ticketType: enrichedGig.ticketType || TicketType.STANDING,
-                ticketCost: enrichedGig.ticketCost,
-                imageUrl: enrichedGig.imageUrl || '',
-                artistIds: enrichedGig.acts?.map(a => a.artistId || '') || [],
-            };
-            
-            datePart.value = enrichedGig.date || '';
-            
-            // Update artists
-            if (enrichedGig.acts?.length) {
-                headliners.value = enrichedGig.acts.filter(a => a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
-                supportActs.value = enrichedGig.acts.filter(a => !a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
-            }
-            
-            // Update venue
-            if (enrichedGig.venueId) {
-                const v = venues.value.find(v => v.id === enrichedGig.venueId);
-                if (v) {
-                    selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
-                }
-            }
-        }
-    } catch {
-        // Error handled in store
-    }
-};
 
 const handleSubmit = () => {
     if (!validate()) return;

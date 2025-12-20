@@ -138,5 +138,4 @@ export const useGigStore = defineStore('gig', {
             });
         },
     },
-    persist: true,
 });

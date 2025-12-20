@@ -1,10 +1,23 @@
 <template>
   <div class="container mx-auto p-4 max-w-2xl">
-    <div class="flex items-center mb-8">
-        <button class="btn btn-ghost mr-4" @click="router.back()">
-            <Icon name="mdi:arrow-left" class="w-6 h-6" />
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <button class="btn btn-ghost mr-4" @click="router.back()">
+                <Icon name="mdi:arrow-left" class="w-6 h-6" />
+            </button>
+            <h1 class="text-4xl font-bold text-primary">Edit Gig</h1>
+        </div>
+        <button 
+            v-if="gig"
+            type="button" 
+            class="btn btn-secondary gap-2" 
+            :disabled="gigStore.enriching"
+            @click="handleEnrich"
+        >
+            <span v-if="gigStore.enriching" class="loading loading-spinner" />
+            <Icon v-else name="mdi:auto-fix" class="w-5 h-5" />
+            Enrich Gig Data
         </button>
-        <h1 class="text-4xl font-bold text-primary">Edit Gig</h1>
     </div>
 
     <div v-if="loading" class="flex justify-center items-center h-64">
@@ -19,22 +32,23 @@
                 submit-label="Update Gig" 
                 @submit="handleUpdate" 
                 @cancel="router.back()" 
-            />
-             <div v-if="gigStore.saveError" class="alert alert-error mt-4">
+            >
+                <template #left-actions>
+                    <button 
+                        type="button"
+                        class="btn btn-error btn-outline gap-2"
+                        :disabled="gigStore.saving"
+                        @click="showDeleteConfirm = true"
+                    >
+                        <Icon name="mdi:delete" class="w-5 h-5" />
+                        Delete Gig
+                    </button>
+                </template>
+            </GigForm>
+            
+            <div v-if="gigStore.saveError" class="alert alert-error mt-4">
                 <Icon name="mdi:alert-circle" class="w-6 h-6" />
                 <span>{{ gigStore.saveError }}</span>
-            </div>
-            
-            <div class="divider" />
-            <div class="flex justify-end">
-                <button 
-                    class="btn btn-error btn-outline"
-                    :disabled="gigStore.saving"
-                    @click="showDeleteConfirm = true"
-                >
-                    <Icon name="mdi:delete" class="w-5 h-5" />
-                    Delete Gig
-                </button>
             </div>
         </div>
     </div>
@@ -121,6 +135,20 @@ const handleUpdate = async (data: UpsertGigRequest) => {
     try {
         await gigStore.updateGig(gigId, data);
         router.push('/gigs');
+    } catch {
+        // Error handled in store
+    }
+};
+
+
+const handleEnrich = async () => {
+    if (!gig.value?.id) return;
+    
+    try {
+        await gigStore.enrichGig(gig.value.id);
+        
+        // Fetch the updated gig data
+        gig.value = await gigStore.fetchGig(gig.value.id) || null;
     } catch {
         // Error handled in store
     }
