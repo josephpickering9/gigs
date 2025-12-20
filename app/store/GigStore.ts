@@ -22,6 +22,20 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
+    pagination: {
+        page: number;
+        pageSize: number;
+        totalItems: number;
+        totalPages: number;
+    };
+    filters: {
+        venueId?: string;
+        artistId?: string;
+        city?: string;
+        fromDate?: string;
+        toDate?: string;
+        search?: string;
+    };
 }
 
 export const useGigStore = defineStore('gig', {
@@ -32,6 +46,13 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
+        pagination: {
+            page: 1,
+            pageSize: 20,
+            totalItems: 0,
+            totalPages: 1,
+        },
+        filters: {},
     }),
 
     getters: {
@@ -51,10 +72,58 @@ export const useGigStore = defineStore('gig', {
     },
 
     actions: {
-        async fetchGigs() {
+        async fetchGigs(options: {
+            page?: number;
+            pageSize?: number;
+            venueId?: string;
+            artistId?: string;
+            city?: string;
+            fromDate?: string;
+            toDate?: string;
+        } = {}) {
             await tryCatchFinally(ref(this.gigForm), async () => {
-                const response = await getApiGigs();
-                return response.data;
+                const query: any = {};
+
+                if (options.page) query.Page = options.page;
+                if (options.pageSize) query.PageSize = options.pageSize;
+                if (options.venueId) query.VenueId = options.venueId;
+                if (options.artistId) query.ArtistId = options.artistId;
+                if (options.city) query.City = options.city;
+                if (options.fromDate) query.FromDate = options.fromDate;
+                if (options.toDate) query.ToDate = options.toDate;
+
+                // We need to access the full response to get pagination headers if they exist
+                // The generated client might not expose headers easily in the data property
+                // But getApiGigs returns a promise that resolves to { data, response, ... } usually?
+                // Let's check sdk.gen.ts. It returns `(options?.client ?? client).get...`
+                // functionality depends on the client implementation. 
+                // Assuming standard hey-api, it might return { data, error, request, response }
+
+                const result = await getApiGigs({ query } as any);
+
+                // If the backend returns paged data in body (e.g. { items: [], totalCount: 100 }) 
+                // we would handle it here. If it returns headers, we check result.response.headers.
+                // Since types say Array<GetGigResponse>, I'll assume for now it returns just the array
+                // and maybe headers.
+
+                // Let's store pagination metadata if we can find it.
+                // Assuming X-Pagination header for now as it's common in .NET
+                const paginationHeader = (result as any).response?.headers?.get('X-Pagination');
+                if (paginationHeader) {
+                    try {
+                        const pagination = JSON.parse(paginationHeader);
+                        this.pagination = {
+                            page: pagination.PageNumber || pagination.currentPage || 1,
+                            pageSize: pagination.PageSize || pagination.itemsPerPage || 10,
+                            totalItems: pagination.TotalCount || pagination.totalItems || 0,
+                            totalPages: pagination.TotalPages || pagination.totalPages || 0,
+                        };
+                    } catch (e) {
+                        console.warn('Failed to parse pagination header', e);
+                    }
+                }
+
+                return result.data;
             });
         },
 

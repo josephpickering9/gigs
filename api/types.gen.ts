@@ -603,6 +603,22 @@ export type PostApiImportCsvResponses = {
     200: unknown;
 };
 
+export type GetMediaUploadsByFileNameData = {
+    body?: never;
+    path: {
+        fileName: string;
+    };
+    query?: never;
+    url: '/media/uploads/{fileName}';
+};
+
+export type GetMediaUploadsByFileNameResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
 export type GetApiV1VenuesData = {
     body?: never;
     path?: never;
