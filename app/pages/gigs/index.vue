@@ -56,7 +56,7 @@
 
     <!-- Infinite Scroll Sentinel -->
     <div ref="loadMoreTrigger" class="h-10 flex justify-center items-center mt-4">
-      <span v-if="gigStore.loading" class="loading loading-dots loading-md text-primary"></span>
+      <span v-if="gigStore.loading" class="loading loading-dots loading-md text-primary"/>
     </div>
 
     <ImportGigsModal 
