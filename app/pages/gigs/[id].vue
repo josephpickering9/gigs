@@ -14,8 +14,7 @@
 
     <!-- Content -->
     <div v-else-if="gig" class="grid gap-6">
-      
-      <!-- Header Section -->
+            <!-- Header Section -->
        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
             <div>
                 <NuxtLink to="/gigs" class="btn btn-ghost btn-sm mb-2 pl-0 gap-1 text-gray-500 hover:text-primary">
@@ -25,14 +24,26 @@
                 <h1 class="text-4xl font-bold flex flex-wrap gap-2 items-center">
                     <span v-if="headliner">{{ headliner.name }}</span>
                     <span v-else class="text-gray-400">Unknown Artist</span>
-                    <span class="text-2xl text-gray-500 font-normal">at {{ gig.venueName }}</span>
                 </h1>
-                <div class="text-lg text-gray-500 mt-1 flex items-center gap-2">
-                     <Icon name="mdi:calendar" class="w-5 h-5" />
-                     {{ formatDate(gig.date) }}
-                     <span v-if="gig.ticketCost" class="badge badge-neutral ml-2">
+                <div class="text-lg text-gray-500 mt-2 flex flex-wrap items-center gap-4">
+                     <div class="flex items-center gap-1">
+                        <Icon name="mdi:calendar" class="w-5 h-5" />
+                        {{ formatDate(gig.date) }}
+                     </div>
+                     
+                     <div class="flex items-center gap-1">
+                        <Icon name="mdi:map-marker" class="w-5 h-5" />
+                        <span class="font-bold text-primary">{{ gig.venueName }}</span>
+                        <span v-if="gigVenue">, {{ gigVenue.city }}</span>
+                     </div>
+
+                     <div v-if="gig.ticketType" class="badge badge-outline">
+                        {{ gig.ticketType }}
+                     </div>
+
+                     <div v-if="gig.ticketCost" class="badge badge-neutral">
                         {{ formatCurrency(gig.ticketCost) }}
-                     </span>
+                     </div>
                 </div>
             </div>
 
@@ -61,26 +72,6 @@
             <div class="space-y-6">
                  <div class="h-[400px]">
                     <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
-                 </div>
-                 
-                 <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h2 class="card-title text-lg mb-2">Details</h2>
-                        <ul class="space-y-2">
-                            <li class="flex justify-between">
-                                <span class="text-gray-500">Venue</span>
-                                <span class="font-medium">{{ gig.venueName }}</span>
-                            </li>
-                             <li class="flex justify-between" v-if="gigVenue">
-                                <span class="text-gray-500">City</span>
-                                <span class="font-medium">{{ gigVenue.city }}</span>
-                            </li>
-                             <li class="flex justify-between" v-if="gig.ticketType">
-                                <span class="text-gray-500">Ticket Type</span>
-                                <span class="font-medium">{{ gig.ticketType }}</span>
-                            </li>
-                        </ul>
-                    </div>
                  </div>
             </div>
        </div>
