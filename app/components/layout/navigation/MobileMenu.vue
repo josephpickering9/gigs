@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import ThemeController from '~/components/layout/ThemeController.vue'
 import FormButton from '~/components/ui/form/FormButton.vue'
-import Spinner from '~/components/feedback/loading/Spinner.vue'
 
 defineProps<{
   linkedInUrl: string

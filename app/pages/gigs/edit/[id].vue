@@ -8,7 +8,7 @@
     </div>
 
     <div v-if="loading" class="flex justify-center items-center h-64">
-      <span class="loading loading-spinner loading-lg text-primary"></span>
+      <span class="loading loading-spinner loading-lg text-primary"/>
     </div>
 
     <div v-else-if="gig" class="card bg-base-100 shadow-xl">
@@ -25,8 +25,7 @@
                 <span>{{ gigStore.saveError }}</span>
             </div>
             
-            <!-- Delete Button -->
-            <div class="divider"></div>
+            <div class="divider" />
             <div class="flex justify-end">
                 <button 
                     class="btn btn-error btn-outline"
@@ -44,7 +43,6 @@
         <span>Gig not found</span>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <dialog :class="['modal', { 'modal-open': showDeleteConfirm }]">
         <div class="modal-box">
             <h3 class="font-bold text-lg mb-4">
@@ -72,13 +70,13 @@
                     :disabled="gigStore.saving"
                     @click="handleDelete"
                 >
-                    <span v-if="gigStore.saving" class="loading loading-spinner loading-sm"></span>
+                    <span v-if="gigStore.saving" class="loading loading-spinner loading-sm"/>
                     <Icon v-else name="mdi:delete" class="w-5 h-5" />
                     Delete
                 </button>
             </div>
         </div>
-        <div class="modal-backdrop" @click="showDeleteConfirm = false"></div>
+        <div class="modal-backdrop" @click="showDeleteConfirm = false"/>
     </dialog>
   </div>
 </template>
@@ -95,7 +93,7 @@ const route = useRoute();
 const router = useRouter();
 const gigStore = useGigStore();
 
-const gigId = route.params.id as string;
+const gigId = route.params['id'] as string;
 const gig = ref<GetGigResponse | null>(null);
 const loading = ref(true);
 const showDeleteConfirm = ref(false);
@@ -112,8 +110,8 @@ const formatDate = (dateStr?: string) => {
 onMounted(async () => {
     try {
         gig.value = await gigStore.fetchGig(gigId) || null;
-    } catch (e) {
-        console.error("Failed to load gig", e);
+    } catch {
+        // Error handled in store
     } finally {
         loading.value = false;
     }
@@ -123,7 +121,7 @@ const handleUpdate = async (data: UpsertGigRequest) => {
     try {
         await gigStore.updateGig(gigId, data);
         router.push('/gigs');
-    } catch (e) {
+    } catch {
         // Error handled in store
     }
 };
@@ -133,7 +131,7 @@ const handleDelete = async () => {
         await gigStore.deleteGig(gigId);
         showDeleteConfirm.value = false;
         router.push('/gigs');
-    } catch (e) {
+    } catch {
         // Error handled in store
         showDeleteConfirm.value = false;
     }

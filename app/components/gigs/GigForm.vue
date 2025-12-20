@@ -1,24 +1,22 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-     <!-- Headliners -->
+  <form class="grid grid-cols-1 md:grid-cols-2 gap-6" @submit.prevent="handleSubmit">
      <Combobox
         v-model="headliners"
         :options="artistOptions"
         label="Headliners"
         placeholder="Search or add headliners..."
         class="w-full col-span-1 md:col-span-2"
-        :error="errors.artistIds"
+        :error="errors['artistIds']"
     />
 
-    <!-- Support Acts -->
-     <div class="col-span-1 md:col-span-2">
+    <div class="col-span-1 md:col-span-2">
          <Combobox
             v-model="supportActs"
             :options="artistOptions"
             label="Support Acts"
             placeholder="Search or add support acts..."
             class="w-full"
-            :error="errors.artistIds"
+            :error="errors['artistIds']"
         />
         <label class="label">
             <span class="label-text-alt text-gray-500">
@@ -27,7 +25,6 @@
         </label>
     </div>
 
-    <!-- Venue -->
     <Combobox
         v-model="selectedVenue"
         label="Venue"
@@ -35,28 +32,25 @@
         :options="venueOptions"
         :multiple="false"
         class="w-full col-span-1"
-        :error="errors.venueId"
+        :error="errors['venueId']"
     />
 
-    <!-- Date -->
     <DatePicker
         v-model="datePart"
         label="Date"
         placeholder="Pick a date"
         class="w-full col-span-1"
-        :error="errors.date"
+        :error="errors['date']"
     />
 
-    <!-- Ticket Type -->
     <SelectMenu
         v-model="form.ticketType"
         label="Ticket Type"
         :options="ticketTypeOptions"
         class="w-full col-span-1"
-        :error="errors.ticketType"
+        :error="errors['ticketType']"
     />
 
-    <!-- Ticket Cost -->
     <RangeSlider
         v-model="form.ticketCost"
         label="Ticket Cost"
@@ -64,10 +58,9 @@
         :max="100"
         :step="1"
         class="col-span-1"
-        :error="errors.ticketCost"
+        :error="errors['ticketCost']"
     />
 
-    <!-- Image -->
     <div class="form-control w-full col-span-1 md:col-span-2">
         <label class="label">
             <span class="label-text">Gig Image</span>
@@ -94,10 +87,10 @@
                 v-if="initialData?.id" 
                 type="button" 
                 class="btn btn-secondary" 
-                @click="handleEnrich"
                 :disabled="gigStore.enriching"
+                @click="handleEnrich"
             >
-                <span v-if="gigStore.enriching" class="loading loading-spinner"></span>
+                <span v-if="gigStore.enriching" class="loading loading-spinner"/>
                 Enrich Gig
             </button>
         </div>
@@ -105,7 +98,7 @@
             <slot name="actions">
                 <button type="button" class="btn btn-ghost" @click="$emit('cancel')">Cancel</button>
                 <button type="submit" class="btn btn-primary" :disabled="loading">
-                    <span v-if="loading" class="loading loading-spinner"></span>
+                    <span v-if="loading" class="loading loading-spinner"/>
                     {{ submitLabel }}
                 </button>
             </slot>
@@ -115,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { TicketType, type UpsertGigRequest, type GetGigResponse } from '~~/api';
 import { useGigStore } from '~/store/GigStore';
 import SelectMenu from '~/components/ui/input/SelectMenu.vue';
@@ -301,8 +294,8 @@ const handleEnrich = async () => {
                 }
             }
         }
-    } catch (error) {
-        console.error('Failed to enrich gig:', error);
+    } catch {
+        // Error handled in store
     }
 };
 

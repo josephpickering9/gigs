@@ -8,11 +8,11 @@
     <!-- Loading State -->
     <div v-if="dashboardStore.isLoading && !hasAnyData" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div v-for="i in 8" :key="i" class="skeleton h-32 rounded-lg"></div>
+        <div v-for="i in 8" :key="i" class="skeleton h-32 rounded-lg"/>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="skeleton h-96 rounded-lg"></div>
-        <div class="skeleton h-96 rounded-lg"></div>
+        <div class="skeleton h-96 rounded-lg"/>
+        <div class="skeleton h-96 rounded-lg"/>
       </div>
     </div>
 

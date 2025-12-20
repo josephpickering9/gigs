@@ -17,7 +17,7 @@ import type { AsyncForm } from '~/types/AsyncForm';
 
 interface GigState {
     gigForm: AsyncForm<GetGigResponse[]>;
-    importForm: AsyncForm<void>;
+    importForm: AsyncForm<any>;
     upsertForm: AsyncForm<GetGigResponse>;
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
@@ -27,7 +27,7 @@ interface GigState {
 export const useGigStore = defineStore('gig', {
     state: (): GigState => ({
         gigForm: asyncForm<GetGigResponse[]>(),
-        importForm: asyncForm<void>(),
+        importForm: asyncForm<any>(),
         upsertForm: asyncForm<GetGigResponse>(),
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),

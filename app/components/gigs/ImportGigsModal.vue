@@ -2,9 +2,9 @@
   <div class="modal modal-open">
     <div class="modal-box relative">
       <button 
-        @click="$emit('close')" 
-        class="btn btn-sm btn-circle absolute right-2 top-2"
+        class="btn btn-sm btn-circle absolute right-2 top-2" 
         :disabled="gigStore.importing"
+        @click="$emit('close')"
       >
         ✕
       </button>
@@ -24,24 +24,24 @@
           type="file" 
           accept=".csv"
           class="file-input file-input-bordered w-full" 
-          @change="handleFileChange"
           :disabled="gigStore.importing"
-        />
+          @change="handleFileChange"
+        >
         <label class="label">
           <span class="label-text-alt">Supported format: .csv</span>
         </label>
       </div>
 
       <div class="modal-action">
-        <button class="btn" @click="$emit('close')" :disabled="gigStore.importing">
+        <button class="btn" :disabled="gigStore.importing" @click="$emit('close')">
           Cancel
         </button>
         <button 
           class="btn btn-primary" 
-          @click="handleImport" 
-          :disabled="!selectedFile || gigStore.importing"
+          :disabled="!selectedFile || gigStore.importing" 
+          @click="handleImport"
         >
-          <span v-if="gigStore.importing" class="loading loading-spinner"></span>
+          <span v-if="gigStore.importing" class="loading loading-spinner"/>
           {{ gigStore.importing ? 'Importing...' : 'Import' }}
         </button>
       </div>
