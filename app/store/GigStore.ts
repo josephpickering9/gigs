@@ -50,7 +50,7 @@ export const useGigStore = defineStore('gig', {
         venuesForm: asyncForm<GetVenueResponse[]>(),
         pagination: {
             page: 1,
-            pageSize: 20,
+            pageSize: 500,
             totalItems: 0,
             totalPages: 1,
         },
@@ -85,42 +85,64 @@ export const useGigStore = defineStore('gig', {
             sortBy?: string;
             sortDirection?: string;
             search?: string;
+            append?: boolean;
         } = {}) {
             await tryCatchFinally(ref(this.gigForm), async () => {
-                const query: any = {};
+                const request = {
+                    query: {
+                        Page: options.page,
+                        PageSize: options.pageSize,
+                        VenueId: options.venueId,
+                        ArtistId: options.artistId,
+                        City: options.city,
+                        FromDate: options.fromDate,
+                        ToDate: options.toDate,
+                        Search: options.search,
+                    }
+                };
 
-                if (options.page) query.Page = options.page;
-                if (options.pageSize) query.PageSize = options.pageSize;
-                if (options.venueId) query.VenueId = options.venueId;
-                if (options.artistId) query.ArtistId = options.artistId;
-                if (options.city) query.City = options.city;
-                if (options.fromDate) query.FromDate = options.fromDate;
-                if (options.toDate) query.ToDate = options.toDate;
-                // Keep passing sort params even if not explicitly in types yet, as backend likely handles them
-                if (options.sortBy) query.SortBy = options.sortBy;
-                if (options.sortDirection) query.SortDirection = options.sortDirection;
-                if (options.search) query.Search = options.search;
-
-                const result = await getApiGigs({ query } as any);
+                const result = await getApiGigs(request);
 
                 // The API now returns a paginated response object in the body
                 if (result.data) {
-                    const paginatedResponse = result.data as any; // Cast to any to access properties if strict types fail initially, or better: use type guard if possible. 
-                    // Actually types.gen.ts defines GetGigResponsePaginatedResponse, so result.data SHOULD be that.
+                    const paginatedResponse = result.data;
 
-                    // Update pagination state from response body
                     this.pagination = {
                         page: paginatedResponse.page || 1,
-                        pageSize: paginatedResponse.pageSize || 20,
+                        pageSize: paginatedResponse.pageSize || 500,
                         totalItems: paginatedResponse.totalCount || 0,
                         totalPages: paginatedResponse.totalPages || 1,
                     };
 
-                    return paginatedResponse.items || [];
+                    const newItems = paginatedResponse.items || [];
+                    if (options.append) {
+                        return [...(this.gigs || []), ...newItems];
+                    }
+                    return newItems;
                 }
 
                 return [];
             });
+        },
+
+        async loadMoreGigs() {
+            if (this.pagination.page < this.pagination.totalPages) {
+                await this.fetchGigs({
+                    ...this.filters,
+                    page: this.pagination.page + 1,
+                    pageSize: this.pagination.pageSize,
+                    append: true
+                });
+            }
+        },
+
+        async setFilters(filters: any) {
+            this.filters = filters;
+            await this.fetchGigs({ ...filters, page: 1, pageSize: this.pagination.pageSize });
+        },
+
+        async setPagination(page: number, pageSize: number) {
+            await this.fetchGigs({ ...this.filters, page, pageSize });
         },
 
         async fetchGig(id: string) {

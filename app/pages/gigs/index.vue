@@ -24,7 +24,7 @@
     
 
 
-    <div v-if="gigStore.loading" class="flex justify-center items-center h-64">
+    <div v-if="gigStore.loading && gigStore.gigs.length === 0" class="flex justify-center items-center h-64">
       <span class="loading loading-spinner loading-lg text-primary"/>
     </div>
 
@@ -54,11 +54,10 @@
       />
     </div>
 
-    <Pagination
-      :current-page="gigStore.pagination.page"
-      :total-pages="gigStore.pagination.totalPages"
-      @change="handlePageChange"
-    />
+    <!-- Infinite Scroll Sentinel -->
+    <div ref="loadMoreTrigger" class="h-10 flex justify-center items-center mt-4">
+      <span v-if="gigStore.loading" class="loading loading-dots loading-md text-primary"></span>
+    </div>
 
     <ImportGigsModal 
       v-if="showImportModal" 
@@ -76,7 +75,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { orderBy } from 'lodash-es';
+import { useIntersectionObserver } from '@vueuse/core';
 import { useGigStore } from '~/store/GigStore';
 import { usePreferencesStore } from '~/store/PreferencesStore';
 import { ViewMode } from '~/types/ViewMode';
@@ -86,7 +85,6 @@ import ImportGigsModal from '~/components/gigs/ImportGigsModal.vue';
 import ImportCalendarModal from '~/components/gigs/ImportCalendarModal.vue';
 import ViewToggle from '~/components/ui/button/ViewToggle.vue';
 import FilterBar from '~/components/filters/FilterBar.vue';
-import Pagination from '~/components/ui/Pagination.vue';
 import useAuth from '~/composables/useAuth';
 import type { Filter } from '~/types/Filter';
 import { FilterType } from '~/types/FilterType';
@@ -99,6 +97,7 @@ const showImportModal = ref(false);
 const showCalendarModal = ref(false);
 const sortColumn = ref<string | null>('date');
 const sortDirection = ref<'asc' | 'desc'>('desc');
+const loadMoreTrigger = ref<HTMLElement | null>(null);
 
 const activeFilters = ref<Filter[]>([]);
 
@@ -136,14 +135,6 @@ watch(activeFilters, (filters) => {
     gigStore.setFilters(storeFilters);
 }, { deep: true });
 
-function handlePageChange(page: number) {
-    // Keep current sort/filters
-    gigStore.fetchGigs({ 
-        page, 
-        sortBy: sortColumn.value || undefined, 
-        sortDirection: sortDirection.value 
-    });
-}
 
 function handleSort(column: string) {
     if (sortColumn.value === column) {
@@ -153,9 +144,9 @@ function handleSort(column: string) {
         sortDirection.value = 'asc';
     }
     
-    // Fetch with new sort
+    // Fetch with new sort (reset to page 1)
     gigStore.fetchGigs({ 
-        page: gigStore.pagination.page, // Stay on current page? Or reset? Usually stay if just sorting.
+        page: 1,
         sortBy: column, 
         sortDirection: sortDirection.value 
     });
@@ -170,6 +161,16 @@ const handleCalendarImportSuccess = () => {
     showCalendarModal.value = false;
     gigStore.fetchGigs({ page: 1 });
 };
+
+// Infinite Scroll
+useIntersectionObserver(
+  loadMoreTrigger,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && !gigStore.loading && gigStore.pagination.page < gigStore.pagination.totalPages) {
+      gigStore.loadMoreGigs();
+    }
+  },
+);
 
 // Fetch gigs on mount
 onMounted(() => {

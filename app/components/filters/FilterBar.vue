@@ -249,7 +249,9 @@ function scrollToFocusedFilterType() {
 }
 
 function handleVenueSelect(venueId: string) {
+  console.log('FilterBar: handleVenueSelect called with', venueId);
   const venue = venues.value.find(v => v.id === venueId);
+  console.log('FilterBar: found venue', venue);
   if (!venue) return;
 
   const newFilter: Filter = {
