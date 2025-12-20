@@ -128,7 +128,7 @@
         
         <div class="space-y-6">
           <div v-for="(act, index) in form.acts" :key="index" class="collapse collapse-arrow bg-base-100 border border-base-300">
-            <input type="checkbox" :name="'setlist-accordion-' + index" /> 
+            <input type="checkbox" :name="'setlist-accordion-' + index" > 
             <div class="collapse-title text-base font-medium flex items-center gap-2">
               <span class="badge" :class="act.isHeadliner ? 'badge-accent' : 'badge-ghost'">
                 {{ act.isHeadliner ? 'Headliner' : 'Support' }}
@@ -144,7 +144,7 @@
                   </span>
                 </label>
                 
-                <draggable 
+                <Draggable 
                     v-model="act.setlist" 
                     item-key="id"
                     handle=".drag-handle"
@@ -167,7 +167,7 @@
                                     class="input input-bordered input-sm w-full pl-9" 
                                     placeholder="Enter song name..." 
                                     @keydown.enter.prevent="addSong(index, songIndex + 1)"
-                                />
+                                >
                             </div>
                             <button 
                                 type="button" 
@@ -178,7 +178,7 @@
                             </button>
                         </div>
                     </template>
-                </draggable>
+                </Draggable>
 
                  <button 
                     type="button" 
@@ -227,7 +227,6 @@ import DatePicker from '~/components/ui/input/DatePicker.vue';
 import Combobox from '~/components/ui/input/Combobox.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
-import draggable from 'vuedraggable';
 
 const props = defineProps<{
   initialData?: GetGigResponse;

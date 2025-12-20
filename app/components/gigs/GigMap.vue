@@ -12,8 +12,7 @@
         loading="lazy"
         allowfullscreen
         referrerpolicy="no-referrer-when-downgrade"
-        :src="mapUrl">
-      </iframe>
+        :src="mapUrl"/>
     </div>
   </div>
 </template>
