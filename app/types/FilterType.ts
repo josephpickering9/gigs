@@ -1,6 +1,7 @@
 export enum FilterType {
-    SEARCH = 'search',
-
-    TAG_TYPE = 'tagType',
-    TAG = 'tag',
+    SEARCH = 'SEARCH',
+    VENUE = 'VENUE',
+    ARTIST = 'ARTIST',
+    CITY = 'CITY',
+    // DATE = 'DATE' // Can add later if needed
 }

@@ -48,6 +48,14 @@ export type GetGigResponse = {
     acts?: Array<GetGigArtistResponse>;
 };
 
+export type GetGigResponsePaginatedResponse = {
+    items?: Array<GetGigResponse>;
+    page?: number;
+    pageSize?: number;
+    totalCount?: number;
+    readonly totalPages?: number;
+};
+
 export type GetVenueResponse = {
     id?: string;
     name?: string;
@@ -163,6 +171,13 @@ export type UpsertGigRequest = {
 export type VenueInsightsResponse = {
     totalUniqueVenues?: number;
     totalUniqueCities?: number;
+};
+
+export type GetGigResponsePaginatedResponseWritable = {
+    items?: Array<GetGigResponse>;
+    page?: number;
+    pageSize?: number;
+    totalCount?: number;
 };
 
 export type GetApiV1ArtistsData = {
@@ -472,6 +487,10 @@ export type GetApiGigsData = {
         FromDate?: string;
         ToDate?: string;
         ArtistId?: string;
+        Search?: string;
+        Page?: number;
+        PageSize?: number;
+        AttendeeId?: string;
     };
     url: '/api/gigs';
 };
@@ -480,7 +499,7 @@ export type GetApiGigsResponses = {
     /**
      * OK
      */
-    200: Array<GetGigResponse>;
+    200: GetGigResponsePaginatedResponse;
 };
 
 export type GetApiGigsResponse = GetApiGigsResponses[keyof GetApiGigsResponses];
@@ -597,6 +616,36 @@ export type PostApiImportCsvData = {
 };
 
 export type PostApiImportCsvResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetMediaUploadsByFileNameData = {
+    body?: never;
+    path: {
+        fileName: string;
+    };
+    query?: never;
+    url: '/media/uploads/{fileName}';
+};
+
+export type GetMediaUploadsByFileNameResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type PostMediaOptimiseAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/media/optimise-all';
+};
+
+export type PostMediaOptimiseAllResponses = {
     /**
      * OK
      */

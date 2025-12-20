@@ -3,6 +3,7 @@
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-4xl font-bold text-primary">Gigs</h1>
       <div class="flex gap-2 items-center">
+         <FilterBar v-model:filters="activeFilters" class="mr-2" />
          <ViewToggle v-model="viewMode" class="mr-2" />
         <template v-if="isAuthenticated">
           <NuxtLink to="/gigs/create" class="btn btn-primary">
@@ -21,7 +22,9 @@
       </div>
     </div>
     
-    <div v-if="gigStore.loading" class="flex justify-center items-center h-64">
+
+
+    <div v-if="gigStore.loading && gigStore.gigs.length === 0" class="flex justify-center items-center h-64">
       <span class="loading loading-spinner loading-lg text-primary"/>
     </div>
 
@@ -31,7 +34,7 @@
     </div>
 
     <div v-else-if="gigStore.gigs.length === 0" class="text-center text-lg text-gray-500">
-      No gigs found at the moment. Check back later!
+      No gigs found matching your criteria.
     </div>
 
     <div v-else-if="viewMode === ViewMode.TABLE">
@@ -51,6 +54,11 @@
       />
     </div>
 
+    <!-- Infinite Scroll Sentinel -->
+    <div ref="loadMoreTrigger" class="h-10 flex justify-center items-center mt-4">
+      <span v-if="gigStore.loading" class="loading loading-dots loading-md text-primary"/>
+    </div>
+
     <ImportGigsModal 
       v-if="showImportModal" 
       @close="showImportModal = false"
@@ -66,8 +74,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { orderBy } from 'lodash-es';
+import { ref, computed, watch } from 'vue';
+import { useIntersectionObserver } from '@vueuse/core';
 import { useGigStore } from '~/store/GigStore';
 import { usePreferencesStore } from '~/store/PreferencesStore';
 import { ViewMode } from '~/types/ViewMode';
@@ -76,7 +84,10 @@ import GigTableView from '~/components/gigs/GigTableView.vue';
 import ImportGigsModal from '~/components/gigs/ImportGigsModal.vue';
 import ImportCalendarModal from '~/components/gigs/ImportCalendarModal.vue';
 import ViewToggle from '~/components/ui/button/ViewToggle.vue';
+import FilterBar from '~/components/filters/FilterBar.vue';
 import useAuth from '~/composables/useAuth';
+import type { Filter } from '~/types/Filter';
+import { FilterType } from '~/types/FilterType';
 
 const { isAuthenticated } = useAuth();
 
@@ -86,6 +97,9 @@ const showImportModal = ref(false);
 const showCalendarModal = ref(false);
 const sortColumn = ref<string | null>('date');
 const sortDirection = ref<'asc' | 'desc'>('desc');
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+
+const activeFilters = ref<Filter[]>([]);
 
 useHead({
   title: 'Gigs',
@@ -100,21 +114,27 @@ const viewMode = computed({
 });
 
 const sortedGigs = computed(() => {
-    const list = gigStore.gigs || [];
-    if (!sortColumn.value) return list;
-
-    return orderBy(
-        list,
-        [(g) => {
-             if (sortColumn.value === 'date') return new Date(g.date || 0).getTime();
-             if (sortColumn.value === 'headliner') return g.acts?.find(a => a.isHeadliner)?.name || '';
-             if (sortColumn.value === 'venue') return g.venueName || '';
-             if (sortColumn.value === 'cost') return g.ticketCost || 0;
-             return '';
-        }],
-        [sortDirection.value]
-    );
+    // Rely on server-side sorting
+    return gigStore.gigs || [];
 });
+
+// Sync filters from UI to Store
+watch(activeFilters, (filters) => {
+    const storeFilters: any = {};
+    
+    filters.forEach(f => {
+        if (f.type === FilterType.VENUE) storeFilters.venueId = f.value;
+        if (f.type === FilterType.ARTIST) storeFilters.artistId = f.value;
+        if (f.type === FilterType.CITY) storeFilters.city = f.value;
+        if (f.type === FilterType.SEARCH) storeFilters.search = f.value;
+    });
+
+    storeFilters.sortBy = sortColumn.value || undefined;
+    storeFilters.sortDirection = sortDirection.value;
+
+    gigStore.setFilters(storeFilters);
+}, { deep: true });
+
 
 function handleSort(column: string) {
     if (sortColumn.value === column) {
@@ -123,20 +143,38 @@ function handleSort(column: string) {
         sortColumn.value = column;
         sortDirection.value = 'asc';
     }
+    
+    // Fetch with new sort (reset to page 1)
+    gigStore.fetchGigs({ 
+        page: 1,
+        sortBy: column, 
+        sortDirection: sortDirection.value 
+    });
 }
 
 const handleImportSuccess = () => {
     showImportModal.value = false;
-    gigStore.fetchGigs();
+    gigStore.fetchGigs({ page: 1 });
 };
 
 const handleCalendarImportSuccess = () => {
     showCalendarModal.value = false;
-    gigStore.fetchGigs();
+    gigStore.fetchGigs({ page: 1 });
 };
+
+// Infinite Scroll
+useIntersectionObserver(
+  loadMoreTrigger,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && !gigStore.loading && gigStore.pagination.page < gigStore.pagination.totalPages) {
+      gigStore.loadMoreGigs();
+    }
+  },
+);
 
 // Fetch gigs on mount
 onMounted(() => {
-    gigStore.fetchGigs();
+    // Initial fetch
+    gigStore.fetchGigs({ page: 1 });
 });
 </script>

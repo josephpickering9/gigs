@@ -22,6 +22,22 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
+    pagination: {
+        page: number;
+        pageSize: number;
+        totalItems: number;
+        totalPages: number;
+    };
+    filters: {
+        venueId?: string;
+        artistId?: string;
+        city?: string;
+        fromDate?: string;
+        toDate?: string;
+        search?: string;
+        sortBy?: string;
+        sortDirection?: string;
+    };
 }
 
 export const useGigStore = defineStore('gig', {
@@ -32,6 +48,13 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
+        pagination: {
+            page: 1,
+            pageSize: 500,
+            totalItems: 0,
+            totalPages: 1,
+        },
+        filters: {},
     }),
 
     getters: {
@@ -51,11 +74,75 @@ export const useGigStore = defineStore('gig', {
     },
 
     actions: {
-        async fetchGigs() {
+        async fetchGigs(options: {
+            page?: number;
+            pageSize?: number;
+            venueId?: string;
+            artistId?: string;
+            city?: string;
+            fromDate?: string;
+            toDate?: string;
+            sortBy?: string;
+            sortDirection?: string;
+            search?: string;
+            append?: boolean;
+        } = {}) {
             await tryCatchFinally(ref(this.gigForm), async () => {
-                const response = await getApiGigs();
-                return response.data;
+                const request = {
+                    query: {
+                        Page: options.page,
+                        PageSize: options.pageSize,
+                        VenueId: options.venueId,
+                        ArtistId: options.artistId,
+                        City: options.city,
+                        FromDate: options.fromDate,
+                        ToDate: options.toDate,
+                        Search: options.search,
+                    }
+                };
+
+                const result = await getApiGigs(request);
+
+                // The API now returns a paginated response object in the body
+                if (result.data) {
+                    const paginatedResponse = result.data;
+
+                    this.pagination = {
+                        page: paginatedResponse.page || 1,
+                        pageSize: paginatedResponse.pageSize || 500,
+                        totalItems: paginatedResponse.totalCount || 0,
+                        totalPages: paginatedResponse.totalPages || 1,
+                    };
+
+                    const newItems = paginatedResponse.items || [];
+                    if (options.append) {
+                        return [...(this.gigs || []), ...newItems];
+                    }
+                    return newItems;
+                }
+
+                return [];
             });
+        },
+
+        async loadMoreGigs() {
+            if (this.pagination.page < this.pagination.totalPages) {
+                await this.fetchGigs({
+                    ...this.filters,
+                    page: this.pagination.page + 1,
+                    pageSize: this.pagination.pageSize,
+                    append: true
+                });
+            }
+        },
+
+        async setFilters(filters: any) {
+            this.filters = filters;
+            await this.fetchGigs({ ...filters, page: 1, pageSize: this.pagination.pageSize });
+        },
+
+        async setPagination(page: number, pageSize: number) {
+            await this.fetchGigs({ ...this.filters, page, pageSize });
         },
 
         async fetchGig(id: string) {
