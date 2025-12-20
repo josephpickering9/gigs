@@ -2,18 +2,18 @@
   <FormElementContainer :label="label">
     <div ref="containerRef" class="relative">
       <div 
-        class="input input-bordered flex flex-wrap gap-2 min-h-[3rem] h-auto p-2"
+        class="input input-bordered flex flex-wrap items-center gap-2 min-h-[3rem] h-auto py-1.5 px-3 pr-9 relative"
         :class="{ 'input-focus': isFocused }"
         @click="focusInput"
       >
         <span 
             v-for="(item, index) in modelValue" 
             :key="item.value || item.text" 
-            class="badge badge-primary gap-1 p-3"
+            class="badge badge-primary gap-1 pr-1 pl-3 h-7"
         >
-            {{ item.text }}
-            <button type="button" class="hover:text-white/80" @click.stop="removeItem(index)">
-                <Icon name="heroicons:x-mark" class="w-4 h-4" />
+            <span>{{ item.text }}</span>
+            <button type="button" class="flex items-center hover:text-white/80" @click.stop="removeItem(index)">
+                <Icon name="heroicons:x-mark" class="w-3 h-3" />
             </button>
         </span>
         
@@ -21,7 +21,7 @@
             ref="inputRef"
             v-model="query"
             type="text"
-            class="bg-transparent outline-none flex-1 min-w-[150px]"
+            class="bg-transparent outline-none flex-1 min-w-[2rem]"
             :placeholder="modelValue?.length === 0 ? placeholder : ''"
             @focus="open"
             @blur="handleBlur"
@@ -37,10 +37,10 @@
          <button 
             v-if="modelValue?.length > 0"
             type="button" 
-            class="ml-auto text-base-content/40 hover:text-base-content"
+            class="absolute flex items-center right-2 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content p-1"
             @click.stop="clear"
           >
-            <Icon name="heroicons:x-mark" class="w-5 h-5" />
+            <Icon name="heroicons:x-mark" class="w-4 h-4" />
           </button>
       </div>
 

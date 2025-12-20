@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
+import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiCalendardebugDebugData, GetApiCalendardebugDebugResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsEnrichAllData, PostApiGigsEnrichAllResponses, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1ArtistsEnrichAllData, PostApiV1ArtistsEnrichAllResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PostApiV1VenuesEnrichAllData, PostApiV1VenuesEnrichAllResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -30,6 +30,12 @@ export const postApiV1ArtistsByIdEnrich = <ThrowOnError extends boolean = false>
     ...options
 });
 
+export const postApiV1ArtistsEnrichAll = <ThrowOnError extends boolean = false>(options?: Options<PostApiV1ArtistsEnrichAllData, ThrowOnError>) => (options?.client ?? client).post<PostApiV1ArtistsEnrichAllResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/v1/artists/enrich-all',
+    ...options
+});
+
 export const postApiCalendarImport = <ThrowOnError extends boolean = false>(options?: Options<PostApiCalendarImportData, ThrowOnError>) => (options?.client ?? client).post<PostApiCalendarImportResponses, unknown, ThrowOnError>({
     url: '/api/calendar/import',
     ...options,
@@ -40,6 +46,8 @@ export const postApiCalendarImport = <ThrowOnError extends boolean = false>(opti
 });
 
 export const getApiCalendarEvents = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendarEventsData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendarEventsResponses, unknown, ThrowOnError>({ url: '/api/calendar/events', ...options });
+
+export const getApiCalendardebugDebug = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendardebugDebugData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendardebugDebugResponses, unknown, ThrowOnError>({ url: '/api/calendardebug/debug', ...options });
 
 export const getApiDashboardStats = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardStatsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardStatsResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -153,6 +161,12 @@ export const postApiGigsByIdEnrich = <ThrowOnError extends boolean = false>(opti
     ...options
 });
 
+export const postApiGigsEnrichAll = <ThrowOnError extends boolean = false>(options?: Options<PostApiGigsEnrichAllData, ThrowOnError>) => (options?.client ?? client).post<PostApiGigsEnrichAllResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/gigs/enrich-all',
+    ...options
+});
+
 export const postApiImportCsv = <ThrowOnError extends boolean = false>(options?: Options<PostApiImportCsvData, ThrowOnError>) => (options?.client ?? client).post<PostApiImportCsvResponses, unknown, ThrowOnError>({
     ...formDataBodySerializer,
     url: '/api/import/csv',
@@ -172,5 +186,11 @@ export const getApiV1Venues = <ThrowOnError extends boolean = false>(options?: O
 export const postApiV1VenuesByIdEnrich = <ThrowOnError extends boolean = false>(options: Options<PostApiV1VenuesByIdEnrichData, ThrowOnError>) => (options.client ?? client).post<PostApiV1VenuesByIdEnrichResponses, unknown, ThrowOnError>({
     responseType: 'json',
     url: '/api/v1/venues/{id}/enrich',
+    ...options
+});
+
+export const postApiV1VenuesEnrichAll = <ThrowOnError extends boolean = false>(options?: Options<PostApiV1VenuesEnrichAllData, ThrowOnError>) => (options?.client ?? client).post<PostApiV1VenuesEnrichAllResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/v1/venues/enrich-all',
     ...options
 });

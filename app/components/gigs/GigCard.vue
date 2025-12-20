@@ -1,7 +1,7 @@
 <template>
-  <NuxtLink :to="`/gigs/edit/${gig.id}`" class="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300 border border-primary/20 block h-full">
-    <figure v-if="gig.imageUrl">
-      <img :src="gig.imageUrl" :alt="gig.venueName" class="h-48 w-full object-cover" >
+  <NuxtLink :to="`/gigs/${gig.id}`" class="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300 border border-primary/20 block h-full">
+    <figure>
+      <img :src="gigImage" :alt="gig.venueName" class="h-48 w-full object-cover">
     </figure>
     <div class="card-body">
       <h2 class="card-title text-2xl font-bold text-primary">{{ headliner }}</h2>
@@ -32,6 +32,10 @@ import { format } from 'date-fns';
 const props = defineProps<{
   gig: GetGigResponse;
 }>();
+
+const gigImage = computed(() => {
+    return props.gig.imageUrl || 'https://placehold.co/600x400?text=No+Image';
+});
 
 const headliner = computed(() => {
     return props.gig.acts?.find(act => act.isHeadliner)?.name || 'TBA';

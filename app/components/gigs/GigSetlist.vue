@@ -1,0 +1,44 @@
+<template>
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl mb-4 font-bold text-primary">
+        <Icon name="mdi:playlist-music" class="w-6 h-6 mr-2" />
+        Setlist
+      </h2>
+      
+      <div v-if="!hasSongs" class="text-gray-500 italic">
+        No setlist available for this gig.
+      </div>
+
+      <div v-else>
+        <div v-for="act in actsWithSetlists" :key="act.artistId" class="mb-6 last:mb-0">
+          <h3 class="text-lg font-semibold mb-2 text-secondary flex items-center">
+             {{ act.name }}
+             <span v-if="act.isHeadliner" class="badge badge-primary badge-sm ml-2">Headliner</span>
+             <span v-else class="badge badge-ghost badge-sm ml-2">Support</span>
+          </h3>
+          <ol class="list-decimal list-inside space-y-1 ml-2">
+            <li v-for="(song, index) in act.setlist" :key="index" class="text-gray-700 dark:text-gray-300">
+              {{ song }}
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { GetGigResponse } from '~~/api';
+
+const props = defineProps<{
+  gig: GetGigResponse;
+}>();
+
+const actsWithSetlists = computed(() => {
+  if (!props.gig.acts) return [];
+  return props.gig.acts.filter(act => act.setlist && act.setlist.length > 0);
+});
+
+const hasSongs = computed(() => actsWithSetlists.value.length > 0);
+</script>

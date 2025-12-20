@@ -12,7 +12,7 @@
 
     <template #cell-headliner="{ row }">
       <NuxtLink
-        :to="`/gigs/edit/${row.id}`"
+        :to="`/gigs/${row.id}`"
         class="font-bold text-primary hover:text-primary-focus transition-colors"
       >
         {{ getHeadliner(row) }}
@@ -38,12 +38,22 @@
     </template>
 
     <template #cell-actions="{ row }">
-      <NuxtLink
-        :to="`/gigs/edit/${row.id}`"
-        class="btn btn-ghost btn-sm btn-square"
-      >
-        <Icon name="heroicons:pencil-square" class="w-5 h-5 text-primary" />
-      </NuxtLink>
+      <div class="flex gap-1">
+        <NuxtLink
+          :to="`/gigs/${row.id}`"
+          class="btn btn-ghost btn-sm btn-square"
+          title="View Details"
+        >
+          <Icon name="mdi:eye" class="w-5 h-5 text-secondary" />
+        </NuxtLink>
+        <NuxtLink
+          :to="`/gigs/edit/${row.id}`"
+          class="btn btn-ghost btn-sm btn-square"
+          title="Edit"
+        >
+          <Icon name="heroicons:pencil-square" class="w-5 h-5 text-primary" />
+        </NuxtLink>
+      </div>
     </template>
   </Table>
 </template>

@@ -33,6 +33,7 @@ export type GetGigArtistResponse = {
     name?: string;
     isHeadliner?: boolean;
     imageUrl?: string | null;
+    setlist?: Array<string>;
 };
 
 export type GetGigResponse = {
@@ -53,6 +54,14 @@ export type GetVenueResponse = {
     city?: string;
     imageUrl?: string | null;
     slug?: string;
+};
+
+export type GigArtistRequest = {
+    artistId?: string;
+    isHeadliner?: boolean;
+    order?: number;
+    setlistUrl?: string | null;
+    setlist?: Array<string>;
 };
 
 export type GigsPerMonthResponse = {
@@ -148,7 +157,7 @@ export type UpsertGigRequest = {
     ticketCost?: number | null;
     ticketType: TicketType;
     imageUrl?: string | null;
-    artistIds?: Array<string>;
+    acts?: Array<GigArtistRequest>;
 };
 
 export type VenueInsightsResponse = {
@@ -190,6 +199,22 @@ export type PostApiV1ArtistsByIdEnrichResponses = {
 
 export type PostApiV1ArtistsByIdEnrichResponse = PostApiV1ArtistsByIdEnrichResponses[keyof PostApiV1ArtistsByIdEnrichResponses];
 
+export type PostApiV1ArtistsEnrichAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/artists/enrich-all';
+};
+
+export type PostApiV1ArtistsEnrichAllResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type PostApiV1ArtistsEnrichAllResponse = PostApiV1ArtistsEnrichAllResponses[keyof PostApiV1ArtistsEnrichAllResponses];
+
 export type PostApiCalendarImportData = {
     body?: ImportCalendarEventsRequest;
     path?: never;
@@ -215,6 +240,23 @@ export type GetApiCalendarEventsData = {
 };
 
 export type GetApiCalendarEventsResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetApiCalendardebugDebugData = {
+    body?: never;
+    path?: never;
+    query?: {
+        startDate?: string;
+        endDate?: string;
+    };
+    url: '/api/calendardebug/debug';
+};
+
+export type GetApiCalendardebugDebugResponses = {
     /**
      * OK
      */
@@ -529,6 +571,22 @@ export type PostApiGigsByIdEnrichResponses = {
 
 export type PostApiGigsByIdEnrichResponse = PostApiGigsByIdEnrichResponses[keyof PostApiGigsByIdEnrichResponses];
 
+export type PostApiGigsEnrichAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/gigs/enrich-all';
+};
+
+export type PostApiGigsEnrichAllResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type PostApiGigsEnrichAllResponse = PostApiGigsEnrichAllResponses[keyof PostApiGigsEnrichAllResponses];
+
 export type PostApiImportCsvData = {
     body?: {
         file?: Blob | File;
@@ -578,3 +636,19 @@ export type PostApiV1VenuesByIdEnrichResponses = {
 };
 
 export type PostApiV1VenuesByIdEnrichResponse = PostApiV1VenuesByIdEnrichResponses[keyof PostApiV1VenuesByIdEnrichResponses];
+
+export type PostApiV1VenuesEnrichAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/venues/enrich-all';
+};
+
+export type PostApiV1VenuesEnrichAllResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type PostApiV1VenuesEnrichAllResponse = PostApiV1VenuesEnrichAllResponses[keyof PostApiV1VenuesEnrichAllResponses];
