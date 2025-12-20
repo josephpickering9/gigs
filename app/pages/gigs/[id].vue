@@ -37,7 +37,7 @@
             </div>
 
             <div class="flex gap-2">
-                <NuxtLink :to="`/gigs/edit/${gig.id}`" class="btn btn-primary">
+                <NuxtLink v-if="isAuthenticated" :to="`/gigs/edit/${gig.id}`" class="btn btn-primary">
                     <Icon name="mdi:pencil" class="w-5 h-5 mr-2" />
                     Edit Gig
                 </NuxtLink>
@@ -53,7 +53,7 @@
                 
                 <!-- Additional Details / Images could go here later -->
                 <div v-if="gig.imageUrl" class="card bg-base-100 shadow-xl overflow-hidden">
-                    <figure><img :src="gig.imageUrl" alt="Gig Image" class="w-full object-cover max-h-[400px]" /></figure>
+                    <figure><img :src="getImageUrl(gig.imageUrl)" alt="Gig Image" class="w-full object-cover max-h-[400px]" /></figure>
                 </div>
             </div>
 
@@ -93,9 +93,12 @@
 import { useRoute } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import { format } from 'date-fns';
+import useAuth from '~/composables/useAuth';
 import GigSetlist from '~/components/gigs/GigSetlist.vue';
 import GigMap from '~/components/gigs/GigMap.vue';
 import type { GetGigResponse } from '~~/api';
+
+const { isAuthenticated } = useAuth();
 
 const route = useRoute();
 const gigStore = useGigStore();
@@ -142,6 +145,7 @@ onMounted(async () => {
 
     } catch (e: any) {
         error.value = "Failed to load gig details.";
+        // eslint-disable-next-line no-console
         console.error(e);
     } finally {
         loading.value = false;

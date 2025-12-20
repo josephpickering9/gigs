@@ -4,18 +4,20 @@
       <h1 class="text-4xl font-bold text-primary">Gigs</h1>
       <div class="flex gap-2 items-center">
          <ViewToggle v-model="viewMode" class="mr-2" />
-         <NuxtLink to="/gigs/create" class="btn btn-primary">
-            <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
-            Create Gig
-        </NuxtLink>
-        <button class="btn btn-secondary" @click="showImportModal = true">
-            <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
-            Import CSV
-        </button>
-        <button class="btn btn-accent" @click="showCalendarModal = true">
-            <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
-            Sync Calendar
-        </button>
+        <template v-if="isAuthenticated">
+          <NuxtLink to="/gigs/create" class="btn btn-primary">
+              <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
+              Create Gig
+          </NuxtLink>
+          <button class="btn btn-secondary" @click="showImportModal = true">
+              <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
+              Import CSV
+          </button>
+          <button class="btn btn-accent" @click="showCalendarModal = true">
+              <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
+              Sync Calendar
+          </button>
+        </template>
       </div>
     </div>
     
@@ -74,6 +76,9 @@ import GigTableView from '~/components/gigs/GigTableView.vue';
 import ImportGigsModal from '~/components/gigs/ImportGigsModal.vue';
 import ImportCalendarModal from '~/components/gigs/ImportCalendarModal.vue';
 import ViewToggle from '~/components/ui/button/ViewToggle.vue';
+import useAuth from '~/composables/useAuth';
+
+const { isAuthenticated } = useAuth();
 
 const gigStore = useGigStore();
 const preferencesStore = usePreferencesStore();

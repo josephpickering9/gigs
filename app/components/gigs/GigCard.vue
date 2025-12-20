@@ -28,13 +28,14 @@
 import type { GetGigResponse } from '~~/api';
 import { computed } from 'vue';
 import { format } from 'date-fns';
+import { getImageUrl } from '~/utils/image-helper';
 
 const props = defineProps<{
   gig: GetGigResponse;
 }>();
 
 const gigImage = computed(() => {
-    return props.gig.imageUrl || 'https://placehold.co/600x400?text=No+Image';
+    return props.gig.imageUrl ? getImageUrl(props.gig.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
 });
 
 const headliner = computed(() => {

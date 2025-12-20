@@ -103,6 +103,10 @@ import GigForm from '~/components/gigs/GigForm.vue';
 import type { UpsertGigRequest, GetGigResponse } from '~~/api';
 import { format } from 'date-fns';
 
+definePageMeta({
+  middleware: 'auth',
+});
+
 const route = useRoute();
 const router = useRouter();
 const gigStore = useGigStore();

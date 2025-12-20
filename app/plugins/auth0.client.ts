@@ -1,4 +1,4 @@
-import { createAuth0, useAuth0 } from '@auth0/auth0-vue'
+import { createAuth0 } from '@auth0/auth0-vue'
 import { client } from '@api/client.gen'
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -14,22 +14,17 @@ export default defineNuxtPlugin((nuxtApp) => {
     cacheLocation: 'localstorage',
   })
 
-  if (import.meta.client) nuxtApp.vueApp.use(auth0)
+  if (import.meta.client) {
+    nuxtApp.vueApp.use(auth0)
 
-  addRouteMiddleware('auth', async () => {
-    if (import.meta.client) {
-      auth0.checkSession()
-      if (!auth0.isAuthenticated.value) {
-        auth0.loginWithRedirect({
-          appState: {
-            target: useRoute().path,
-          },
-        })
-      } else {
+    // Silent check session on app start
+    auth0.checkSession()
+
+    // Watch for authentication state changes to set the API token
+    watchEffect(async () => {
+      if (auth0.isAuthenticated.value) {
         try {
-          const { getAccessTokenSilently } = useAuth0()
-
-          const token = await getAccessTokenSilently()
+          const token = await auth0.getAccessTokenSilently()
           if (token) {
             client.setConfig({
               headers: {
@@ -40,14 +35,8 @@ export default defineNuxtPlugin((nuxtApp) => {
         } catch (e) {
           // eslint-disable-next-line no-console
           console.log('token error', e)
-
-          auth0.loginWithRedirect({
-            appState: {
-              target: useRoute().path,
-            },
-          })
         }
       }
-    }
-  })
+    })
+  }
 })
