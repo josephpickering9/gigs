@@ -95,9 +95,9 @@
                 type="button" 
                 class="btn btn-secondary" 
                 @click="handleEnrich"
-                :disabled="enriching"
+                :disabled="gigStore.enriching"
             >
-                <span v-if="enriching" class="loading loading-spinner"></span>
+                <span v-if="gigStore.enriching" class="loading loading-spinner"></span>
                 Enrich Gig
             </button>
         </div>
@@ -150,7 +150,6 @@ const imageUrlProxy = ref('');
 const headliners = ref<SelectListItem[]>([]);
 const supportActs = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
-const enriching = ref(false);
 
 const form = ref<UpsertGigRequest>({
   venueId: '',
@@ -269,7 +268,6 @@ const validate = () => {
 const handleEnrich = async () => {
     if (!props.initialData?.id) return;
     
-    enriching.value = true;
     try {
         await gigStore.enrichGig(props.initialData.id);
         
@@ -305,8 +303,6 @@ const handleEnrich = async () => {
         }
     } catch (error) {
         console.error('Failed to enrich gig:', error);
-    } finally {
-        enriching.value = false;
     }
 };
 

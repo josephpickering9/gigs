@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiDashboardStatsTotalGigsData, GetApiDashboardStatsTotalGigsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
+import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -30,9 +30,75 @@ export const postApiV1ArtistsByIdEnrich = <ThrowOnError extends boolean = false>
     ...options
 });
 
-export const getApiDashboardStatsTotalGigs = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardStatsTotalGigsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardStatsTotalGigsResponses, unknown, ThrowOnError>({
+export const getApiDashboardStats = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardStatsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardStatsResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/dashboard/stats/total-gigs',
+    url: '/api/dashboard/stats',
+    ...options
+});
+
+export const getApiDashboardAverageTicketPriceByYear = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardAverageTicketPriceByYearData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardAverageTicketPriceByYearResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/average-ticket-price-by-year',
+    ...options
+});
+
+export const getApiDashboardGigsPerYear = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardGigsPerYearData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardGigsPerYearResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/gigs-per-year',
+    ...options
+});
+
+export const getApiDashboardGigsPerMonth = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardGigsPerMonthData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardGigsPerMonthResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/gigs-per-month',
+    ...options
+});
+
+export const getApiDashboardTemporalStats = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardTemporalStatsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardTemporalStatsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/temporal-stats',
+    ...options
+});
+
+export const getApiDashboardArtistInsights = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardArtistInsightsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardArtistInsightsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/artist-insights',
+    ...options
+});
+
+export const getApiDashboardTopArtists = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardTopArtistsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardTopArtistsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/top-artists',
+    ...options
+});
+
+export const getApiDashboardVenueInsights = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardVenueInsightsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardVenueInsightsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/venue-insights',
+    ...options
+});
+
+export const getApiDashboardTopVenues = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardTopVenuesData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardTopVenuesResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/top-venues',
+    ...options
+});
+
+export const getApiDashboardTopCities = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardTopCitiesData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardTopCitiesResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/top-cities',
+    ...options
+});
+
+export const getApiDashboardInterestingInsights = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardInterestingInsightsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardInterestingInsightsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/interesting-insights',
+    ...options
+});
+
+export const getApiDashboardMostHeardSongs = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardMostHeardSongsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardMostHeardSongsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/dashboard/most-heard-songs',
     ...options
 });
 

@@ -4,6 +4,16 @@ export type ClientOptions = {
     baseURL: 'http://localhost:5105' | (string & {});
 };
 
+export type ArtistInsightsResponse = {
+    totalUniqueArtists?: number;
+    totalArtistAppearances?: number;
+};
+
+export type AverageTicketPriceByYearResponse = {
+    year?: number;
+    averagePrice?: number;
+};
+
 export type DashboardStatsResponse = {
     totalGigs?: number;
     topArtist?: TopArtistStats;
@@ -45,6 +55,44 @@ export type GetVenueResponse = {
     slug?: string;
 };
 
+export type GigsPerMonthResponse = {
+    month?: number;
+    monthName?: string;
+    gigCount?: number;
+};
+
+export type GigsPerYearResponse = {
+    year?: number;
+    gigCount?: number;
+};
+
+export type InterestingInsightsResponse = {
+    longestSetlist?: LongestSetlistInfo;
+    longestGigStreak?: number | null;
+    averageGigsPerYear?: number;
+};
+
+export type LongestSetlistInfo = {
+    gigId?: string;
+    artistName?: string;
+    venueName?: string;
+    date?: string;
+    songCount?: number;
+};
+
+export type MostHeardSongResponse = {
+    songId?: string;
+    songTitle?: string;
+    artistName?: string;
+    timesHeard?: number;
+};
+
+export type TemporalStatsResponse = {
+    busiestYear?: number | null;
+    busiestYearGigCount?: number | null;
+    daysSinceLastGig?: number | null;
+};
+
 export enum TicketType {
     STANDING = 'Standing',
     SEATED = 'Seated',
@@ -53,13 +101,34 @@ export enum TicketType {
     OTHER = 'Other'
 }
 
+export type TopArtistResponse = {
+    artistId?: string;
+    artistName?: string;
+    totalAppearances?: number;
+    asHeadliner?: number;
+    asSupport?: number;
+};
+
 export type TopArtistStats = {
     artistName?: string;
     gigCount?: number;
 };
 
+export type TopCityResponse = {
+    city?: string;
+    gigCount?: number;
+    uniqueVenues?: number;
+};
+
 export type TopCityStats = {
     cityName?: string;
+    gigCount?: number;
+};
+
+export type TopVenueResponse = {
+    venueId?: string;
+    venueName?: string;
+    city?: string;
     gigCount?: number;
 };
 
@@ -75,6 +144,11 @@ export type UpsertGigRequest = {
     ticketType: TicketType;
     imageUrl?: string | null;
     artistIds?: Array<string>;
+};
+
+export type VenueInsightsResponse = {
+    totalUniqueVenues?: number;
+    totalUniqueCities?: number;
 };
 
 export type GetApiV1ArtistsData = {
@@ -111,21 +185,205 @@ export type PostApiV1ArtistsByIdEnrichResponses = {
 
 export type PostApiV1ArtistsByIdEnrichResponse = PostApiV1ArtistsByIdEnrichResponses[keyof PostApiV1ArtistsByIdEnrichResponses];
 
-export type GetApiDashboardStatsTotalGigsData = {
+export type GetApiDashboardStatsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/dashboard/stats/total-gigs';
+    url: '/api/dashboard/stats';
 };
 
-export type GetApiDashboardStatsTotalGigsResponses = {
+export type GetApiDashboardStatsResponses = {
     /**
      * OK
      */
     200: DashboardStatsResponse;
 };
 
-export type GetApiDashboardStatsTotalGigsResponse = GetApiDashboardStatsTotalGigsResponses[keyof GetApiDashboardStatsTotalGigsResponses];
+export type GetApiDashboardStatsResponse = GetApiDashboardStatsResponses[keyof GetApiDashboardStatsResponses];
+
+export type GetApiDashboardAverageTicketPriceByYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/average-ticket-price-by-year';
+};
+
+export type GetApiDashboardAverageTicketPriceByYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<AverageTicketPriceByYearResponse>;
+};
+
+export type GetApiDashboardAverageTicketPriceByYearResponse = GetApiDashboardAverageTicketPriceByYearResponses[keyof GetApiDashboardAverageTicketPriceByYearResponses];
+
+export type GetApiDashboardGigsPerYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/gigs-per-year';
+};
+
+export type GetApiDashboardGigsPerYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<GigsPerYearResponse>;
+};
+
+export type GetApiDashboardGigsPerYearResponse = GetApiDashboardGigsPerYearResponses[keyof GetApiDashboardGigsPerYearResponses];
+
+export type GetApiDashboardGigsPerMonthData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/gigs-per-month';
+};
+
+export type GetApiDashboardGigsPerMonthResponses = {
+    /**
+     * OK
+     */
+    200: Array<GigsPerMonthResponse>;
+};
+
+export type GetApiDashboardGigsPerMonthResponse = GetApiDashboardGigsPerMonthResponses[keyof GetApiDashboardGigsPerMonthResponses];
+
+export type GetApiDashboardTemporalStatsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/temporal-stats';
+};
+
+export type GetApiDashboardTemporalStatsResponses = {
+    /**
+     * OK
+     */
+    200: TemporalStatsResponse;
+};
+
+export type GetApiDashboardTemporalStatsResponse = GetApiDashboardTemporalStatsResponses[keyof GetApiDashboardTemporalStatsResponses];
+
+export type GetApiDashboardArtistInsightsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/artist-insights';
+};
+
+export type GetApiDashboardArtistInsightsResponses = {
+    /**
+     * OK
+     */
+    200: ArtistInsightsResponse;
+};
+
+export type GetApiDashboardArtistInsightsResponse = GetApiDashboardArtistInsightsResponses[keyof GetApiDashboardArtistInsightsResponses];
+
+export type GetApiDashboardTopArtistsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-artists';
+};
+
+export type GetApiDashboardTopArtistsResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopArtistResponse>;
+};
+
+export type GetApiDashboardTopArtistsResponse = GetApiDashboardTopArtistsResponses[keyof GetApiDashboardTopArtistsResponses];
+
+export type GetApiDashboardVenueInsightsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/venue-insights';
+};
+
+export type GetApiDashboardVenueInsightsResponses = {
+    /**
+     * OK
+     */
+    200: VenueInsightsResponse;
+};
+
+export type GetApiDashboardVenueInsightsResponse = GetApiDashboardVenueInsightsResponses[keyof GetApiDashboardVenueInsightsResponses];
+
+export type GetApiDashboardTopVenuesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-venues';
+};
+
+export type GetApiDashboardTopVenuesResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopVenueResponse>;
+};
+
+export type GetApiDashboardTopVenuesResponse = GetApiDashboardTopVenuesResponses[keyof GetApiDashboardTopVenuesResponses];
+
+export type GetApiDashboardTopCitiesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-cities';
+};
+
+export type GetApiDashboardTopCitiesResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopCityResponse>;
+};
+
+export type GetApiDashboardTopCitiesResponse = GetApiDashboardTopCitiesResponses[keyof GetApiDashboardTopCitiesResponses];
+
+export type GetApiDashboardInterestingInsightsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/interesting-insights';
+};
+
+export type GetApiDashboardInterestingInsightsResponses = {
+    /**
+     * OK
+     */
+    200: InterestingInsightsResponse;
+};
+
+export type GetApiDashboardInterestingInsightsResponse = GetApiDashboardInterestingInsightsResponses[keyof GetApiDashboardInterestingInsightsResponses];
+
+export type GetApiDashboardMostHeardSongsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/most-heard-songs';
+};
+
+export type GetApiDashboardMostHeardSongsResponses = {
+    /**
+     * OK
+     */
+    200: Array<MostHeardSongResponse>;
+};
+
+export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
 
 export type GetApiGigsData = {
     body?: never;
