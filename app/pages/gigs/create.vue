@@ -30,6 +30,10 @@ import { useGigStore } from '~/store/GigStore';
 import GigForm from '~/components/gigs/GigForm.vue';
 import type { UpsertGigRequest } from '~~/api';
 
+definePageMeta({
+  middleware: 'auth',
+})
+
 const router = useRouter();
 const gigStore = useGigStore();
 

@@ -99,7 +99,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   modelValue: undefined,
   label: undefined,
-  placeholder: 'Select date (e.g., MM/DD/YYYY)',
+  placeholder: 'Select date (e.g., DD/MM/YYYY)',
   disabled: false,
   error: undefined,
 })
@@ -117,12 +117,12 @@ const inputValue = ref('')
 const hasInputError = ref(false)
 const isInputFocused = ref(false)
 
-const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
 
 const displayValue = computed(() => {
   if (!value.value) return ''
   const date = parseISO(value.value)
-  return isValid(date) ? format(date, 'MMM d, yyyy') : ''
+  return isValid(date) ? format(date, 'd MMM yyyy') : ''
 })
 
 const daysInMonth = computed(() => {
@@ -133,27 +133,28 @@ const daysInMonth = computed(() => {
 
 const paddingDays = computed(() => {
   const start = startOfMonth(currentDate.value)
-  return getDay(start) // 0 for Sunday, etc.
+  const day = getDay(start) // 0 for Sunday, etc.
+  return day === 0 ? 6 : day - 1 // Adjust for Monday start
 })
 
 // Parse date from various input formats
 function parseInputDate(input: string): Date | null {
   const trimmed = input.trim()
   
-  // Try various date formats
+  // Try various date formats (UK formats prioritized)
   const formats = [
-    'yyyy-MM-dd',     // 2024-12-08
-    'MM/dd/yyyy',     // 12/08/2024
-    'M/d/yyyy',       // 12/8/2024
-    'dd/MM/yyyy',     // 08/12/2024
-    'd/M/yyyy',       // 8/12/2024
-    'MM-dd-yyyy',     // 12-08-2024
-    'M-d-yyyy',       // 12-8-2024
-    'yyyy/MM/dd',     // 2024/12/08
+    'dd/MM/yyyy',     // 08/12/2024 (UK)
+    'd/M/yyyy',       // 8/12/2024 (UK)
+    'dd-MM-yyyy',     // 08-12-2024 (UK)
+    'd-M-yyyy',       // 8-12-2024 (UK)
+    'yyyy-MM-dd',     // 2024-12-08 (ISO)
+    'd MMM yyyy',     // 8 Dec 2024 (UK)
+    'd MMMM yyyy',    // 8 December 2024 (UK)
     'MMM d, yyyy',    // Dec 8, 2024
     'MMMM d, yyyy',   // December 8, 2024
-    'd MMM yyyy',     // 8 Dec 2024
-    'd MMMM yyyy',    // 8 December 2024
+    'MM/dd/yyyy',     // 12/08/2024 (US)
+    'M/d/yyyy',       // 12/8/2024 (US)
+    'yyyy/MM/dd',     // 2024/12/08
   ]
   
   const referenceDate = new Date()
@@ -208,6 +209,15 @@ function handleInput(event: Event) {
 
 function handleFocus() {
   isInputFocused.value = true
+  if (!isOpen.value) {
+    // Reset calendar view to selected date or current date on open
+    if (value.value && isValid(parseISO(value.value))) {
+      currentDate.value = parseISO(value.value)
+    } else {
+      currentDate.value = new Date()
+    }
+    isOpen.value = true
+  }
 }
 
 function handleBlur() {
@@ -259,7 +269,7 @@ function nextMonth() {
 function selectDate(date: Date) {
   const formatted = format(date, 'yyyy-MM-dd')
   value.value = formatted
-  inputValue.value = format(date, 'MMM d, yyyy')
+  inputValue.value = format(date, 'd MMM yyyy')
   hasInputError.value = false
   emit('update:modelValue', formatted)
   close()
@@ -297,7 +307,7 @@ watch(() => props.modelValue, (newValue) => {
   if (newValue) {
     const date = parseISO(newValue)
     if (isValid(date)) {
-      inputValue.value = format(date, 'MMM d, yyyy')
+      inputValue.value = format(date, 'd MMM yyyy')
       hasInputError.value = false
     }
   } else {
@@ -310,7 +320,7 @@ watch(value, (newValue) => {
   if (!isInputFocused.value && newValue) {
     const date = parseISO(newValue)
     if (isValid(date)) {
-      inputValue.value = format(date, 'MMM d, yyyy')
+      inputValue.value = format(date, 'd MMM yyyy')
     }
   }
 })
