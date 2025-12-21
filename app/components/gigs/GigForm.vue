@@ -76,6 +76,12 @@
             :error="errors['venueId']"
           />
 
+          <FestivalSelector 
+             v-model="form.festivalId"
+             :initial-name="form.festivalName"
+             @update:name="form.festivalName = $event"
+          />
+
           <DatePicker
             v-model="datePart"
             label="Date"
@@ -225,8 +231,10 @@ import { useGigStore } from '~/store/GigStore';
 import SelectMenu from '~/components/ui/input/SelectMenu.vue';
 import DatePicker from '~/components/ui/input/DatePicker.vue';
 import Combobox from '~/components/ui/input/Combobox.vue';
+import FestivalSelector from '~/components/gigs/FestivalSelector.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
+import { isEmpty } from 'lodash-es';
 
 const props = defineProps<{
   initialData?: GetGigResponse;
@@ -259,6 +267,8 @@ const form = ref<FormState>({
   ticketType: TicketType.STANDING, // Default
   ticketCost: null,
   imageUrl: '', 
+  festivalId: null,
+  festivalName: null,
   acts: [],
 });
 
@@ -317,6 +327,8 @@ watch(() => props.initialData, (newData) => {
         ticketType: newData.ticketType || TicketType.STANDING,
         ticketCost: newData.ticketCost,
         imageUrl: newData.imageUrl || '',
+        festivalId: newData.festivalId || null,
+        festivalName: newData.festivalName || null,
         acts: newData.acts?.map(a => ({
             artistId: a.artistId,
             isHeadliner: a.isHeadliner,
@@ -440,6 +452,7 @@ const handleSubmit = () => {
     // Filter out empty strings from setlists before submitting
     const submissionData = {
         ...form.value,
+        imageUrl: isEmpty(form.value.imageUrl) ? undefined : form.value.imageUrl,
         acts: form.value.acts?.map(act => ({
             ...act,
             setlist: act.setlist?.filter(song => song.trim() !== '') || []

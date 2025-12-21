@@ -7,7 +7,7 @@
           <h3 class="text-3xl font-bold text-primary mt-2">{{ value }}</h3>
           <p v-if="subtitle" class="text-sm text-base-content/60 mt-1">{{ subtitle }}</p>
         </div>
-        <div v-if="icon" class="rounded-full bg-primary/20 p-3">
+        <div v-if="icon" class="rounded-full bg-primary/20 p-3 flex items-center justify-center">
           <Icon :name="icon" class="w-8 h-8 text-primary" />
         </div>
       </div>

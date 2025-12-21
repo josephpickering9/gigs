@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiCalendardebugDebugData, GetApiCalendardebugDebugResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, GetMediaUploadsByFileNameData, GetMediaUploadsByFileNameResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsEnrichAllData, PostApiGigsEnrichAllResponses, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1ArtistsEnrichAllData, PostApiV1ArtistsEnrichAllResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PostApiV1VenuesEnrichAllData, PostApiV1VenuesEnrichAllResponses, PostMediaOptimiseAllData, PostMediaOptimiseAllResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
+import type { DeleteApiFestivalsByIdData, DeleteApiFestivalsByIdResponses, DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, GetApiCalendardebugDebugData, GetApiCalendardebugDebugResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiFestivalsByIdData, GetApiFestivalsByIdResponses, GetApiFestivalsData, GetApiFestivalsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiV1ArtistsData, GetApiV1ArtistsResponses, GetApiV1VenuesData, GetApiV1VenuesResponses, GetMediaUploadsByFileNameData, GetMediaUploadsByFileNameResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiFestivalsData, PostApiFestivalsResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsEnrichAllData, PostApiGigsEnrichAllResponses, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiV1ArtistsByIdEnrichData, PostApiV1ArtistsByIdEnrichResponses, PostApiV1ArtistsEnrichAllData, PostApiV1ArtistsEnrichAllResponses, PostApiV1VenuesByIdEnrichData, PostApiV1VenuesByIdEnrichResponses, PostApiV1VenuesEnrichAllData, PostApiV1VenuesEnrichAllResponses, PutApiFestivalsByIdData, PutApiFestivalsByIdResponses, PutApiGigsByIdData, PutApiGigsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -121,6 +121,40 @@ export const getApiDashboardMostHeardSongs = <ThrowOnError extends boolean = fal
     ...options
 });
 
+export const getApiFestivals = <ThrowOnError extends boolean = false>(options?: Options<GetApiFestivalsData, ThrowOnError>) => (options?.client ?? client).get<GetApiFestivalsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/festivals',
+    ...options
+});
+
+export const postApiFestivals = <ThrowOnError extends boolean = false>(options?: Options<PostApiFestivalsData, ThrowOnError>) => (options?.client ?? client).post<PostApiFestivalsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/festivals',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+export const deleteApiFestivalsById = <ThrowOnError extends boolean = false>(options: Options<DeleteApiFestivalsByIdData, ThrowOnError>) => (options.client ?? client).delete<DeleteApiFestivalsByIdResponses, unknown, ThrowOnError>({ url: '/api/festivals/{id}', ...options });
+
+export const getApiFestivalsById = <ThrowOnError extends boolean = false>(options: Options<GetApiFestivalsByIdData, ThrowOnError>) => (options.client ?? client).get<GetApiFestivalsByIdResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/festivals/{id}',
+    ...options
+});
+
+export const putApiFestivalsById = <ThrowOnError extends boolean = false>(options: Options<PutApiFestivalsByIdData, ThrowOnError>) => (options.client ?? client).put<PutApiFestivalsByIdResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/festivals/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
 export const getApiGigs = <ThrowOnError extends boolean = false>(options?: Options<GetApiGigsData, ThrowOnError>) => (options?.client ?? client).get<GetApiGigsResponses, unknown, ThrowOnError>({
     responseType: 'json',
     url: '/api/gigs',
@@ -178,8 +212,6 @@ export const postApiImportCsv = <ThrowOnError extends boolean = false>(options?:
 });
 
 export const getMediaUploadsByFileName = <ThrowOnError extends boolean = false>(options: Options<GetMediaUploadsByFileNameData, ThrowOnError>) => (options.client ?? client).get<GetMediaUploadsByFileNameResponses, unknown, ThrowOnError>({ url: '/media/uploads/{fileName}', ...options });
-
-export const postMediaOptimiseAll = <ThrowOnError extends boolean = false>(options?: Options<PostMediaOptimiseAllData, ThrowOnError>) => (options?.client ?? client).post<PostMediaOptimiseAllResponses, unknown, ThrowOnError>({ url: '/media/optimise-all', ...options });
 
 export const getApiV1Venues = <ThrowOnError extends boolean = false>(options?: Options<GetApiV1VenuesData, ThrowOnError>) => (options?.client ?? client).get<GetApiV1VenuesResponses, unknown, ThrowOnError>({
     responseType: 'json',

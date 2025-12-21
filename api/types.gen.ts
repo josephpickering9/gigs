@@ -21,6 +21,14 @@ export type DashboardStatsResponse = {
     topCity?: TopCityStats;
 };
 
+export type FestivalDto = {
+    id?: string;
+    name?: string;
+    slug?: string;
+    imageUrl?: string | null;
+    gigs?: Array<GetGigResponse> | null;
+};
+
 export type GetArtistResponse = {
     id?: string;
     name?: string;
@@ -40,6 +48,8 @@ export type GetGigResponse = {
     id?: string;
     venueId?: string;
     venueName?: string;
+    festivalId?: string | null;
+    festivalName?: string | null;
     date?: string;
     ticketCost?: number | null;
     ticketType?: TicketType;
@@ -159,8 +169,17 @@ export type TopVenueStats = {
     gigCount?: number;
 };
 
+export type UpsertFestivalRequest = {
+    name: string;
+    imageUrl?: string | null;
+};
+
 export type UpsertGigRequest = {
-    venueId: string;
+    venueId?: string | null;
+    venueName?: string | null;
+    venueCity?: string | null;
+    festivalId?: string | null;
+    festivalName?: string | null;
     date: string;
     ticketCost?: number | null;
     ticketType: TicketType;
@@ -478,11 +497,96 @@ export type GetApiDashboardMostHeardSongsResponses = {
 
 export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
 
+export type GetApiFestivalsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/festivals';
+};
+
+export type GetApiFestivalsResponses = {
+    /**
+     * OK
+     */
+    200: Array<FestivalDto>;
+};
+
+export type GetApiFestivalsResponse = GetApiFestivalsResponses[keyof GetApiFestivalsResponses];
+
+export type PostApiFestivalsData = {
+    body?: UpsertFestivalRequest;
+    path?: never;
+    query?: never;
+    url: '/api/festivals';
+};
+
+export type PostApiFestivalsResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type PostApiFestivalsResponse = PostApiFestivalsResponses[keyof PostApiFestivalsResponses];
+
+export type DeleteApiFestivalsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type DeleteApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetApiFestivalsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type GetApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type GetApiFestivalsByIdResponse = GetApiFestivalsByIdResponses[keyof GetApiFestivalsByIdResponses];
+
+export type PutApiFestivalsByIdData = {
+    body?: UpsertFestivalRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type PutApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type PutApiFestivalsByIdResponse = PutApiFestivalsByIdResponses[keyof PutApiFestivalsByIdResponses];
+
 export type GetApiGigsData = {
     body?: never;
     path?: never;
     query?: {
         VenueId?: string;
+        FestivalId?: string;
         City?: string;
         FromDate?: string;
         ToDate?: string;
@@ -632,20 +736,6 @@ export type GetMediaUploadsByFileNameData = {
 };
 
 export type GetMediaUploadsByFileNameResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type PostMediaOptimiseAllData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/media/optimise-all';
-};
-
-export type PostMediaOptimiseAllResponses = {
     /**
      * OK
      */

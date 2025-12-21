@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -10,7 +10,8 @@ import {
     getApiV1Artists,
     getApiV1Venues,
     postApiGigsByIdEnrich,
-    deleteApiGigsById
+    deleteApiGigsById,
+    getApiFestivals
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -22,6 +23,7 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
+    festivalsForm: AsyncForm<FestivalDto[]>;
     pagination: {
         page: number;
         pageSize: number;
@@ -48,6 +50,7 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
+        festivalsForm: asyncForm<FestivalDto[]>(),
         pagination: {
             page: 1,
             pageSize: 500,
@@ -71,6 +74,8 @@ export const useGigStore = defineStore('gig', {
         loadingArtists: (state) => state.artistsForm.loading,
         venues: (state) => state.venuesForm.data || [],
         loadingVenues: (state) => state.venuesForm.loading,
+        festivals: (state) => state.festivalsForm.data || [],
+        loadingFestivals: (state) => state.festivalsForm.loading,
     },
 
     actions: {
@@ -167,6 +172,13 @@ export const useGigStore = defineStore('gig', {
         async fetchVenues() {
             await tryCatchFinally(ref(this.venuesForm), async () => {
                 const response = await getApiV1Venues();
+                return response.data;
+            });
+        },
+
+        async fetchFestivals() {
+            await tryCatchFinally(ref(this.festivalsForm), async () => {
+                const response = await getApiFestivals();
                 return response.data;
             });
         },
