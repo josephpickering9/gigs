@@ -82,9 +82,10 @@ function syncSelected(id?: string | null, name?: string | null) {
 }
 
 const onUpdate = (val: SelectListItem[]) => {
-  if (val.length > 0) {
-    const value = String(val[0].value); // This is ID if found, or text if new/typed
-    const text = val[0].text;
+  const first = val[0];
+  if (first) {
+    const value = String(first.value); // This is ID if found, or text if new/typed
+    const text = first.text;
 
     const existing = festivals.value.find(f => f.id === value);
     if (existing) {

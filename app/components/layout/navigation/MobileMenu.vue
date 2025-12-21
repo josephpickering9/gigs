@@ -20,6 +20,12 @@
             Gigs
           </NuxtLink>
         </li>
+        <li class="animate-fade-in-up" style="animation-delay: 300ms">
+          <NuxtLink to="/festivals" class="active:bg-primary/10 active:text-primary" @click="$emit('close')">
+            <Icon name="mdi:party-popper" size="1.5em" class="text-accent" />
+            Festivals
+          </NuxtLink>
+        </li>
 
         <ClientOnly>
           <div class="divider my-4 animate-fade-in-up" style="animation-delay: 600ms" />
