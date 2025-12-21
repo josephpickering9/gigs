@@ -38,7 +38,10 @@ const loading = computed(() => gigStore.loadingFestivals);
 const selected = ref<SelectListItem[]>([]);
 
 const options = computed<SelectListItem[]>(() => 
-  festivals.value.map(f => ({ text: f.name || 'Unknown', value: f.id || '' }))
+  festivals.value.map(f => ({ 
+    text: f.year ? `${f.name} (${f.year})` : (f.name || 'Unknown'), 
+    value: f.id || '' 
+  }))
 );
 
 onMounted(() => {
@@ -61,7 +64,8 @@ function syncSelected(id?: string | null, name?: string | null) {
   if (id) {
     const fest = festivals.value.find(f => f.id === id);
     if (fest) {
-      selected.value = [{ text: fest.name || 'Unknown', value: fest.id || '' }];
+      const text = fest.year ? `${fest.name} (${fest.year})` : (fest.name || 'Unknown');
+      selected.value = [{ text, value: fest.id || '' }];
       return;
     }
   }
@@ -71,7 +75,8 @@ function syncSelected(id?: string | null, name?: string | null) {
        // Check if we can find by name
        const fest = festivals.value.find(f => f.name === name);
        if(fest) {
-           selected.value = [{ text: fest.name || 'Unknown', value: fest.id || '' }];
+           const text = fest.year ? `${fest.name} (${fest.year})` : (fest.name || 'Unknown');
+           selected.value = [{ text, value: fest.id || '' }];
        } else {
            // Truly new or not found
            selected.value = [{ text: name, value: name }]; 

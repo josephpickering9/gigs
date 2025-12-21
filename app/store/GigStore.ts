@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -11,7 +11,11 @@ import {
     getApiV1Venues,
     postApiGigsByIdEnrich,
     deleteApiGigsById,
-    getApiFestivals
+    getApiFestivals,
+    postApiFestivals,
+    getApiFestivalsById,
+    putApiFestivalsById,
+    deleteApiFestivalsById
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -24,6 +28,7 @@ interface GigState {
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
     festivalsForm: AsyncForm<FestivalDto[]>;
+    upsertFestivalForm: AsyncForm<FestivalDto>;
     pagination: {
         page: number;
         pageSize: number;
@@ -51,6 +56,7 @@ export const useGigStore = defineStore('gig', {
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
         festivalsForm: asyncForm<FestivalDto[]>(),
+        upsertFestivalForm: asyncForm<FestivalDto>(),
         pagination: {
             page: 1,
             pageSize: 500,
@@ -76,6 +82,8 @@ export const useGigStore = defineStore('gig', {
         loadingVenues: (state) => state.venuesForm.loading,
         festivals: (state) => state.festivalsForm.data || [],
         loadingFestivals: (state) => state.festivalsForm.loading,
+        savingFestival: (state) => state.upsertFestivalForm.loading,
+        saveFestivalError: (state) => state.upsertFestivalForm.error,
     },
 
     actions: {
@@ -180,6 +188,38 @@ export const useGigStore = defineStore('gig', {
             await tryCatchFinally(ref(this.festivalsForm), async () => {
                 const response = await getApiFestivals();
                 return response.data;
+            });
+        },
+
+        async fetchFestival(id: string) {
+            const existing = this.festivals.find(f => f.id === id);
+            if (existing) return existing;
+
+            const response = await getApiFestivalsById({ path: { id } });
+            return response.data;
+        },
+
+        async createFestival(festival: UpsertFestivalRequest) {
+            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                const response = await postApiFestivals({ body: festival });
+                await this.fetchFestivals();
+                return response.data;
+            });
+        },
+
+        async updateFestival(id: string, festival: UpsertFestivalRequest) {
+            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                const response = await putApiFestivalsById({ path: { id }, body: festival });
+                await this.fetchFestivals();
+                return response.data;
+            });
+        },
+
+        async deleteFestival(id: string) {
+            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                await deleteApiFestivalsById({ path: { id } });
+                await this.fetchFestivals();
+                return undefined;
             });
         },
 

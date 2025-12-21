@@ -24,6 +24,7 @@ export type DashboardStatsResponse = {
 export type FestivalDto = {
     id?: string;
     name?: string;
+    year?: number | null;
     slug?: string;
     imageUrl?: string | null;
     gigs?: Array<GetGigResponse> | null;
@@ -171,6 +172,7 @@ export type TopVenueStats = {
 
 export type UpsertFestivalRequest = {
     name: string;
+    year?: number | null;
     imageUrl?: string | null;
 };
 

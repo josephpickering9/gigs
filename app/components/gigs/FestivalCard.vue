@@ -4,7 +4,10 @@
       <img :src="festivalImage" :alt="festival.name" class="h-full w-full object-cover">
     </figure>
     <div class="card-body">
-      <h2 class="card-title text-2xl font-bold text-primary">{{ festival.name }}</h2>
+      <h2 class="card-title text-2xl font-bold text-primary">
+          {{ festival.name }}
+          <span v-if="festival.year" class="text-sm font-normal text-base-content/60 ml-2">({{ festival.year }})</span>
+      </h2>
       
       <div class="flex flex-col gap-2 mt-2">
          <div class="flex items-center gap-2 text-base-content/70">

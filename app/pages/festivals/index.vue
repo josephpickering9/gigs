@@ -2,6 +2,10 @@
   <div class="container mx-auto p-4 min-h-screen">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-4xl font-bold text-primary">Festivals</h1>
+      <NuxtLink v-if="isAuthenticated" to="/festivals/create" class="btn btn-primary">
+          <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
+          Create Festival
+      </NuxtLink>
     </div>
 
     <div v-if="gigStore.loadingFestivals && gigStore.festivals.length === 0" class="flex justify-center items-center h-64">
@@ -13,11 +17,14 @@
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <FestivalCard
+      <NuxtLink 
         v-for="festival in gigStore.festivals"
         :key="festival.id"
-        :festival="festival"
-      />
+        :to="isAuthenticated ? `/festivals/${festival.id}/edit` : undefined"
+        class="block h-full"
+      >
+        <FestivalCard :festival="festival" />
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -25,9 +32,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useGigStore } from '~/store/GigStore';
+import useAuth from '~/composables/useAuth';
 import FestivalCard from '~/components/gigs/FestivalCard.vue';
 
 const gigStore = useGigStore();
+const { isAuthenticated } = useAuth();
 
 useHead({
   title: 'Festivals - Gigs',
