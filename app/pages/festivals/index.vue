@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto p-4 min-h-screen">
-    <div class="flex justify-between items-center mb-8">
+  <div class="container mx-auto px-6 py-8 min-h-screen">
+    <div class="flex justify-between items-center mb-10">
       <h1 class="text-4xl font-bold text-primary">Festivals</h1>
       <NuxtLink v-if="isAuthenticated" to="/festivals/create" class="btn btn-primary">
           <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
@@ -20,7 +20,7 @@
       <NuxtLink 
         v-for="festival in gigStore.festivals"
         :key="festival.id"
-        :to="isAuthenticated ? `/festivals/${festival.id}/edit` : undefined"
+        :to="`/festivals/${festival.id}`"
         class="block h-full"
       >
         <FestivalCard :festival="festival" />

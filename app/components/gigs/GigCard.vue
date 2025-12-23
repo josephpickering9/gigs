@@ -7,6 +7,12 @@
       <h2 class="card-title text-2xl font-bold text-primary">{{ headliner }}</h2>
       <p v-if="supportActs.length" class="text-lg">{{ supportActs.join(', ') }}</p>
       <div class="flex flex-col gap-2">
+         <div v-if="gig.festivalName" class="flex items-center gap-2 text-base-content/70">
+             <Icon name="mdi:party-popper" class="w-5 h-5 text-purple-500" />
+             <NuxtLink :to="`/festivals/${gig.festivalId}`" class="font-semibold text-purple-500 hover:text-purple-600 transition-colors">
+                 {{ gig.festivalName }}
+             </NuxtLink>
+         </div>
          <div class="flex items-center gap-2 text-lg text-secondary">
              <Icon name="mdi:map-marker" class="w-5 h-5" />
              <span class="font-semibold">{{ gig.venueName }}</span>
@@ -17,7 +23,7 @@
          </div>
          <div class="flex items-center gap-2 mt-2">
              <div class="badge badge-accent badge-outline">{{ gig.ticketType }}</div>
-             <span v-if="gig.ticketCost" class="text-sm font-bold text-primary">£{{ gig.ticketCost.toFixed(2) }}</span>
+             <span v-if="gig.ticketCost" class="text-sm font-bold text-primary">&pound;{{ gig.ticketCost.toFixed(2) }}</span>
          </div>
       </div>
     </div>

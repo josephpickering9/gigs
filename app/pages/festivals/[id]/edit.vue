@@ -74,10 +74,13 @@ onMounted(async () => {
     }
 });
 
-const handleUpdate = async (data: UpsertFestivalRequest) => {
+const handleUpdate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
     try {
         await gigStore.updateFestival(festivalId, data);
-        router.push('/festivals');
+        await gigStore.updateFestivalGigs(festivalId, gigIds);
+        // Re-fetch the festival to get the latest data
+        await gigStore.fetchFestival(festivalId);
+        router.push(`/festivals/${festivalId}`);
     } catch {
         // Error handled in store
     }

@@ -29,6 +29,11 @@
             type="number"
             :error="errors['year']"
           />
+
+          <GigSelector
+            v-model="selectedGigIds"
+            :initial-gigs="initialData?.gigs || undefined"
+          />
         </div>
       </div>
     </div>
@@ -57,6 +62,7 @@
 import { ref, watch, computed } from 'vue';
 import type { UpsertFestivalRequest, FestivalDto } from '~~/api';
 import TextInput from '~/components/ui/input/TextInput.vue';
+import GigSelector from '~/components/gigs/GigSelector.vue';
 
 const props = defineProps<{
   initialData?: FestivalDto;
@@ -65,7 +71,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'submit', data: UpsertFestivalRequest): void;
+  (e: 'submit', data: UpsertFestivalRequest, gigIds: string[]): void;
   (e: 'cancel'): void;
 }>();
 
@@ -74,6 +80,8 @@ const form = ref<UpsertFestivalRequest>({
   year: null,
   imageUrl: '',
 });
+
+const selectedGigIds = ref<string[]>([]);
 
 const imageUrlProxy = computed({
     get: () => form.value.imageUrl || '',
@@ -94,6 +102,7 @@ watch(() => props.initialData, (newData) => {
             year: newData.year || null,
             imageUrl: newData.imageUrl || '',
         };
+        selectedGigIds.value = newData.gigs?.map(g => g.id!).filter(Boolean) || [];
     }
 }, { immediate: true });
 
@@ -111,6 +120,6 @@ const validate = () => {
 
 const handleSubmit = () => {
     if (!validate()) return;
-    emit('submit', form.value);
+    emit('submit', form.value, selectedGigIds.value);
 };
 </script>

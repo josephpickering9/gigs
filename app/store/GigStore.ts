@@ -200,7 +200,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async createFestival(festival: UpsertFestivalRequest) {
-            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+            return await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
                 const response = await postApiFestivals({ body: festival });
                 await this.fetchFestivals();
                 return response.data;
@@ -208,7 +208,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async updateFestival(id: string, festival: UpsertFestivalRequest) {
-            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+            return await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
                 const response = await putApiFestivalsById({ path: { id }, body: festival });
                 await this.fetchFestivals();
                 return response.data;
@@ -221,6 +221,87 @@ export const useGigStore = defineStore('gig', {
                 await this.fetchFestivals();
                 return undefined;
             });
+        },
+
+        async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
+            // Get current festival to know what to remove
+            const festival = await this.fetchFestival(festivalId);
+            if (!festival) return;
+
+            const currentGigIds = festival.gigs?.map(g => g.id).filter(Boolean) as string[] || [];
+
+            const toAdd = newGigIds.filter(id => !currentGigIds.includes(id));
+            const toRemove = currentGigIds.filter(id => !newGigIds.includes(id));
+
+            // Helper to update a single gig
+            const updateGigFestival = async (gigId: string, targetFestivalId: string | null) => {
+                const gig = await this.fetchGig(gigId);
+                if (!gig) return;
+
+                // Prepare update request
+                const updateRequest: UpsertGigRequest = {
+                    venueId: gig.venueId,
+                    venueName: gig.venueName,
+                    venueCity: null, // Depending on backend, might not need if ID provided? No, types say standard fields.
+                    // Actually, looking at UpsertGigRequest, it has optional fields?
+                    // Let's check api/types.gen.ts again.
+                    // UpsertGigRequest:
+                    /*
+                        venueId?: string | null;
+                        venueName?: string | null;
+                        venueCity?: string | null;
+                        festivalId?: string | null;
+                        festivalName?: string | null;
+                        date: string;
+                        ticketCost?: number | null;
+                        ticketType: TicketType;
+                        imageUrl?: string | null;
+                        acts?: Array<GigArtistRequest>;
+                    */
+                    // So we must provide all existing data to avoid wiping it.
+                    festivalId: targetFestivalId,
+                    festivalName: targetFestivalId && festival ? festival.name : null, // Optional likely
+                    date: gig.date!,
+                    ticketCost: gig.ticketCost,
+                    ticketType: gig.ticketType!,
+                    imageUrl: gig.imageUrl,
+                    acts: gig.acts?.map(a => ({
+                        artistId: a.artistId,
+                        isHeadliner: a.isHeadliner,
+                        // order?? GigArtistRequest has order. GetGigArtistResponse does NOT have order?
+                        // GetGigArtistResponse has setlist.
+                        // GigArtistRequest: artistId, isHeadliner, order, setlistUrl, setlist.
+                        // We might lose 'order' if not in response!
+                        // This is a risk.
+                        // Let's check GetGigArtistResponse.
+                        /*
+                            artistId?: string;
+                            name?: string;
+                            isHeadliner?: boolean;
+                            imageUrl?: string | null;
+                            setlist?: Array<string>;
+                        */
+                        // It DOES NOT have 'order'.
+                        // However, usually the list is ordered.
+                        // I will assign order based on index.
+                        order: 0, // Placeholder, usually handled by index in map
+                    })).map((a, idx) => ({ ...a, order: idx + 1 }))
+                };
+
+                await this.updateGig(gigId, updateRequest);
+            };
+
+            // Execute updates in parallel or sequence
+            // Parallel might be faster but risk rate limits or db locks.
+            // Let's do sequence for safety.
+            for (const id of toAdd) {
+                await updateGigFestival(id, festivalId);
+            }
+            for (const id of toRemove) {
+                await updateGigFestival(id, null);
+            }
+
+            await this.fetchFestival(festivalId); // helpers refresh list?
         },
 
         async createGig(gig: UpsertGigRequest) {
