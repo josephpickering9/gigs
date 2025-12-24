@@ -42,18 +42,14 @@ useHead({
 });
 
 const handleCreate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
-    try {
-        const newFestival = await gigStore.createFestival(data);
-        if (newFestival && newFestival.id && gigIds.length > 0) {
-             await gigStore.updateFestivalGigs(newFestival.id, gigIds);
-        }
-        if (newFestival?.id) {
-             router.push(`/festivals/${newFestival.id}`);
-        } else {
-             router.push('/festivals');
-        }
-    } catch {
-        // Error handled in store
+    const newFestival = await gigStore.createFestival(data);
+    if (newFestival && newFestival.id && gigIds.length > 0) {
+        await gigStore.updateFestivalGigs(newFestival.id, gigIds);
+    }
+    if (newFestival?.id) {
+        router.push(`/festivals/${newFestival.id}`);
+    } else {
+        router.push('/festivals');
     }
 };
 </script>

@@ -10,7 +10,7 @@
         :error="error"
         :remote="true"
         class="w-full"
-        @update:modelValue="onAdd"
+        @update:model-value="onAdd"
         @search="handleSearch"
       />
 

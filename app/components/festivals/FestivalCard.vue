@@ -8,7 +8,6 @@
           <span>{{ festival.name }}</span>
           <span v-if="festival.year" class="text-base font-normal text-base-content/60">({{ festival.year }})</span>
       </h2>
-      
       <div class="flex items-center gap-2 text-base-content/70 mt-4">
           <Icon name="mdi:calendar-multiple" class="w-5 h-5 text-accent" />
           <span class="font-semibold">{{ festival.gigs?.length || 0 }} gig{{ festival.gigs?.length !== 1 ? 's' : '' }}</span>

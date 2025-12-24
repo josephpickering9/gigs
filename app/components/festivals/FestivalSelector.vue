@@ -9,7 +9,7 @@
       :loading="loading"
       :error="error"
       class="w-full"
-      @update:modelValue="onUpdate"
+      @update:model-value="onUpdate"
     />
   </div>
 </template>
@@ -27,8 +27,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | null): void;
-  (e: 'update:name', value: string | null): void;
+  (e: 'update:modelValue' | 'update:name', value: string | null): void;
 }>();
 
 const gigStore = useGigStore();
@@ -44,22 +43,6 @@ const options = computed<SelectListItem[]>(() =>
   }))
 );
 
-onMounted(() => {
-  if (gigStore.festivals.length === 0) {
-    gigStore.fetchFestivals();
-  }
-});
-
-// Watch for external model changes
-watch(() => props.modelValue, (newVal) => {
-  syncSelected(newVal, props.initialName);
-}, { immediate: true });
-
-// Watch for festivals loading to re-sync if needed
-watch(festivals, () => {
-  syncSelected(props.modelValue, props.initialName);
-});
-
 function syncSelected(id?: string | null, name?: string | null) {
   if (id) {
     const fest = festivals.value.find(f => f.id === id);
@@ -70,15 +53,12 @@ function syncSelected(id?: string | null, name?: string | null) {
     }
   }
   
-  // If we have a name but no ID match (or no ID), it might be a new festival or just name provided
   if (!id && name) {
-       // Check if we can find by name
        const fest = festivals.value.find(f => f.name === name);
        if(fest) {
            const text = fest.year ? `${fest.name} (${fest.year})` : (fest.name || 'Unknown');
            selected.value = [{ text, value: fest.id || '' }];
        } else {
-           // Truly new or not found
            selected.value = [{ text: name, value: name }]; 
        }
   } else if (!id && !name) {
@@ -89,7 +69,7 @@ function syncSelected(id?: string | null, name?: string | null) {
 const onUpdate = (val: SelectListItem[]) => {
   const first = val[0];
   if (first) {
-    const value = String(first.value); // This is ID if found, or text if new/typed
+    const value = String(first.value);
     const text = first.text;
 
     const existing = festivals.value.find(f => f.id === value);
@@ -97,13 +77,26 @@ const onUpdate = (val: SelectListItem[]) => {
       emit('update:modelValue', existing.id || null);
       emit('update:name', existing.name || null);
     } else {
-      // Assuming new festival
-      emit('update:modelValue', null); // No ID for new festival
+      emit('update:modelValue', null);
       emit('update:name', text);
-    }
+    } 
   } else {
     emit('update:modelValue', null);
     emit('update:name', null);
   }
 };
+
+onMounted(() => {
+  if (gigStore.festivals.length === 0) {
+    gigStore.fetchFestivals();
+  }
+});
+
+watch(() => props.modelValue, (newVal) => {
+  syncSelected(newVal, props.initialName);
+}, { immediate: true });
+
+watch(festivals, () => {
+  syncSelected(props.modelValue, props.initialName);
+});
 </script>

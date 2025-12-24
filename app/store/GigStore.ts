@@ -224,7 +224,6 @@ export const useGigStore = defineStore('gig', {
         },
 
         async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
-            // Get current festival to know what to remove
             const festival = await this.fetchFestival(festivalId);
             if (!festival) return;
 
@@ -233,34 +232,16 @@ export const useGigStore = defineStore('gig', {
             const toAdd = newGigIds.filter(id => !currentGigIds.includes(id));
             const toRemove = currentGigIds.filter(id => !newGigIds.includes(id));
 
-            // Helper to update a single gig
             const updateGigFestival = async (gigId: string, targetFestivalId: string | null) => {
                 const gig = await this.fetchGig(gigId);
                 if (!gig) return;
 
-                // Prepare update request
                 const updateRequest: UpsertGigRequest = {
                     venueId: gig.venueId,
                     venueName: gig.venueName,
-                    venueCity: null, // Depending on backend, might not need if ID provided? No, types say standard fields.
-                    // Actually, looking at UpsertGigRequest, it has optional fields?
-                    // Let's check api/types.gen.ts again.
-                    // UpsertGigRequest:
-                    /*
-                        venueId?: string | null;
-                        venueName?: string | null;
-                        venueCity?: string | null;
-                        festivalId?: string | null;
-                        festivalName?: string | null;
-                        date: string;
-                        ticketCost?: number | null;
-                        ticketType: TicketType;
-                        imageUrl?: string | null;
-                        acts?: Array<GigArtistRequest>;
-                    */
-                    // So we must provide all existing data to avoid wiping it.
+                    venueCity: null,
                     festivalId: targetFestivalId,
-                    festivalName: targetFestivalId && festival ? festival.name : null, // Optional likely
+                    festivalName: targetFestivalId && festival ? festival.name : null,
                     date: gig.date!,
                     ticketCost: gig.ticketCost,
                     ticketType: gig.ticketType!,
@@ -268,32 +249,13 @@ export const useGigStore = defineStore('gig', {
                     acts: gig.acts?.map(a => ({
                         artistId: a.artistId,
                         isHeadliner: a.isHeadliner,
-                        // order?? GigArtistRequest has order. GetGigArtistResponse does NOT have order?
-                        // GetGigArtistResponse has setlist.
-                        // GigArtistRequest: artistId, isHeadliner, order, setlistUrl, setlist.
-                        // We might lose 'order' if not in response!
-                        // This is a risk.
-                        // Let's check GetGigArtistResponse.
-                        /*
-                            artistId?: string;
-                            name?: string;
-                            isHeadliner?: boolean;
-                            imageUrl?: string | null;
-                            setlist?: Array<string>;
-                        */
-                        // It DOES NOT have 'order'.
-                        // However, usually the list is ordered.
-                        // I will assign order based on index.
-                        order: 0, // Placeholder, usually handled by index in map
+                        order: 0,
                     })).map((a, idx) => ({ ...a, order: idx + 1 }))
                 };
 
                 await this.updateGig(gigId, updateRequest);
             };
 
-            // Execute updates in parallel or sequence
-            // Parallel might be faster but risk rate limits or db locks.
-            // Let's do sequence for safety.
             for (const id of toAdd) {
                 await updateGigFestival(id, festivalId);
             }
@@ -301,13 +263,13 @@ export const useGigStore = defineStore('gig', {
                 await updateGigFestival(id, null);
             }
 
-            await this.fetchFestival(festivalId); // helpers refresh list?
+            await this.fetchFestival(festivalId);
         },
 
         async createGig(gig: UpsertGigRequest) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await postApiGigs({ body: gig });
-                await this.fetchGigs(); // Refresh list
+                await this.fetchGigs();
                 return response.data;
             });
         },
@@ -315,18 +277,15 @@ export const useGigStore = defineStore('gig', {
         async updateGig(id: string, gig: UpsertGigRequest) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await putApiGigsById({ path: { id }, body: gig });
-                await this.fetchGigs(); // Refresh list
+                await this.fetchGigs();
                 return response.data;
             });
         },
 
         async enrichGig(id: string) {
             await tryCatchFinally(ref(this.enrichForm), async () => {
-                // Call enrich endpoint
                 await postApiGigsByIdEnrich({ path: { id } });
-                // Fetch the updated gig data
                 const response = await getApiGigsById({ path: { id } });
-                // Refresh the gigs list
                 await this.fetchGigs();
                 return response.data;
             });
@@ -335,7 +294,6 @@ export const useGigStore = defineStore('gig', {
         async deleteGig(id: string) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 await deleteApiGigsById({ path: { id } });
-                // Refresh the gigs list after deletion
                 await this.fetchGigs();
                 return undefined;
             });
@@ -353,7 +311,6 @@ export const useGigStore = defineStore('gig', {
                         return formData;
                     },
                 });
-                // Refresh gigs after successful import
                 await this.fetchGigs();
             });
         },

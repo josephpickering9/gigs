@@ -10,7 +10,7 @@
                 <span v-if="festival?.year" class="text-2xl font-normal text-base-content/60 ml-2">({{ festival?.year }})</span>
             </h1>
         </div>
-        <div class="ml-auto" v-if="isAuthenticated">
+        <div v-if="isAuthenticated" class="ml-auto">
              <NuxtLink :to="`/festivals/${festivalId}/edit`" class="btn btn-secondary">
                 <Icon name="mdi:pencil" class="w-5 h-5 mr-2" />
                 Edit Festival
@@ -28,7 +28,7 @@
 
     <div v-else class="space-y-8">
         <div v-if="festival.imageUrl" class="w-full h-64 md:h-96 rounded-xl overflow-hidden shadow-xl">
-            <img :src="getImageUrl(festival.imageUrl)" :alt="festival.name" class="w-full h-full object-cover" />
+            <img :src="getImageUrl(festival.imageUrl)" :alt="festival.name" class="w-full h-full object-cover" >
         </div>
         <div>
             <div v-if="!festival.gigs || festival.gigs.length === 0" class="text-gray-500 italic">
@@ -59,10 +59,11 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import useAuth from '~/composables/useAuth';
-import type { FestivalDto, GetGigResponse } from '~~/api';
+import type { FestivalDto } from '~~/api';
 import GigCard from '~/components/gigs/GigCard.vue';
 import { getImageUrl } from '~/utils/image-helper';
 import { format, parseISO, isValid } from 'date-fns';
+import { groupBy, sortBy } from 'lodash-es';
 
 const route = useRoute();
 const router = useRouter();
@@ -80,57 +81,42 @@ useHead({
 const groupedGigs = computed(() => {
     if (!festival.value?.gigs) return [];
 
-    // Filter out gigs without date first (handle separately if needed, or group under 'Unknown')
-    const gigs = [...festival.value.gigs];
-
-    // Sort by date
-    gigs.sort((a, b) => {
-        if (!a.date) return 1;
-        if (!b.date) return -1;
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-
-    // Group
-    const groups: { title: string; dateObj: Date; gigs: GetGigResponse[] }[] = [];
-    
-    gigs.forEach(gig => {
-        if (!gig.date) {
-             let unknownGroup = groups.find(g => g.title === 'Unknown Date');
-             if (!unknownGroup) {
-                 unknownGroup = { title: 'Unknown Date', dateObj: new Date(8640000000000000), gigs: [] }; // Max date to put at end
-                 groups.push(unknownGroup);
-             }
-             if (unknownGroup) {
-                unknownGroup.gigs.push(gig);
-             }
-             return;
-        }
-
+    // Sort gigs by date first
+    const sortedGigs = sortBy(festival.value.gigs, (gig) => {
+        if (!gig.date) return new Date(8640000000000000); // Max date for gigs without dates
         const date = parseISO(gig.date);
-        if (!isValid(date)) return; // Should probably handle invalid dates same as unknown
-
-        const title = format(date, 'EEEE');
-        // Check if we already have a group for this date
-        const dateKey = format(date, 'yyyy-MM-dd');
-        const existingGroupIndex = groups.findIndex(g => format(g.dateObj, 'yyyy-MM-dd') === dateKey);
-
-        if (existingGroupIndex !== -1) {
-            groups[existingGroupIndex].gigs.push(gig);
-        } else {
-            groups.push({ title, dateObj: date, gigs: [gig] });
-        }
+        return isValid(date) ? date.getTime() : new Date(8640000000000000).getTime();
     });
 
-    return groups;
+    // Group by date key
+    const grouped = groupBy(sortedGigs, (gig) => {
+        if (!gig.date) return 'Unknown Date';
+        const date = parseISO(gig.date);
+        if (!isValid(date)) return 'Unknown Date';
+        return format(date, 'yyyy-MM-dd');
+    });
+
+    // Transform into the expected format
+    return Object.entries(grouped).map(([dateKey, gigs]) => {
+        if (dateKey === 'Unknown Date') {
+            return {
+                title: 'Unknown Date',
+                dateObj: new Date(8640000000000000),
+                gigs
+            };
+        }
+        
+        const date = parseISO(dateKey);
+        return {
+            title: format(date, 'EEEE'),
+            dateObj: date,
+            gigs
+        };
+    });
 });
 
 onMounted(async () => {
-    try {
-        festival.value = await gigStore.fetchFestival(festivalId);
-    } catch (e) {
-        console.error('Failed to fetch festival', e);
-    } finally {
-        loading.value = false;
-    }
+    festival.value = await gigStore.fetchFestival(festivalId);
+    loading.value = false;
 });
 </script>

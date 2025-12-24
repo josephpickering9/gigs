@@ -33,7 +33,7 @@
 import { onMounted } from 'vue';
 import { useGigStore } from '~/store/GigStore';
 import useAuth from '~/composables/useAuth';
-import FestivalCard from '~/components/gigs/FestivalCard.vue';
+import FestivalCard from '~/components/festivals/FestivalCard.vue';
 
 const gigStore = useGigStore();
 const { isAuthenticated } = useAuth();
