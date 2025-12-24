@@ -7,8 +7,8 @@ import {
     postApiGigs,
     putApiGigsById,
     getApiGigsById,
-    getApiV1Artists,
-    getApiV1Venues,
+    getApiArtists,
+    getApiVenues,
     postApiGigsByIdEnrich,
     deleteApiGigsById,
     getApiFestivals,
@@ -172,14 +172,14 @@ export const useGigStore = defineStore('gig', {
 
         async fetchArtists() {
             await tryCatchFinally(ref(this.artistsForm), async () => {
-                const response = await getApiV1Artists();
+                const response = await getApiArtists();
                 return response.data;
             });
         },
 
         async fetchVenues() {
             await tryCatchFinally(ref(this.venuesForm), async () => {
-                const response = await getApiV1Venues();
+                const response = await getApiVenues();
                 return response.data;
             });
         },
