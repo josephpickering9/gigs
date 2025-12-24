@@ -123,6 +123,33 @@
       </div>
     </div>
 
+    <!-- Attendees Section -->
+    <div class="card bg-base-200/50 shadow-sm">
+      <div class="card-body">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="badge badge-secondary badge-lg gap-2">
+            <Icon name="mdi:account-multiple" class="w-4 h-4" />
+            Attendees
+          </div>
+          <div class="text-sm text-base-content/60">
+            Who attended this gig?
+          </div>
+        </div>
+        
+        <Combobox
+          v-model="attendees"
+          placeholder="Add people who attended..."
+          :options="[]"
+          class="w-full"
+        />
+        
+        <div class="mt-3 flex items-start gap-2 text-sm text-base-content/70 bg-base-300/30 rounded-lg p-3">
+          <Icon name="mdi:information-outline" class="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <span>Type names of people who attended and press Enter to add them.</span>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Setlists Section -->
     <div v-if="form.acts && form.acts.length > 0" class="card bg-base-200/50 shadow-sm">
@@ -231,7 +258,7 @@ import { useGigStore } from '~/store/GigStore';
 import SelectMenu from '~/components/ui/input/SelectMenu.vue';
 import DatePicker from '~/components/ui/input/DatePicker.vue';
 import Combobox from '~/components/ui/input/Combobox.vue';
-import FestivalSelector from '~/components/gigs/FestivalSelector.vue';
+import FestivalSelector from '~/components/festivals/FestivalSelector.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
@@ -257,6 +284,7 @@ const imageUrlProxy = ref('');
 const headliners = ref<SelectListItem[]>([]);
 const supportActs = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
+const attendees = ref<SelectListItem[]>([]);
 
 type FormAct = Omit<GigArtistRequest, 'setlist'> & { setlist: string[] };
 type FormState = Omit<UpsertGigRequest, 'acts'> & { acts: FormAct[] };
@@ -270,6 +298,7 @@ const form = ref<FormState>({
   festivalId: null,
   festivalName: null,
   acts: [],
+  attendees: [],
 });
 
 const errors = ref<Record<string, string>>({});
@@ -334,6 +363,7 @@ watch(() => props.initialData, (newData) => {
             isHeadliner: a.isHeadliner,
             setlist: a.setlist || [],
         })) || [],
+        attendees: newData.attendees?.map(a => a.personName || '') || [],
     };
     
     // Set the date picker value
@@ -352,6 +382,13 @@ watch(() => props.initialData, (newData) => {
     if (newData.acts?.length) {
         headliners.value = newData.acts.filter(a => a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
         supportActs.value = newData.acts.filter(a => !a.isHeadliner).map(a => ({ text: a.name || 'Unknown', value: a.artistId || '' }));
+    }
+    
+    if (newData.attendees?.length) {
+        attendees.value = newData.attendees.map((a, index) => ({ 
+            text: a.personName || '', 
+            value: a.personName || `attendee-${index}` 
+        }));
     }
 }, { immediate: true });
 
@@ -449,10 +486,14 @@ const validate = () => {
 
 const handleSubmit = () => {
     if (!validate()) return;
+    // Prepare attendees from combobox items
+    const attendeeNames = attendees.value.map(a => a.text).filter(name => name.trim() !== '');
+    
     // Filter out empty strings from setlists before submitting
     const submissionData = {
         ...form.value,
         imageUrl: isEmpty(form.value.imageUrl) ? undefined : form.value.imageUrl,
+        attendees: attendeeNames,
         acts: form.value.acts?.map(act => ({
             ...act,
             setlist: act.setlist?.filter(song => song.trim() !== '') || []

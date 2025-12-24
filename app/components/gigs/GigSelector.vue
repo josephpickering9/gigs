@@ -1,12 +1,13 @@
 <template>
   <div class="space-y-4">
       <Combobox
+        ref="comboboxRef"
         v-model="comboboxSelected"
         label="Add Gigs to Festival"
         placeholder="Search gigs to add..."
         :options="options"
         :multiple="false"
-        :loading="loading"
+        :loading="searching"
         :error="error"
         :remote="true"
         class="w-full"
@@ -58,13 +59,14 @@ const emit = defineEmits<{
 }>();
 
 const gigStore = useGigStore();
-const loading = computed(() => gigStore.loading);
+const searching = ref(false); // Local loading state for search operations
 
 // Internal state
 const selectedGigs = ref<GetGigResponse[]>([]); // Full objects for table
 const searchResultGigs = ref<GetGigResponse[]>([]); // Full objects from search
 const comboboxSelected = ref<SelectListItem[]>([]); // For binding to Combobox (temporary)
 const searchTimer = ref<NodeJS.Timeout | null>(null);
+const comboboxRef = ref<any>(null); // Reference to the Combobox component
 
 // Table configuration
 const columns = [
@@ -136,14 +138,21 @@ const handleSearch = (query: string) => {
     if (searchTimer.value) clearTimeout(searchTimer.value);
     
     searchTimer.value = setTimeout(async () => {
-        if (!query) return;
+        if (!query) {
+            searching.value = false;
+            return;
+        }
         
-        // We use store fetch but capture 'gigs' from store state immediately
-        await gigStore.fetchGigs({ search: query, pageSize: 20 });
-        // NOTE: This relies on store.gigs being updated. 
-        // If parallel requests happen, might be racey. Ideally use a dedicated search action/state.
-        searchResultGigs.value = [...gigStore.gigs]; 
-        
+        try {
+            searching.value = true;
+            // We use store fetch but capture 'gigs' from store state immediately
+            await gigStore.fetchGigs({ search: query, pageSize: 20 });
+            // NOTE: This relies on store.gigs being updated. 
+            // If parallel requests happen, might be racey. Ideally use a dedicated search action/state.
+            searchResultGigs.value = [...gigStore.gigs];
+        } finally {
+            searching.value = false;
+        }
     }, 400); 
 };
 
@@ -164,10 +173,16 @@ const onAdd = (val: SelectListItem[]) => {
         }
     }
     
-    // Clear combobox selection
-    // Use nextTick to ensure the selection is cleared after the component has updated
+    // Clear combobox selection and refocus to allow immediate next search
     nextTick(() => {
         comboboxSelected.value = [];
+        // Refocus the input to keep it ready for next search
+        if (comboboxRef.value?.$el) {
+            const input = comboboxRef.value.$el.querySelector('input');
+            if (input) {
+                input.focus();
+            }
+        }
     });
 };
 
