@@ -16,7 +16,7 @@
         </li>
         <li class="animate-fade-in-up" style="animation-delay: 250ms">
           <NuxtLink to="/gigs" class="active:bg-primary/10 active:text-primary" @click="$emit('close')">
-            <Icon name="heroicons:clipboard-list" size="1.5em" class="text-secondary" />
+            <Icon name="mdi:ticket" size="1.5em" class="text-secondary" />
             Gigs
           </NuxtLink>
         </li>

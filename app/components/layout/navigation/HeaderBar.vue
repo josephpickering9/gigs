@@ -14,7 +14,7 @@
         </li>
         <li>
           <NuxtLink to="/gigs">
-            <Icon name="mdi:clipboard-list" size="1.2em" />
+            <Icon name="mdi:ticket" size="1.2em" />
             Gigs
           </NuxtLink>
         </li>

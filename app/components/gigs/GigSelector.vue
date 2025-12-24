@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useGigStore } from '~/store/GigStore';
 import Combobox from '~/components/ui/input/Combobox.vue';
 import Table from '~/components/ui/table/Table.vue';
@@ -164,8 +164,11 @@ const onAdd = (val: SelectListItem[]) => {
         }
     }
     
-    // Clear combobox
-    comboboxSelected.value = [];
+    // Clear combobox selection
+    // Use nextTick to ensure the selection is cleared after the component has updated
+    nextTick(() => {
+        comboboxSelected.value = [];
+    });
 };
 
 const removeGig = (id?: string) => {

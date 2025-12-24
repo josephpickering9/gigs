@@ -45,6 +45,11 @@ export type GetGigArtistResponse = {
     setlist?: Array<string>;
 };
 
+export type GetGigAttendeeResponse = {
+    personId?: string;
+    personName?: string;
+};
+
 export type GetGigResponse = {
     id?: string;
     venueId?: string;
@@ -57,6 +62,7 @@ export type GetGigResponse = {
     imageUrl?: string | null;
     slug?: string;
     acts?: Array<GetGigArtistResponse>;
+    attendees?: Array<GetGigAttendeeResponse>;
 };
 
 export type GetGigResponsePaginatedResponse = {
@@ -187,6 +193,7 @@ export type UpsertGigRequest = {
     ticketType: TicketType;
     imageUrl?: string | null;
     acts?: Array<GigArtistRequest>;
+    attendees?: Array<string>;
 };
 
 export type VenueInsightsResponse = {
