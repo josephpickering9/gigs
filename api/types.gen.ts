@@ -208,55 +208,55 @@ export type GetGigResponsePaginatedResponseWritable = {
     totalCount?: number;
 };
 
-export type GetApiV1ArtistsData = {
+export type GetApiArtistsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/artists';
+    url: '/api/artists';
 };
 
-export type GetApiV1ArtistsResponses = {
+export type GetApiArtistsResponses = {
     /**
      * OK
      */
     200: Array<GetArtistResponse>;
 };
 
-export type GetApiV1ArtistsResponse = GetApiV1ArtistsResponses[keyof GetApiV1ArtistsResponses];
+export type GetApiArtistsResponse = GetApiArtistsResponses[keyof GetApiArtistsResponses];
 
-export type PostApiV1ArtistsByIdEnrichData = {
+export type PostApiArtistsByIdEnrichData = {
     body?: never;
     path: {
         id: string;
     };
     query?: never;
-    url: '/api/v1/artists/{id}/enrich';
+    url: '/api/artists/{id}/enrich';
 };
 
-export type PostApiV1ArtistsByIdEnrichResponses = {
+export type PostApiArtistsByIdEnrichResponses = {
     /**
      * OK
      */
     200: GetArtistResponse;
 };
 
-export type PostApiV1ArtistsByIdEnrichResponse = PostApiV1ArtistsByIdEnrichResponses[keyof PostApiV1ArtistsByIdEnrichResponses];
+export type PostApiArtistsByIdEnrichResponse = PostApiArtistsByIdEnrichResponses[keyof PostApiArtistsByIdEnrichResponses];
 
-export type PostApiV1ArtistsEnrichAllData = {
+export type PostApiArtistsEnrichAllData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/artists/enrich-all';
+    url: '/api/artists/enrich-all';
 };
 
-export type PostApiV1ArtistsEnrichAllResponses = {
+export type PostApiArtistsEnrichAllResponses = {
     /**
      * OK
      */
     200: number;
 };
 
-export type PostApiV1ArtistsEnrichAllResponse = PostApiV1ArtistsEnrichAllResponses[keyof PostApiV1ArtistsEnrichAllResponses];
+export type PostApiArtistsEnrichAllResponse = PostApiArtistsEnrichAllResponses[keyof PostApiArtistsEnrichAllResponses];
 
 export type PostApiCalendarImportData = {
     body?: ImportCalendarEventsRequest;
@@ -751,52 +751,52 @@ export type GetMediaUploadsByFileNameResponses = {
     200: unknown;
 };
 
-export type GetApiV1VenuesData = {
+export type GetApiVenuesData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/venues';
+    url: '/api/venues';
 };
 
-export type GetApiV1VenuesResponses = {
+export type GetApiVenuesResponses = {
     /**
      * OK
      */
     200: Array<GetVenueResponse>;
 };
 
-export type GetApiV1VenuesResponse = GetApiV1VenuesResponses[keyof GetApiV1VenuesResponses];
+export type GetApiVenuesResponse = GetApiVenuesResponses[keyof GetApiVenuesResponses];
 
-export type PostApiV1VenuesByIdEnrichData = {
+export type PostApiVenuesByIdEnrichData = {
     body?: never;
     path: {
         id: string;
     };
     query?: never;
-    url: '/api/v1/venues/{id}/enrich';
+    url: '/api/venues/{id}/enrich';
 };
 
-export type PostApiV1VenuesByIdEnrichResponses = {
+export type PostApiVenuesByIdEnrichResponses = {
     /**
      * OK
      */
     200: GetVenueResponse;
 };
 
-export type PostApiV1VenuesByIdEnrichResponse = PostApiV1VenuesByIdEnrichResponses[keyof PostApiV1VenuesByIdEnrichResponses];
+export type PostApiVenuesByIdEnrichResponse = PostApiVenuesByIdEnrichResponses[keyof PostApiVenuesByIdEnrichResponses];
 
-export type PostApiV1VenuesEnrichAllData = {
+export type PostApiVenuesEnrichAllData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/venues/enrich-all';
+    url: '/api/venues/enrich-all';
 };
 
-export type PostApiV1VenuesEnrichAllResponses = {
+export type PostApiVenuesEnrichAllResponses = {
     /**
      * OK
      */
     200: number;
 };
 
-export type PostApiV1VenuesEnrichAllResponse = PostApiV1VenuesEnrichAllResponses[keyof PostApiV1VenuesEnrichAllResponses];
+export type PostApiVenuesEnrichAllResponse = PostApiVenuesEnrichAllResponses[keyof PostApiVenuesEnrichAllResponses];
