@@ -99,6 +99,9 @@ const sortColumn = ref<string | null>('date');
 const sortDirection = ref<'asc' | 'desc'>('desc');
 const loadMoreTrigger = ref<HTMLElement | null>(null);
 
+const router = useRouter();
+const route = useRoute();
+
 const activeFilters = ref<Filter[]>([]);
 
 useHead({
@@ -118,19 +121,35 @@ const sortedGigs = computed(() => {
     return gigStore.gigs || [];
 });
 
-// Sync filters from UI to Store
+// Sync filters from UI to Store and URL
 watch(activeFilters, (filters) => {
     const storeFilters: any = {};
+    const query: any = {};
     
     filters.forEach(f => {
-        if (f.type === FilterType.VENUE) storeFilters.venueId = f.value;
-        if (f.type === FilterType.ARTIST) storeFilters.artistId = f.value;
-        if (f.type === FilterType.CITY) storeFilters.city = f.value;
-        if (f.type === FilterType.SEARCH) storeFilters.search = f.value;
+        if (f.type === FilterType.VENUE) {
+            storeFilters.venueId = f.value;
+            query.venueId = f.value;
+        }
+        if (f.type === FilterType.ARTIST) {
+            storeFilters.artistId = f.value;
+            query.artistId = f.value;
+        }
+        if (f.type === FilterType.CITY) {
+            storeFilters.city = f.value;
+            query.city = f.value;
+        }
+        if (f.type === FilterType.SEARCH) {
+            storeFilters.search = f.value;
+            query.search = f.value;
+        }
     });
 
     storeFilters.sortBy = sortColumn.value || undefined;
     storeFilters.sortDirection = sortDirection.value;
+
+    // Update URL without reloading
+    router.replace({ query: { ...query } });
 
     gigStore.setFilters(storeFilters);
 }, { deep: true });
@@ -148,7 +167,8 @@ function handleSort(column: string) {
     gigStore.fetchGigs({ 
         page: 1,
         sortBy: column, 
-        sortDirection: sortDirection.value 
+        sortDirection: sortDirection.value,
+        ...gigStore.filters // Keep existing filters
     });
 }
 
@@ -165,7 +185,8 @@ const handleCalendarImportSuccess = () => {
 // Infinite Scroll
 useIntersectionObserver(
   loadMoreTrigger,
-  ([{ isIntersecting }]) => {
+  (entries) => {
+    const isIntersecting = entries[0]?.isIntersecting;
     if (isIntersecting && !gigStore.loading && gigStore.pagination.page < gigStore.pagination.totalPages) {
       gigStore.loadMoreGigs();
     }
@@ -173,8 +194,39 @@ useIntersectionObserver(
 );
 
 // Fetch gigs on mount
-onMounted(() => {
-    // Initial fetch
-    gigStore.fetchGigs({ page: 1 });
+onMounted(async () => {
+    const query = route.query;
+    const newFilters: Filter[] = [];
+
+    if (query['search']) {
+        newFilters.push({ type: FilterType.SEARCH, value: query['search'] as string, label: 'Search' });
+    }
+    
+    if (query['city']) {
+        newFilters.push({ type: FilterType.CITY, value: query['city'] as string, label: 'City', displayValue: query['city'] as string });
+    }
+
+    if (query['venueId']) {
+        if (!gigStore.venues.length) await gigStore.fetchVenues();
+        const venue = gigStore.venues.find(v => v.id === query['venueId']);
+        if (venue) {
+            newFilters.push({ type: FilterType.VENUE, value: query['venueId'] as string, label: 'Venue', displayValue: venue.name });
+        }
+    }
+
+    if (query['artistId']) {
+        if (!gigStore.artists.length) await gigStore.fetchArtists();
+        const artist = gigStore.artists.find(a => a.id === query['artistId']);
+        if (artist) {
+             newFilters.push({ type: FilterType.ARTIST, value: query['artistId'] as string, label: 'Artist', displayValue: artist.name });
+        }
+    }
+
+    if (newFilters.length > 0) {
+        activeFilters.value = newFilters;
+    } else {
+        // Initial fetch if no filters (if filters exist, watcher will trigger fetch via setFilters)
+        gigStore.fetchGigs({ page: 1 });
+    }
 });
 </script>

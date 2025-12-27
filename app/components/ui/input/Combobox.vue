@@ -104,16 +104,19 @@ const props = withDefaults(defineProps<{
     label?: string;
     placeholder?: string;
     multiple?: boolean;
+    remote?: boolean;
 }>(), {
     modelValue: () => [],
     options: () => [],
     label: '',
     placeholder: 'Search...',
     multiple: true,
+    remote: false,
 });
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: SelectListItem[]): void;
+    (e: 'search', query: string): void;
 }>();
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -125,10 +128,17 @@ const highlightedIndex = ref(0);
 const blurTimeout = ref<NodeJS.Timeout | null>(null); // Add blurTimeout ref
 
 const filteredOptions = computed(() => {
+    if (props.remote) return props.options; // If remote, parent handles filtering/options
     if (!query.value) return props.options;
     return props.options.filter(opt => 
         opt.text.toLowerCase().includes(query.value.toLowerCase())
     );
+});
+
+watch(query, (newVal) => {
+    if (props.remote) {
+        emit('search', newVal);
+    }
 });
 
 const isSelected = (option: SelectListItem) => {

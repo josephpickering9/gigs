@@ -42,11 +42,7 @@ useHead({
 });
 
 const handleCreate = async (data: UpsertGigRequest) => {
-    try {
-        await gigStore.createGig(data);
-        router.push('/gigs');
-    } catch {
-        // Error handled in store
-    }
+    await gigStore.createGig(data);
+    router.push('/gigs');
 };
 </script>

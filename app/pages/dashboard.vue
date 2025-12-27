@@ -53,7 +53,7 @@
       </div>
 
       <!-- Temporal & Insights Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
           label="Unique Artists"
           :value="dashboardStore.artistInsights?.totalUniqueArtists || 0"
@@ -65,6 +65,12 @@
           :value="dashboardStore.venueInsights?.totalUniqueVenues || 0"
           :subtitle="`${dashboardStore.venueInsights?.totalUniqueCities || 0} cities`"
           icon="mdi:map-marker-multiple"
+        />
+        <StatCard
+          label="Unique Attendees"
+          :value="dashboardStore.attendeeInsights?.totalUniqueAttendees || 0"
+          :subtitle="`${dashboardStore.attendeeInsights?.totalGigsWithAttendees || 0} gigs with attendees`"
+          icon="mdi:account-multiple"
         />
         <StatCard
           label="Busiest Year"
@@ -121,7 +127,7 @@
       </div>
 
       <!-- Top Lists Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
         <!-- Top Artists -->
         <div class="card bg-base-100 shadow-xl border border-primary/20">
           <div class="card-body">
@@ -199,6 +205,34 @@
                     <td>{{ index + 1 }}</td>
                     <td class="font-semibold">{{ city.city }}</td>
                     <td class="text-accent font-bold">{{ city.gigCount }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Attendees -->
+        <div class="card bg-base-100 shadow-xl border border-info/20">
+          <div class="card-body">
+            <h3 class="card-title text-xl font-bold text-info">
+              <Icon name="mdi:trophy" class="w-5 h-5" />
+              Top Attendees
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Gigs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(attendee, index) in dashboardStore.topAttendees.slice(0, 5)" :key="attendee.personId">
+                    <td>{{ index + 1 }}</td>
+                    <td class="font-semibold">{{ attendee.personName }}</td>
+                    <td class="text-info font-bold">{{ attendee.gigCount }}</td>
                   </tr>
                 </tbody>
               </table>

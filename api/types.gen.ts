@@ -9,6 +9,11 @@ export type ArtistInsightsResponse = {
     totalArtistAppearances?: number;
 };
 
+export type AttendeeInsightsResponse = {
+    totalUniqueAttendees?: number;
+    totalGigsWithAttendees?: number;
+};
+
 export type AverageTicketPriceByYearResponse = {
     year?: number;
     averagePrice?: number;
@@ -19,6 +24,16 @@ export type DashboardStatsResponse = {
     topArtist?: TopArtistStats;
     topVenue?: TopVenueStats;
     topCity?: TopCityStats;
+    topAttendee?: TopAttendeeStats;
+};
+
+export type FestivalDto = {
+    id?: string;
+    name?: string;
+    year?: number | null;
+    slug?: string;
+    imageUrl?: string | null;
+    gigs?: Array<GetGigResponse> | null;
 };
 
 export type GetArtistResponse = {
@@ -36,16 +51,24 @@ export type GetGigArtistResponse = {
     setlist?: Array<string>;
 };
 
+export type GetGigAttendeeResponse = {
+    personId?: string;
+    personName?: string;
+};
+
 export type GetGigResponse = {
     id?: string;
     venueId?: string;
     venueName?: string;
+    festivalId?: string | null;
+    festivalName?: string | null;
     date?: string;
     ticketCost?: number | null;
     ticketType?: TicketType;
     imageUrl?: string | null;
     slug?: string;
     acts?: Array<GetGigArtistResponse>;
+    attendees?: Array<GetGigAttendeeResponse>;
 };
 
 export type GetGigResponsePaginatedResponse = {
@@ -54,6 +77,12 @@ export type GetGigResponsePaginatedResponse = {
     pageSize?: number;
     totalCount?: number;
     readonly totalPages?: number;
+};
+
+export type GetPersonResponse = {
+    id?: string;
+    name?: string;
+    slug?: string;
 };
 
 export type GetVenueResponse = {
@@ -136,6 +165,17 @@ export type TopArtistStats = {
     gigCount?: number;
 };
 
+export type TopAttendeeResponse = {
+    personId?: string;
+    personName?: string;
+    gigCount?: number;
+};
+
+export type TopAttendeeStats = {
+    personName?: string;
+    gigCount?: number;
+};
+
 export type TopCityResponse = {
     city?: string;
     gigCount?: number;
@@ -159,13 +199,28 @@ export type TopVenueStats = {
     gigCount?: number;
 };
 
+export type UpsertFestivalRequest = {
+    name: string;
+    year?: number | null;
+    imageUrl?: string | null;
+};
+
 export type UpsertGigRequest = {
-    venueId: string;
+    venueId?: string | null;
+    venueName?: string | null;
+    venueCity?: string | null;
+    festivalId?: string | null;
+    festivalName?: string | null;
     date: string;
     ticketCost?: number | null;
     ticketType: TicketType;
     imageUrl?: string | null;
     acts?: Array<GigArtistRequest>;
+    attendees?: Array<string>;
+};
+
+export type UpsertPersonRequest = {
+    name: string;
 };
 
 export type VenueInsightsResponse = {
@@ -180,55 +235,55 @@ export type GetGigResponsePaginatedResponseWritable = {
     totalCount?: number;
 };
 
-export type GetApiV1ArtistsData = {
+export type GetApiArtistsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/artists';
+    url: '/api/artists';
 };
 
-export type GetApiV1ArtistsResponses = {
+export type GetApiArtistsResponses = {
     /**
      * OK
      */
     200: Array<GetArtistResponse>;
 };
 
-export type GetApiV1ArtistsResponse = GetApiV1ArtistsResponses[keyof GetApiV1ArtistsResponses];
+export type GetApiArtistsResponse = GetApiArtistsResponses[keyof GetApiArtistsResponses];
 
-export type PostApiV1ArtistsByIdEnrichData = {
+export type PostApiArtistsByIdEnrichData = {
     body?: never;
     path: {
         id: string;
     };
     query?: never;
-    url: '/api/v1/artists/{id}/enrich';
+    url: '/api/artists/{id}/enrich';
 };
 
-export type PostApiV1ArtistsByIdEnrichResponses = {
+export type PostApiArtistsByIdEnrichResponses = {
     /**
      * OK
      */
     200: GetArtistResponse;
 };
 
-export type PostApiV1ArtistsByIdEnrichResponse = PostApiV1ArtistsByIdEnrichResponses[keyof PostApiV1ArtistsByIdEnrichResponses];
+export type PostApiArtistsByIdEnrichResponse = PostApiArtistsByIdEnrichResponses[keyof PostApiArtistsByIdEnrichResponses];
 
-export type PostApiV1ArtistsEnrichAllData = {
+export type PostApiArtistsEnrichAllData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/artists/enrich-all';
+    url: '/api/artists/enrich-all';
 };
 
-export type PostApiV1ArtistsEnrichAllResponses = {
+export type PostApiArtistsEnrichAllResponses = {
     /**
      * OK
      */
     200: number;
 };
 
-export type PostApiV1ArtistsEnrichAllResponse = PostApiV1ArtistsEnrichAllResponses[keyof PostApiV1ArtistsEnrichAllResponses];
+export type PostApiArtistsEnrichAllResponse = PostApiArtistsEnrichAllResponses[keyof PostApiArtistsEnrichAllResponses];
 
 export type PostApiCalendarImportData = {
     body?: ImportCalendarEventsRequest;
@@ -478,11 +533,130 @@ export type GetApiDashboardMostHeardSongsResponses = {
 
 export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
 
+export type GetApiDashboardAttendeeInsightsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/attendee-insights';
+};
+
+export type GetApiDashboardAttendeeInsightsResponses = {
+    /**
+     * OK
+     */
+    200: AttendeeInsightsResponse;
+};
+
+export type GetApiDashboardAttendeeInsightsResponse = GetApiDashboardAttendeeInsightsResponses[keyof GetApiDashboardAttendeeInsightsResponses];
+
+export type GetApiDashboardTopAttendeesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-attendees';
+};
+
+export type GetApiDashboardTopAttendeesResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopAttendeeResponse>;
+};
+
+export type GetApiDashboardTopAttendeesResponse = GetApiDashboardTopAttendeesResponses[keyof GetApiDashboardTopAttendeesResponses];
+
+export type GetApiFestivalsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/festivals';
+};
+
+export type GetApiFestivalsResponses = {
+    /**
+     * OK
+     */
+    200: Array<FestivalDto>;
+};
+
+export type GetApiFestivalsResponse = GetApiFestivalsResponses[keyof GetApiFestivalsResponses];
+
+export type PostApiFestivalsData = {
+    body?: UpsertFestivalRequest;
+    path?: never;
+    query?: never;
+    url: '/api/festivals';
+};
+
+export type PostApiFestivalsResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type PostApiFestivalsResponse = PostApiFestivalsResponses[keyof PostApiFestivalsResponses];
+
+export type DeleteApiFestivalsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type DeleteApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetApiFestivalsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type GetApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type GetApiFestivalsByIdResponse = GetApiFestivalsByIdResponses[keyof GetApiFestivalsByIdResponses];
+
+export type PutApiFestivalsByIdData = {
+    body?: UpsertFestivalRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}';
+};
+
+export type PutApiFestivalsByIdResponses = {
+    /**
+     * OK
+     */
+    200: FestivalDto;
+};
+
+export type PutApiFestivalsByIdResponse = PutApiFestivalsByIdResponses[keyof PutApiFestivalsByIdResponses];
+
 export type GetApiGigsData = {
     body?: never;
     path?: never;
     query?: {
         VenueId?: string;
+        FestivalId?: string;
         City?: string;
         FromDate?: string;
         ToDate?: string;
@@ -638,66 +812,136 @@ export type GetMediaUploadsByFileNameResponses = {
     200: unknown;
 };
 
-export type PostMediaOptimiseAllData = {
+export type GetApiPersonsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/media/optimise-all';
+    url: '/api/persons';
 };
 
-export type PostMediaOptimiseAllResponses = {
+export type GetApiPersonsResponses = {
+    /**
+     * OK
+     */
+    200: Array<GetPersonResponse>;
+};
+
+export type GetApiPersonsResponse = GetApiPersonsResponses[keyof GetApiPersonsResponses];
+
+export type PostApiPersonsData = {
+    body?: UpsertPersonRequest;
+    path?: never;
+    query?: never;
+    url: '/api/persons';
+};
+
+export type PostApiPersonsResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type PostApiPersonsResponse = PostApiPersonsResponses[keyof PostApiPersonsResponses];
+
+export type DeleteApiPersonsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type DeleteApiPersonsByIdResponses = {
     /**
      * OK
      */
     200: unknown;
 };
 
-export type GetApiV1VenuesData = {
+export type GetApiPersonsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type GetApiPersonsByIdResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type GetApiPersonsByIdResponse = GetApiPersonsByIdResponses[keyof GetApiPersonsByIdResponses];
+
+export type PutApiPersonsByIdData = {
+    body?: UpsertPersonRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type PutApiPersonsByIdResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type PutApiPersonsByIdResponse = PutApiPersonsByIdResponses[keyof PutApiPersonsByIdResponses];
+
+export type GetApiVenuesData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/venues';
+    url: '/api/venues';
 };
 
-export type GetApiV1VenuesResponses = {
+export type GetApiVenuesResponses = {
     /**
      * OK
      */
     200: Array<GetVenueResponse>;
 };
 
-export type GetApiV1VenuesResponse = GetApiV1VenuesResponses[keyof GetApiV1VenuesResponses];
+export type GetApiVenuesResponse = GetApiVenuesResponses[keyof GetApiVenuesResponses];
 
-export type PostApiV1VenuesByIdEnrichData = {
+export type PostApiVenuesByIdEnrichData = {
     body?: never;
     path: {
         id: string;
     };
     query?: never;
-    url: '/api/v1/venues/{id}/enrich';
+    url: '/api/venues/{id}/enrich';
 };
 
-export type PostApiV1VenuesByIdEnrichResponses = {
+export type PostApiVenuesByIdEnrichResponses = {
     /**
      * OK
      */
     200: GetVenueResponse;
 };
 
-export type PostApiV1VenuesByIdEnrichResponse = PostApiV1VenuesByIdEnrichResponses[keyof PostApiV1VenuesByIdEnrichResponses];
+export type PostApiVenuesByIdEnrichResponse = PostApiVenuesByIdEnrichResponses[keyof PostApiVenuesByIdEnrichResponses];
 
-export type PostApiV1VenuesEnrichAllData = {
+export type PostApiVenuesEnrichAllData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/venues/enrich-all';
+    url: '/api/venues/enrich-all';
 };
 
-export type PostApiV1VenuesEnrichAllResponses = {
+export type PostApiVenuesEnrichAllResponses = {
     /**
      * OK
      */
     200: number;
 };
 
-export type PostApiV1VenuesEnrichAllResponse = PostApiV1VenuesEnrichAllResponses[keyof PostApiV1VenuesEnrichAllResponses];
+export type PostApiVenuesEnrichAllResponse = PostApiVenuesEnrichAllResponses[keyof PostApiVenuesEnrichAllResponses];

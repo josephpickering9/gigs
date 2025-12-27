@@ -7,9 +7,11 @@ import type {
     TemporalStatsResponse,
     ArtistInsightsResponse,
     VenueInsightsResponse,
+    AttendeeInsightsResponse,
     TopArtistResponse,
     TopVenueResponse,
     TopCityResponse,
+    TopAttendeeResponse,
     InterestingInsightsResponse,
     MostHeardSongResponse,
 } from '~~/api';
@@ -21,9 +23,11 @@ import {
     getApiDashboardTemporalStats,
     getApiDashboardArtistInsights,
     getApiDashboardVenueInsights,
+    getApiDashboardAttendeeInsights,
     getApiDashboardTopArtists,
     getApiDashboardTopVenues,
     getApiDashboardTopCities,
+    getApiDashboardTopAttendees,
     getApiDashboardInterestingInsights,
     getApiDashboardMostHeardSongs,
 } from '~~/api';
@@ -38,9 +42,11 @@ interface DashboardState {
     temporalStatsForm: AsyncForm<TemporalStatsResponse>;
     artistInsightsForm: AsyncForm<ArtistInsightsResponse>;
     venueInsightsForm: AsyncForm<VenueInsightsResponse>;
+    attendeeInsightsForm: AsyncForm<AttendeeInsightsResponse>;
     topArtistsForm: AsyncForm<TopArtistResponse[]>;
     topVenuesForm: AsyncForm<TopVenueResponse[]>;
     topCitiesForm: AsyncForm<TopCityResponse[]>;
+    topAttendeesForm: AsyncForm<TopAttendeeResponse[]>;
     interestingInsightsForm: AsyncForm<InterestingInsightsResponse>;
     mostHeardSongsForm: AsyncForm<MostHeardSongResponse[]>;
 }
@@ -54,9 +60,11 @@ export const useDashboardStore = defineStore('dashboard', {
         temporalStatsForm: asyncForm<TemporalStatsResponse>(),
         artistInsightsForm: asyncForm<ArtistInsightsResponse>(),
         venueInsightsForm: asyncForm<VenueInsightsResponse>(),
+        attendeeInsightsForm: asyncForm<AttendeeInsightsResponse>(),
         topArtistsForm: asyncForm<TopArtistResponse[]>(),
         topVenuesForm: asyncForm<TopVenueResponse[]>(),
         topCitiesForm: asyncForm<TopCityResponse[]>(),
+        topAttendeesForm: asyncForm<TopAttendeeResponse[]>(),
         interestingInsightsForm: asyncForm<InterestingInsightsResponse>(),
         mostHeardSongsForm: asyncForm<MostHeardSongResponse[]>(),
     }),
@@ -84,6 +92,9 @@ export const useDashboardStore = defineStore('dashboard', {
         venueInsights: (state) => state.venueInsightsForm.data,
         loadingVenueInsights: (state) => state.venueInsightsForm.loading,
 
+        attendeeInsights: (state) => state.attendeeInsightsForm.data,
+        loadingAttendeeInsights: (state) => state.attendeeInsightsForm.loading,
+
         topArtists: (state) => state.topArtistsForm.data || [],
         loadingTopArtists: (state) => state.topArtistsForm.loading,
 
@@ -92,6 +103,9 @@ export const useDashboardStore = defineStore('dashboard', {
 
         topCities: (state) => state.topCitiesForm.data || [],
         loadingTopCities: (state) => state.topCitiesForm.loading,
+
+        topAttendees: (state) => state.topAttendeesForm.data || [],
+        loadingTopAttendees: (state) => state.topAttendeesForm.loading,
 
         interestingInsights: (state) => state.interestingInsightsForm.data,
         loadingInterestingInsights: (state) => state.interestingInsightsForm.loading,
@@ -107,9 +121,11 @@ export const useDashboardStore = defineStore('dashboard', {
             state.temporalStatsForm.loading ||
             state.artistInsightsForm.loading ||
             state.venueInsightsForm.loading ||
+            state.attendeeInsightsForm.loading ||
             state.topArtistsForm.loading ||
             state.topVenuesForm.loading ||
             state.topCitiesForm.loading ||
+            state.topAttendeesForm.loading ||
             state.interestingInsightsForm.loading ||
             state.mostHeardSongsForm.loading,
     },
@@ -164,6 +180,13 @@ export const useDashboardStore = defineStore('dashboard', {
             });
         },
 
+        async fetchAttendeeInsights() {
+            await tryCatchFinally(ref(this.attendeeInsightsForm), async () => {
+                const response = await getApiDashboardAttendeeInsights();
+                return response.data;
+            });
+        },
+
         async fetchTopArtists(limit: number = 10) {
             await tryCatchFinally(ref(this.topArtistsForm), async () => {
                 const response = await getApiDashboardTopArtists({ query: { limit } });
@@ -181,6 +204,13 @@ export const useDashboardStore = defineStore('dashboard', {
         async fetchTopCities(limit: number = 10) {
             await tryCatchFinally(ref(this.topCitiesForm), async () => {
                 const response = await getApiDashboardTopCities({ query: { limit } });
+                return response.data;
+            });
+        },
+
+        async fetchTopAttendees(limit: number = 10) {
+            await tryCatchFinally(ref(this.topAttendeesForm), async () => {
+                const response = await getApiDashboardTopAttendees({ query: { limit } });
                 return response.data;
             });
         },
@@ -208,9 +238,11 @@ export const useDashboardStore = defineStore('dashboard', {
                 this.fetchTemporalStats(),
                 this.fetchArtistInsights(),
                 this.fetchVenueInsights(),
+                this.fetchAttendeeInsights(),
                 this.fetchTopArtists(10),
                 this.fetchTopVenues(10),
                 this.fetchTopCities(10),
+                this.fetchTopAttendees(10),
                 this.fetchInterestingInsights(),
                 this.fetchMostHeardSongs(10),
             ]);

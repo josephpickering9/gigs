@@ -5,15 +5,8 @@
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="error" class="alert alert-error">
-      <Icon name="mdi:alert-circle" class="w-6 h-6" />
-      <span>{{ error }}</span>
-      <NuxtLink to="/gigs" class="btn btn-sm btn-ghost">Back to Gigs</NuxtLink>
-    </div>
-
     <!-- Content -->
-    <div v-else-if="gig" class="grid gap-6">
+    <div v-if="gig" class="grid gap-6">
             <!-- Header Section -->
        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
             <div>
@@ -73,6 +66,27 @@
                  <div class="h-[400px]">
                     <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
                  </div>
+                 
+                 <!-- Attendees Section -->
+                 <div v-if="gig.attendees && gig.attendees.length > 0" class="card bg-base-100 shadow-xl">
+                     <div class="card-body">
+                         <h2 class="card-title text-lg mb-3 flex items-center gap-2">
+                             <Icon name="mdi:account-multiple" class="w-5 h-5" />
+                             Attendees
+                             <span class="badge badge-secondary badge-sm">{{ gig.attendees.length }}</span>
+                         </h2>
+                         <div class="flex flex-wrap gap-2">
+                             <span 
+                                 v-for="attendee in gig.attendees" 
+                                 :key="attendee.personId" 
+                                 class="badge badge-outline gap-2"
+                             >
+                                 <Icon name="mdi:account" class="w-3 h-3" />
+                                 {{ attendee.personName }}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
             </div>
        </div>
 
@@ -97,7 +111,6 @@ const gigId = route.params['id'] as string; // Fix lint: access via index
 
 // Local state for fetching if not in store
 const loading = ref(true);
-const error = ref<string | null>(null);
 const gig = ref<GetGigResponse | null>(null);
 
 // Helper to find headliner
@@ -125,21 +138,13 @@ const formatCurrency = (value: number) => {
 
 onMounted(async () => {
     loading.value = true;
-    try {
-        // Ensure we have artists and venues loaded for lookups
-        if (gigStore.venues.length === 0) await gigStore.fetchVenues();
-        
-        // Fetch the gig
-        const fetchedGig = await gigStore.fetchGig(gigId);
-        // Ensure type compatibility explicitly if needed, or just assign
-        gig.value = fetchedGig || null;
-
-    } catch (e: any) {
-        error.value = "Failed to load gig details.";
-        // eslint-disable-next-line no-console
-        console.error(e);
-    } finally {
-        loading.value = false;
-    }
+    // Ensure we have venues loaded for lookups
+    if (gigStore.venues.length === 0) await gigStore.fetchVenues();
+    
+    // Fetch the gig
+    const fetchedGig = await gigStore.fetchGig(gigId);
+    gig.value = fetchedGig || null;
+    
+    loading.value = false;
 });
 </script>

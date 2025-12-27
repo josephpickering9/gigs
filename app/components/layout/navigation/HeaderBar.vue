@@ -14,8 +14,14 @@
         </li>
         <li>
           <NuxtLink to="/gigs">
-            <Icon name="heroicons:clipboard-list" size="1.2em" />
+            <Icon name="mdi:ticket" size="1.2em" />
             Gigs
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink to="/festivals">
+            <Icon name="mdi:party-popper" size="1.2em" />
+            Festivals
           </NuxtLink>
         </li>
       </ul>
@@ -23,6 +29,7 @@
       <UserDropdown
         :linked-in-url="linkedInUrl"
         :is-authenticated="isAuthenticated ?? false"
+        :optimising="optimising"
         @login="login"
         @logout="logout"
         @install-pwa="installPwa"
@@ -39,6 +46,7 @@
       v-if="showMobileMenu"
       :linked-in-url="linkedInUrl"
       :is-authenticated="isAuthenticated ?? false"
+      :optimising="optimising"
       @close="toggleMobileMenu"
       @login="login"
       @logout="logout"
@@ -69,6 +77,9 @@ const { isAuthenticated, login, logout } = useAuth()
 
 const showMobileMenu = ref(false)
 const installPrompt = ref<BeforeInstallPromptEvent | undefined>(undefined)
+
+const linkedInUrl = 'https://www.linkedin.com/in/josephpickering/';
+const optimising = ref(false);
 
 function toggleMobileMenu() {
   showMobileMenu.value = !showMobileMenu.value

@@ -1,16 +1,21 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
     postApiGigs,
     putApiGigsById,
     getApiGigsById,
-    getApiV1Artists,
-    getApiV1Venues,
+    getApiArtists,
+    getApiVenues,
     postApiGigsByIdEnrich,
-    deleteApiGigsById
+    deleteApiGigsById,
+    getApiFestivals,
+    postApiFestivals,
+    getApiFestivalsById,
+    putApiFestivalsById,
+    deleteApiFestivalsById
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -22,6 +27,8 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
+    festivalsForm: AsyncForm<FestivalDto[]>;
+    upsertFestivalForm: AsyncForm<FestivalDto>;
     pagination: {
         page: number;
         pageSize: number;
@@ -48,6 +55,8 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
+        festivalsForm: asyncForm<FestivalDto[]>(),
+        upsertFestivalForm: asyncForm<FestivalDto>(),
         pagination: {
             page: 1,
             pageSize: 500,
@@ -71,6 +80,10 @@ export const useGigStore = defineStore('gig', {
         loadingArtists: (state) => state.artistsForm.loading,
         venues: (state) => state.venuesForm.data || [],
         loadingVenues: (state) => state.venuesForm.loading,
+        festivals: (state) => state.festivalsForm.data || [],
+        loadingFestivals: (state) => state.festivalsForm.loading,
+        savingFestival: (state) => state.upsertFestivalForm.loading,
+        saveFestivalError: (state) => state.upsertFestivalForm.error,
     },
 
     actions: {
@@ -159,22 +172,104 @@ export const useGigStore = defineStore('gig', {
 
         async fetchArtists() {
             await tryCatchFinally(ref(this.artistsForm), async () => {
-                const response = await getApiV1Artists();
+                const response = await getApiArtists();
                 return response.data;
             });
         },
 
         async fetchVenues() {
             await tryCatchFinally(ref(this.venuesForm), async () => {
-                const response = await getApiV1Venues();
+                const response = await getApiVenues();
                 return response.data;
             });
+        },
+
+        async fetchFestivals() {
+            await tryCatchFinally(ref(this.festivalsForm), async () => {
+                const response = await getApiFestivals();
+                return response.data;
+            });
+        },
+
+        async fetchFestival(id: string) {
+            const existing = this.festivals.find(f => f.id === id);
+            if (existing) return existing;
+
+            const response = await getApiFestivalsById({ path: { id } });
+            return response.data;
+        },
+
+        async createFestival(festival: UpsertFestivalRequest) {
+            return await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                const response = await postApiFestivals({ body: festival });
+                await this.fetchFestivals();
+                return response.data;
+            });
+        },
+
+        async updateFestival(id: string, festival: UpsertFestivalRequest) {
+            return await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                const response = await putApiFestivalsById({ path: { id }, body: festival });
+                await this.fetchFestivals();
+                return response.data;
+            });
+        },
+
+        async deleteFestival(id: string) {
+            await tryCatchFinally(ref(this.upsertFestivalForm), async () => {
+                await deleteApiFestivalsById({ path: { id } });
+                await this.fetchFestivals();
+                return undefined;
+            });
+        },
+
+        async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
+            const festival = await this.fetchFestival(festivalId);
+            if (!festival) return;
+
+            const currentGigIds = festival.gigs?.map(g => g.id).filter(Boolean) as string[] || [];
+
+            const toAdd = newGigIds.filter(id => !currentGigIds.includes(id));
+            const toRemove = currentGigIds.filter(id => !newGigIds.includes(id));
+
+            const updateGigFestival = async (gigId: string, targetFestivalId: string | null) => {
+                const gig = await this.fetchGig(gigId);
+                if (!gig) return;
+
+                const updateRequest: UpsertGigRequest = {
+                    venueId: gig.venueId,
+                    venueName: gig.venueName,
+                    venueCity: null,
+                    festivalId: targetFestivalId,
+                    festivalName: targetFestivalId && festival ? festival.name : null,
+                    date: gig.date!,
+                    ticketCost: gig.ticketCost,
+                    ticketType: gig.ticketType!,
+                    imageUrl: gig.imageUrl,
+                    acts: gig.acts?.map(a => ({
+                        artistId: a.artistId,
+                        isHeadliner: a.isHeadliner,
+                        order: 0,
+                    })).map((a, idx) => ({ ...a, order: idx + 1 }))
+                };
+
+                await this.updateGig(gigId, updateRequest);
+            };
+
+            for (const id of toAdd) {
+                await updateGigFestival(id, festivalId);
+            }
+            for (const id of toRemove) {
+                await updateGigFestival(id, null);
+            }
+
+            await this.fetchFestival(festivalId);
         },
 
         async createGig(gig: UpsertGigRequest) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await postApiGigs({ body: gig });
-                await this.fetchGigs(); // Refresh list
+                await this.fetchGigs();
                 return response.data;
             });
         },
@@ -182,18 +277,15 @@ export const useGigStore = defineStore('gig', {
         async updateGig(id: string, gig: UpsertGigRequest) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await putApiGigsById({ path: { id }, body: gig });
-                await this.fetchGigs(); // Refresh list
+                await this.fetchGigs();
                 return response.data;
             });
         },
 
         async enrichGig(id: string) {
             await tryCatchFinally(ref(this.enrichForm), async () => {
-                // Call enrich endpoint
                 await postApiGigsByIdEnrich({ path: { id } });
-                // Fetch the updated gig data
                 const response = await getApiGigsById({ path: { id } });
-                // Refresh the gigs list
                 await this.fetchGigs();
                 return response.data;
             });
@@ -202,7 +294,6 @@ export const useGigStore = defineStore('gig', {
         async deleteGig(id: string) {
             await tryCatchFinally(ref(this.upsertForm), async () => {
                 await deleteApiGigsById({ path: { id } });
-                // Refresh the gigs list after deletion
                 await this.fetchGigs();
                 return undefined;
             });
@@ -220,7 +311,6 @@ export const useGigStore = defineStore('gig', {
                         return formData;
                     },
                 });
-                // Refresh gigs after successful import
                 await this.fetchGigs();
             });
         },
