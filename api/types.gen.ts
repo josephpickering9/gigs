@@ -9,6 +9,11 @@ export type ArtistInsightsResponse = {
     totalArtistAppearances?: number;
 };
 
+export type AttendeeInsightsResponse = {
+    totalUniqueAttendees?: number;
+    totalGigsWithAttendees?: number;
+};
+
 export type AverageTicketPriceByYearResponse = {
     year?: number;
     averagePrice?: number;
@@ -19,6 +24,7 @@ export type DashboardStatsResponse = {
     topArtist?: TopArtistStats;
     topVenue?: TopVenueStats;
     topCity?: TopCityStats;
+    topAttendee?: TopAttendeeStats;
 };
 
 export type FestivalDto = {
@@ -71,6 +77,12 @@ export type GetGigResponsePaginatedResponse = {
     pageSize?: number;
     totalCount?: number;
     readonly totalPages?: number;
+};
+
+export type GetPersonResponse = {
+    id?: string;
+    name?: string;
+    slug?: string;
 };
 
 export type GetVenueResponse = {
@@ -153,6 +165,17 @@ export type TopArtistStats = {
     gigCount?: number;
 };
 
+export type TopAttendeeResponse = {
+    personId?: string;
+    personName?: string;
+    gigCount?: number;
+};
+
+export type TopAttendeeStats = {
+    personName?: string;
+    gigCount?: number;
+};
+
 export type TopCityResponse = {
     city?: string;
     gigCount?: number;
@@ -194,6 +217,10 @@ export type UpsertGigRequest = {
     imageUrl?: string | null;
     acts?: Array<GigArtistRequest>;
     attendees?: Array<string>;
+};
+
+export type UpsertPersonRequest = {
+    name: string;
 };
 
 export type VenueInsightsResponse = {
@@ -506,6 +533,40 @@ export type GetApiDashboardMostHeardSongsResponses = {
 
 export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
 
+export type GetApiDashboardAttendeeInsightsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/attendee-insights';
+};
+
+export type GetApiDashboardAttendeeInsightsResponses = {
+    /**
+     * OK
+     */
+    200: AttendeeInsightsResponse;
+};
+
+export type GetApiDashboardAttendeeInsightsResponse = GetApiDashboardAttendeeInsightsResponses[keyof GetApiDashboardAttendeeInsightsResponses];
+
+export type GetApiDashboardTopAttendeesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-attendees';
+};
+
+export type GetApiDashboardTopAttendeesResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopAttendeeResponse>;
+};
+
+export type GetApiDashboardTopAttendeesResponse = GetApiDashboardTopAttendeesResponses[keyof GetApiDashboardTopAttendeesResponses];
+
 export type GetApiFestivalsData = {
     body?: never;
     path?: never;
@@ -750,6 +811,90 @@ export type GetMediaUploadsByFileNameResponses = {
      */
     200: unknown;
 };
+
+export type GetApiPersonsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/persons';
+};
+
+export type GetApiPersonsResponses = {
+    /**
+     * OK
+     */
+    200: Array<GetPersonResponse>;
+};
+
+export type GetApiPersonsResponse = GetApiPersonsResponses[keyof GetApiPersonsResponses];
+
+export type PostApiPersonsData = {
+    body?: UpsertPersonRequest;
+    path?: never;
+    query?: never;
+    url: '/api/persons';
+};
+
+export type PostApiPersonsResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type PostApiPersonsResponse = PostApiPersonsResponses[keyof PostApiPersonsResponses];
+
+export type DeleteApiPersonsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type DeleteApiPersonsByIdResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GetApiPersonsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type GetApiPersonsByIdResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type GetApiPersonsByIdResponse = GetApiPersonsByIdResponses[keyof GetApiPersonsByIdResponses];
+
+export type PutApiPersonsByIdData = {
+    body?: UpsertPersonRequest;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/persons/{id}';
+};
+
+export type PutApiPersonsByIdResponses = {
+    /**
+     * OK
+     */
+    200: GetPersonResponse;
+};
+
+export type PutApiPersonsByIdResponse = PutApiPersonsByIdResponses[keyof PutApiPersonsByIdResponses];
 
 export type GetApiVenuesData = {
     body?: never;
