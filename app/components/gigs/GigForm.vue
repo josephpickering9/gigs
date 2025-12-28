@@ -139,7 +139,7 @@
         <Combobox
           v-model="attendees"
           placeholder="Add people who attended..."
-          :options="[]"
+          :options="attendeeOptions"
           class="w-full"
         />
         
@@ -277,6 +277,7 @@ const emit = defineEmits<{
 const gigStore = useGigStore();
 const venues = computed(() => gigStore.venues);
 const artists = computed(() => gigStore.artists);
+const attendeesList = computed(() => gigStore.attendees);
 
 const datePart = ref('');
 const imageUrlProxy = ref(''); 
@@ -316,6 +317,10 @@ const artistOptions = computed<SelectListItem[]>(() =>
     artists.value.map(a => ({ text: a.name || 'Unknown', value: a.id || '' }))
   );
 
+const attendeeOptions = computed<SelectListItem[]>(() => 
+    attendeesList.value.map(a => ({ text: a.name || 'Unknown', value: a.id || '' }))
+  );
+
 const getArtistName = (id?: string) => {
     return artists.value.find(a => a.id === id)?.name || 'Unknown Artist';
 };
@@ -336,6 +341,7 @@ onMounted(async () => {
     const promises = [];
     if (gigStore.artists.length === 0) promises.push(gigStore.fetchArtists());
     if (gigStore.venues.length === 0) promises.push(gigStore.fetchVenues());
+    if (gigStore.attendees.length === 0) promises.push(gigStore.fetchAttendees());
     await Promise.all(promises);
 });
 
@@ -387,7 +393,7 @@ watch(() => props.initialData, (newData) => {
     if (newData.attendees?.length) {
         attendees.value = newData.attendees.map((a, index) => ({ 
             text: a.personName || '', 
-            value: a.personName || `attendee-${index}` 
+            value: a.personId || a.personName || `attendee-${index}` 
         }));
     }
 }, { immediate: true });
@@ -487,13 +493,21 @@ const validate = () => {
 const handleSubmit = () => {
     if (!validate()) return;
     // Prepare attendees from combobox items
-    const attendeeNames = attendees.value.map(a => a.text).filter(name => name.trim() !== '');
+    // map values (IDs) if they exist, otherwise text (new names)
+    // NOTE: If the value starts with 'attendee-' it was a generated ID for display only, so fallback to text
+    const attendeeIdsOrNames = attendees.value.map(a => {
+        const val = String(a.value);
+        if (val && !val.startsWith('attendee-') && val !== a.text) {
+             return val; // It's likely an ID
+        }
+        return a.text;
+    }).filter(v => v.trim() !== '');
     
     // Filter out empty strings from setlists before submitting
     const submissionData = {
         ...form.value,
         imageUrl: isEmpty(form.value.imageUrl) ? undefined : form.value.imageUrl,
-        attendees: attendeeNames,
+        attendees: attendeeIdsOrNames,
         acts: form.value.acts?.map(act => ({
             ...act,
             setlist: act.setlist?.filter(song => song.trim() !== '') || []

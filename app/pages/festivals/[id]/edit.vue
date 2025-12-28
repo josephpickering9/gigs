@@ -88,6 +88,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
+import { useNotificationStore } from '~/store/NotificationStore';
 import FestivalForm from '~/components/festivals/FestivalForm.vue';
 import type { UpsertFestivalRequest, FestivalDto } from '~~/api';
 
@@ -117,19 +118,28 @@ onMounted(async () => {
 });
 
 const handleUpdate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
-    await gigStore.updateFestival(festivalId, data);
-    await gigStore.updateFestivalGigs(festivalId, gigIds);
-    await gigStore.fetchFestival(festivalId);
-    router.push(`/festivals/${festivalId}`);
+    const result = await gigStore.updateFestival(festivalId, data);
+    
+    if (result) {
+        await gigStore.updateFestivalGigs(festivalId, gigIds);
+        await gigStore.fetchFestival(festivalId);
+        useNotificationStore().displaySuccessNotification('Festival updated successfully');
+        router.push(`/festivals/${festivalId}`);
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to update festival');
+    }
 };
 
 const handleDelete = async () => {
-    try {
-        await gigStore.deleteFestival(festivalId);
+    const result = await gigStore.deleteFestival(festivalId);
+    
+    // deleteFestival returns undefined on success (same pattern as deleteGig)
+    if (result === undefined && !gigStore.saveFestivalError) {
+        useNotificationStore().displaySuccessNotification('Festival deleted successfully');
         showDeleteConfirm.value = false;
         router.push('/festivals');
-    } catch {
-        // Error handled in store
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to delete festival');
         showDeleteConfirm.value = false;
     }
 };

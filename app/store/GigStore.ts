@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest, GetAttendeeResponse } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -15,7 +15,8 @@ import {
     postApiFestivals,
     getApiFestivalsById,
     putApiFestivalsById,
-    deleteApiFestivalsById
+    deleteApiFestivalsById,
+    getApiAttendees,
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -29,6 +30,7 @@ interface GigState {
     venuesForm: AsyncForm<GetVenueResponse[]>;
     festivalsForm: AsyncForm<FestivalDto[]>;
     upsertFestivalForm: AsyncForm<FestivalDto>;
+    attendeesForm: AsyncForm<GetAttendeeResponse[]>;
     pagination: {
         page: number;
         pageSize: number;
@@ -57,6 +59,7 @@ export const useGigStore = defineStore('gig', {
         venuesForm: asyncForm<GetVenueResponse[]>(),
         festivalsForm: asyncForm<FestivalDto[]>(),
         upsertFestivalForm: asyncForm<FestivalDto>(),
+        attendeesForm: asyncForm<GetAttendeeResponse[]>(),
         pagination: {
             page: 1,
             pageSize: 500,
@@ -84,6 +87,8 @@ export const useGigStore = defineStore('gig', {
         loadingFestivals: (state) => state.festivalsForm.loading,
         savingFestival: (state) => state.upsertFestivalForm.loading,
         saveFestivalError: (state) => state.upsertFestivalForm.error,
+        attendees: (state) => state.attendeesForm.data || [],
+        loadingAttendees: (state) => state.attendeesForm.loading,
     },
 
     actions: {
@@ -223,6 +228,13 @@ export const useGigStore = defineStore('gig', {
             });
         },
 
+        async fetchAttendees() {
+            await tryCatchFinally(ref(this.attendeesForm), async () => {
+                const response = await getApiAttendees();
+                return response.data;
+            });
+        },
+
         async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
             const festival = await this.fetchFestival(festivalId);
             if (!festival) return;
@@ -267,7 +279,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async createGig(gig: UpsertGigRequest) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await postApiGigs({ body: gig });
                 await this.fetchGigs();
                 return response.data;
@@ -275,7 +287,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async updateGig(id: string, gig: UpsertGigRequest) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await putApiGigsById({ path: { id }, body: gig });
                 await this.fetchGigs();
                 return response.data;
@@ -283,7 +295,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async enrichGig(id: string) {
-            await tryCatchFinally(ref(this.enrichForm), async () => {
+            return await tryCatchFinally(ref(this.enrichForm), async () => {
                 await postApiGigsByIdEnrich({ path: { id } });
                 const response = await getApiGigsById({ path: { id } });
                 await this.fetchGigs();
@@ -292,7 +304,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async deleteGig(id: string) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 await deleteApiGigsById({ path: { id } });
                 await this.fetchGigs();
                 return undefined;
@@ -300,7 +312,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async importGigs(file: File) {
-            await tryCatchFinally(ref(this.importForm), async () => {
+            return await tryCatchFinally(ref(this.importForm), async () => {
                 await postApiImportCsv({
                     body: { file },
                     bodySerializer: (params) => {

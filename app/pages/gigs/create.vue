@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
+import { useNotificationStore } from '~/store/NotificationStore';
 import GigForm from '~/components/gigs/GigForm.vue';
 import type { UpsertGigRequest } from '~~/api';
 
@@ -42,7 +43,12 @@ useHead({
 });
 
 const handleCreate = async (data: UpsertGigRequest) => {
-    await gigStore.createGig(data);
-    router.push('/gigs');
+    const result = await gigStore.createGig(data);
+    if (result) {
+        useNotificationStore().displaySuccessNotification('Gig created successfully');
+        router.push('/gigs');
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to create gig');
+    }
 };
 </script>
