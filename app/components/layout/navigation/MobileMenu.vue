@@ -3,7 +3,7 @@
     <div class="flex flex-1 flex-col items-center px-6 py-8">
       <ul class="menu flex w-full flex-col items-stretch justify-start gap-2 p-0 text-lg">
         <li class="animate-fade-in-up" style="animation-delay: 100ms">
-          <ThemeController class="w-full justify-between" />
+          <MobileThemeSelector />
         </li>
         
         <div class="divider my-4 animate-fade-in-up" style="animation-delay: 150ms" />
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import ThemeController from '~/components/layout/ThemeController.vue'
+import MobileThemeSelector from '~/components/layout/MobileThemeSelector.vue'
 import FormButton from '~/components/ui/form/FormButton.vue'
 
 defineProps<{

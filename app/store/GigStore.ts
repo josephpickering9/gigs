@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, GetFestivalResponse, UpsertFestivalRequest, GetAttendeeResponse,
+import type {
+    GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, GetFestivalResponse, UpsertFestivalRequest, GetAttendeeResponse, FestivalGigOrderRequest
+} from '~~/api';
+import {
     getApiGigs,
     postApiImportCsv,
     postApiGigs,
@@ -16,7 +19,7 @@ import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueRespo
     putApiFestivalsById,
     deleteApiFestivalsById,
     getApiAttendees,
-    type FestivalGigOrderRequest } from '~~/api';
+} from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
 

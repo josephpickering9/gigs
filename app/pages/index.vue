@@ -25,24 +25,12 @@
     <!-- Dashboard Content -->
     <div v-else class="space-y-8">
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <StatCard
           label="Total Gigs"
           :value="dashboardStore.stats?.totalGigs || 0"
           icon="mdi:music-note"
           subtitle="All time"
-        />
-        <StatCard
-          label="Total Festivals"
-          :value="dashboardStore.stats?.totalFestivals || 0"
-          icon="mdi:tent"
-          subtitle="All time"
-        />
-        <StatCard
-          label="Top Festival"
-          :value="dashboardStore.stats?.topFestival?.festivalName || 'N/A'"
-          :subtitle="`${dashboardStore.stats?.topFestival?.festivalCount || 0} gigs`"
-          icon="mdi:tent"
         />
         <StatCard
           label="Top Artist"
@@ -67,17 +55,6 @@
           :value="dashboardStore.stats?.topCity?.cityName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
-        />
-      </div>
-
-      <!-- Temporal & Insights Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <StatCard
-          label="Next Gig"
-          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
-          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
-          icon="mdi:calendar-arrow-right"
-          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
         />
         <StatCard
           label="Busiest Year"
