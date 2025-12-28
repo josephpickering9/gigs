@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-base-200">
+  <div class="min-h-screen bg-base-200 mx-auto">
     <!-- Loading State -->
     <div v-if="loading" class="flex justify-center items-center h-screen">
         <span class="loading loading-spinner loading-lg text-primary" />

@@ -63,6 +63,7 @@
           <GigSelector
             v-model="selectedGigIds"
             :initial-gigs="initialData?.gigs || undefined"
+            :hide-selected-gigs="true"
           />
         </div>
       </div>
@@ -70,14 +71,6 @@
 
     <div v-if="selectedGigIds.length > 0" class="card bg-base-200/50 shadow-sm mt-6">
       <div class="card-body">
-        <h3 class="card-title text-lg mb-4">
-          <Icon name="mdi:sort" class="w-5 h-5" />
-          Lineup Order
-        </h3>
-        <p class="text-sm text-base-content/70 mb-4">
-            Drag and drop gigs to reorder them within their performance dates.
-        </p>
-
         <div v-if="loadingGigs" class="flex justify-center py-4">
             <span class="loading loading-spinner text-primary" />
         </div>
@@ -117,6 +110,10 @@
                                     </span>
                                 </div>
                             </div>
+                            
+                            <button type="button" class="btn btn-ghost btn-xs text-error" @click="removeGig(element.id)">
+                                <Icon name="heroicons:trash" class="w-4 h-4" />
+                            </button>
                         </div>
                     </template>
                 </draggable>
@@ -370,6 +367,10 @@ const getHeadlinerName = (gig: GetGigResponse) => {
 
 const getSupportActs = (gig: GetGigResponse) => {
     return gig.acts?.filter(a => !a.isHeadliner).map(a => a.name).join(', ');
+};
+
+const removeGig = (gigId: string) => {
+    selectedGigIds.value = selectedGigIds.value.filter(id => id !== gigId);
 };
 
 const validate = () => {

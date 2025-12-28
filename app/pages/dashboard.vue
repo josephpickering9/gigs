@@ -6,10 +6,10 @@
     </div>
 
     <div v-if="dashboardStore.isLoading && !hasAnyData" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="i in 8" :key="i" class="skeleton h-32 rounded-lg"/>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="skeleton h-96 rounded-lg"/>
         <div class="skeleton h-96 rounded-lg"/>
       </div>
@@ -20,7 +20,7 @@
       <span>{{ dashboardStore.statsError }}</span>
     </div>
     <div v-else class="space-y-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Gigs"
           :value="dashboardStore.stats?.totalGigs || 0"
@@ -76,7 +76,7 @@
           :to="dashboardStore.stats?.topCity ? `/gigs?city=${dashboardStore.stats?.topCity?.cityName}` : undefined"
         />
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label="Busiest Year"
           :value="dashboardStore.temporalStats?.busiestYear || 'N/A'"
@@ -89,7 +89,7 @@
           icon="mdi:calendar-clock"
         />
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div v-if="dashboardStore.gigsPerYearData.length > 0">
           <GigsPerYearChart :data="dashboardStore.gigsPerYearData" />
         </div>
@@ -98,7 +98,7 @@
         </div>
       </div>
       <div v-if="dashboardStore.interestingInsights" class="card bg-gradient-to-br from-accent/10 to-accent/5 shadow-xl border border-accent/20">
-        <div class="card-body">
+        <div class="p-4 flex flex-col flex-1">
           <h2 class="card-title text-2xl font-bold text-accent mb-4">
             <Icon name="mdi:lightbulb" class="w-6 h-6" />
             Interesting Insights
@@ -123,9 +123,9 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         <div class="card bg-base-100 shadow-xl border border-primary/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-primary">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Artists
@@ -155,7 +155,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-secondary/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-secondary">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Venues
@@ -185,7 +185,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-accent/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-accent">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Cities
@@ -215,7 +215,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-info/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-info">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Attendees
@@ -242,7 +242,7 @@
         </div>
       </div>
       <div v-if="dashboardStore.mostHeardSongs.length > 0" class="card bg-base-100 shadow-xl border border-primary/20">
-        <div class="card-body">
+        <div class="p-4 flex flex-col flex-1">
           <h3 class="card-title text-2xl font-bold text-primary mb-4">
             <Icon name="mdi:music-note-eighth" class="w-6 h-6" />
             Most Heard Songs

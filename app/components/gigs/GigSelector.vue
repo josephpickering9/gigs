@@ -15,26 +15,28 @@
         @search="handleSearch"
       />
 
-      <div v-if="selectedGigs.length > 0" class="border rounded-lg overflow-hidden">
-          <Table :data="selectedGigs" :columns="columns">
-              <template #cell-headliner="{ row }">
-                  <span class="font-bold">{{ getHeadliner(row) }}</span>
-              </template>
-              <template #cell-venue="{ row }">
-                  {{ row.venueName || 'Unknown Venue' }}
-              </template>
-              <template #cell-date="{ row }">
-                  {{ formatDate(row.date) }}
-              </template>
-              <template #cell-actions="{ row }">
-                  <button type="button" class="btn btn-ghost btn-xs text-error" @click="removeGig(row.id)">
-                      <Icon name="heroicons:trash" class="w-4 h-4" />
-                  </button>
-              </template>
-          </Table>
-      </div>
-       <div v-else class="text-sm text-base-content/60 italic px-1">
-          No gigs selected.
+      <div v-if="!hideSelectedGigs">    
+        <div v-if="selectedGigs.length > 0" class="border rounded-lg overflow-hidden">
+            <Table :data="selectedGigs" :columns="columns">
+                <template #cell-headliner="{ row }">
+                    <span class="font-bold">{{ getHeadliner(row) }}</span>
+                </template>
+                <template #cell-venue="{ row }">
+                    {{ row.venueName || 'Unknown Venue' }}
+                </template>
+                <template #cell-date="{ row }">
+                    {{ formatDate(row.date) }}
+                </template>
+                <template #cell-actions="{ row }">
+                    <button type="button" class="btn btn-ghost btn-xs text-error" @click="removeGig(row.id)">
+                        <Icon name="heroicons:trash" class="w-4 h-4" />
+                    </button>
+                </template>
+            </Table>
+        </div>
+        <div v-else class="text-sm text-base-content/60 italic px-1">
+            No gigs selected.
+        </div>
       </div>
   </div>
 </template>
@@ -51,6 +53,7 @@ import type { GetGigResponse } from '~~/api';
 const props = defineProps<{
   modelValue?: string[];
   initialGigs?: GetGigResponse[];
+  hideSelectedGigs?: boolean;
   error?: string;
 }>();
 

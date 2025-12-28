@@ -19,6 +19,17 @@
       </NuxtLink>
     </template>
 
+    <template #cell-festival="{ row }">
+      <NuxtLink
+        v-if="row.festivalId"
+        :to="`/festivals/${row.festivalId}`"
+        class="font-medium text-primary hover:text-primary-focus transition-colors"
+      >
+        {{ row.festivalName }}
+      </NuxtLink>
+      <span v-else class="text-base-content/50">-</span>
+    </template>
+
     <template #cell-venue="{ row }">
         <div class="flex items-center gap-2">
             <Icon name="mdi:map-marker" class="w-4 h-4 text-secondary shrink-0" />
@@ -89,6 +100,11 @@ const columns = computed<TableColumn[]>(() => [
   {
     key: 'headliner',
     label: 'Headliner',
+    sortable: true,
+  },
+  {
+    key: 'festival',
+    label: 'Festival',
     sortable: true,
   },
   {

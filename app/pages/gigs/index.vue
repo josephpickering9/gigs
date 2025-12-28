@@ -1,23 +1,35 @@
 <template>
   <div class="container mx-auto p-4 min-h-screen">
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
       <h1 class="text-4xl font-bold text-primary">Gigs</h1>
-      <div class="flex gap-2 items-center">
-         <FilterBar v-model:filters="activeFilters" class="mr-2" />
-         <ViewToggle v-model="viewMode" class="mr-2" />
+      <div class="flex flex-wrap gap-2 items-center">
+         <FilterBar v-model:filters="activeFilters" />
+         <ViewToggle v-model="viewMode" />
         <template v-if="isAuthenticated">
           <NuxtLink to="/gigs/create" class="btn btn-primary">
               <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
               Create Gig
           </NuxtLink>
-          <button class="btn btn-secondary" @click="showImportModal = true">
-              <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
-              Import CSV
-          </button>
-          <button class="btn btn-accent" @click="showCalendarModal = true">
-              <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
-              Sync Calendar
-          </button>
+          
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+                <Icon name="heroicons:ellipsis-vertical" size="1.5em" />
+            </div>
+            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                    <button @click="showImportModal = true">
+                        <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
+                        Import CSV
+                    </button>
+                </li>
+                <li>
+                    <button @click="showCalendarModal = true">
+                        <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
+                        Sync Calendar
+                    </button>
+                </li>
+            </ul>
+          </div>
         </template>
       </div>
     </div>
@@ -139,6 +151,10 @@ watch(activeFilters, (filters) => {
             storeFilters.city = f.value;
             query.city = f.value;
         }
+        if (f.type === FilterType.ATTENDEE) {
+            storeFilters.attendeeId = f.value;
+            query.attendeeId = f.value;
+        }
         if (f.type === FilterType.SEARCH) {
             storeFilters.search = f.value;
             query.search = f.value;
@@ -219,6 +235,14 @@ onMounted(async () => {
         const artist = gigStore.artists.find(a => a.id === query['artistId']);
         if (artist) {
              newFilters.push({ type: FilterType.ARTIST, value: query['artistId'] as string, label: 'Artist', displayValue: artist.name });
+        }
+    }
+
+    if (query['attendeeId']) {
+        if (!gigStore.attendees.length) await gigStore.fetchAttendees();
+        const attendee = gigStore.attendees.find(a => a.id === query['attendeeId']);
+        if (attendee) {
+             newFilters.push({ type: FilterType.ATTENDEE, value: query['attendeeId'] as string, label: 'Attendee', displayValue: attendee.name });
         }
     }
 

@@ -46,6 +46,7 @@ export type GetAttendeeResponse = {
     id?: string;
     name?: string;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GetCalendarEventResponse = {

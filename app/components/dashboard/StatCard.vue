@@ -5,7 +5,7 @@
     class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/20 block h-full no-underline"
     :class="{ 'cursor-pointer': to }"
   >
-    <div class="card-body">
+    <div class="p-4 flex-1">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <p class="text-sm font-medium text-base-content/70 uppercase tracking-wide">{{ label }}</p>

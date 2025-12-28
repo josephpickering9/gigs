@@ -41,6 +41,7 @@ interface GigState {
     filters: {
         venueId?: string;
         artistId?: string;
+        attendeeId?: string;
         city?: string;
         fromDate?: string;
         toDate?: string;
@@ -98,6 +99,7 @@ export const useGigStore = defineStore('gig', {
             pageSize?: number;
             venueId?: string;
             artistId?: string;
+            attendeeId?: string;
             city?: string;
             fromDate?: string;
             toDate?: string;
@@ -113,6 +115,7 @@ export const useGigStore = defineStore('gig', {
                         PageSize: options.pageSize,
                         VenueId: options.venueId,
                         ArtistId: options.artistId,
+                        AttendeeId: options.attendeeId,
                         City: options.city,
                         FromDate: options.fromDate,
                         ToDate: options.toDate,

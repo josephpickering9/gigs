@@ -20,23 +20,30 @@
 
       <div 
         v-if="isOpen" 
-        class="dropdown-content z-[1] mt-2 w-[90vw] md:w-72 rounded-box bg-base-100 p-2 shadow-xl ring-1 ring-base-content/10 overflow-hidden" 
-        :class="dropdownPosition === 'left' ? 'dropdown-left' : 'dropdown-right'" 
+        class="fixed inset-0 z-[100] w-full h-full bg-base-100 flex flex-col md:absolute md:inset-auto md:mt-2 md:w-72 md:h-auto md:rounded-box md:p-2 md:shadow-xl md:ring-1 md:ring-base-content/10 md:overflow-hidden md:z-[1]" 
+        :class="dropdownPosition === 'left' ? 'md:dropdown-left' : 'md:dropdown-right'" 
         @click.stop 
         @keydown="handleMainMenuKeydown"
       >
+        <!-- Mobile Header -->
+        <div class="flex items-center justify-between p-4 border-b border-base-content/10 md:hidden">
+            <h3 class="text-lg font-bold">Filters</h3>
+            <button class="btn btn-circle btn-ghost btn-sm" @click="close">
+                <Icon name="heroicons:x-mark" size="1.5em" />
+            </button>
+        </div>
         
         <!-- Submenu View -->
-        <div v-if="activeSubmenu" class="flex flex-col animate-slide-in-right h-full min-h-[300px] max-h-[60vh] md:max-h-[400px]">
+        <div v-if="activeSubmenu" class="flex flex-col animate-slide-in-right h-full md:min-h-[300px] md:max-h-[400px]">
           <button 
-            class="btn btn-sm btn-ghost gap-2 justify-start mb-2 px-1 text-base-content/60 hover:text-base-content"
+            class="btn btn-sm btn-ghost gap-2 justify-start mb-2 px-1 mx-2 mt-2 md:mx-0 md:mt-0 text-base-content/60 hover:text-base-content"
             @click="closeSubmenu"
           >
             <Icon name="heroicons:chevron-left" size="1em" />
             Back
           </button>
           
-          <div class="flex-1 overflow-y-auto">
+          <div class="flex-1 overflow-y-auto px-4 md:px-0">
             <VenueFilterList
               v-if="activeSubmenu === FilterType.VENUE"
               @select="handleVenueSelect"
@@ -54,12 +61,18 @@
               @select="handleCitySelect"
               @close="handleSubmenuClose"
             />
+
+            <AttendeeFilterList
+              v-else-if="activeSubmenu === FilterType.ATTENDEE"
+              @select="handleAttendeeSelect"
+              @close="handleSubmenuClose"
+            />
           </div>
         </div>
 
         <!-- Main Menu View -->
-        <div v-else class="flex flex-col gap-1">
-          <div class="px-2 py-1">
+        <div v-else class="flex flex-col gap-1 p-4 md:p-0">
+          <div class="md:px-2 md:py-1">
             <TextInput
               ref="searchInputRef"
               v-model="searchValue"
@@ -103,6 +116,7 @@ import TextInput from '~/components/ui/input/TextInput.vue';
 import VenueFilterList from './list/VenueFilterList.vue';
 import ArtistFilterList from './list/ArtistFilterList.vue';
 import CityFilterList from './list/CityFilterList.vue';
+import AttendeeFilterList from './list/AttendeeFilterList.vue';
 import type { Filter } from '~/types/Filter';
 import { FilterType } from '~/types/FilterType';
 
@@ -133,12 +147,14 @@ const filterTypes = [
   { value: FilterType.VENUE, label: 'Venue', icon: 'mdi:map-marker' },
   { value: FilterType.CITY, label: 'City', icon: 'mdi:city' },
   { value: FilterType.ARTIST, label: 'Artist', icon: 'mdi:microphone' },
+  { value: FilterType.ATTENDEE, label: 'Attendee', icon: 'mdi:account-group' },
 ];
 
 const availableFilterTypes = computed(() => filterTypes.filter(ft => ft.value !== FilterType.SEARCH));
 
 const venues = computed(() => gigStore.venues);
 const artists = computed(() => gigStore.artists);
+const attendees = computed(() => gigStore.attendees);
 
 function calculateDropdownPosition() {
   if (container.value) {
@@ -163,6 +179,7 @@ function toggle() {
         // Ensure data is loaded
         if (!gigStore.venues.length) gigStore.fetchVenues();
         if (!gigStore.artists.length) gigStore.fetchArtists();
+        if (!gigStore.attendees.length) gigStore.fetchAttendees();
         searchInputRef.value?.focus();
     });
   } else {
@@ -240,7 +257,7 @@ function handleMainMenuKeydown(event: KeyboardEvent) {
 
 function scrollToFocusedFilterType() {
   nextTick(() => {
-    const focusedElement = filterTypeRefs.value[focusedFilterTypeIndex.value];
+    const focusedElement = filterTypeRefs.value[focusedFilterTypeIndex.value] as HTMLElement | undefined;
     if (focusedElement) {
       focusedElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       focusedElement.focus();
@@ -284,6 +301,21 @@ function handleCitySelect(city: string) {
     value: city,
     label: 'City',
     displayValue: city,
+  };
+
+  emit('update:filters', [...props.filters, newFilter]);
+  close();
+}
+
+function handleAttendeeSelect(attendeeId: string) {
+  const attendee = attendees.value.find(a => a.id === attendeeId);
+  if (!attendee) return;
+
+  const newFilter: Filter = {
+    type: FilterType.ATTENDEE,
+    value: attendeeId,
+    label: 'Attendee',
+    displayValue: attendee.name,
   };
 
   emit('update:filters', [...props.filters, newFilter]);
@@ -358,10 +390,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.dropdown-left {
+.md\:dropdown-left {
   right: 0;
 }
-.dropdown-right {
+.md\:dropdown-right {
   left: 0;
 }
 
