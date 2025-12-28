@@ -33,13 +33,6 @@
           subtitle="All time"
         />
         <StatCard
-          label="Next Gig"
-          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
-          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
-          icon="mdi:calendar-arrow-right"
-          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
-        />
-        <StatCard
           label="Total Festivals"
           :value="dashboardStore.stats?.totalFestivals || 0"
           icon="mdi:tent"
@@ -78,7 +71,14 @@
       </div>
 
       <!-- Temporal & Insights Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <StatCard
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
+        />
         <StatCard
           label="Busiest Year"
           :value="dashboardStore.temporalStats?.busiestYear || 'N/A'"

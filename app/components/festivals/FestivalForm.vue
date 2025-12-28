@@ -82,12 +82,12 @@
                     {{ group.title }}
                 </h4>
                 
-                <draggable 
+                <Draggable 
                     v-model="group.gigs" 
                     item-key="id"
                     handle=".drag-handle"
-                    @end="updateOrders(group.dateKey, group.gigs)"
                     class="space-y-2"
+                    @end="updateOrders(group.dateKey, group.gigs)"
                 >
                     <template #item="{ element }">
                         <div class="flex items-center gap-3 bg-base-200 p-3 rounded-md hover:bg-base-200/80 transition-colors">
@@ -116,7 +116,7 @@
                             </button>
                         </div>
                     </template>
-                </draggable>
+                </Draggable>
             </div>
         </div>
       </div>
@@ -154,7 +154,6 @@ import GigSelector from '~/components/gigs/GigSelector.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
-import draggable from 'vuedraggable';
 import { groupBy, sortBy } from 'lodash-es';
 import { format, parseISO, isValid } from 'date-fns';
 
