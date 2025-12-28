@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
+import { useNotificationStore } from '~/store/NotificationStore';
 import FestivalForm from '~/components/festivals/FestivalForm.vue';
 import type { UpsertFestivalRequest } from '~~/api';
 
@@ -43,12 +44,16 @@ useHead({
 
 const handleCreate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
     const newFestival = await gigStore.createFestival(data);
-    if (newFestival && newFestival.id && gigIds.length > 0) {
-        await gigStore.updateFestivalGigs(newFestival.id, gigIds);
-    }
-    if (newFestival?.id) {
+    
+    if (newFestival && newFestival.id) {
+        if (gigIds.length > 0) {
+           await gigStore.updateFestivalGigs(newFestival.id, gigIds);
+        }
+        
+        useNotificationStore().displaySuccessNotification('Festival created successfully');
         router.push(`/festivals/${newFestival.id}`);
     } else {
+        useNotificationStore().displayErrorNotification('Failed to create festival');
         router.push('/festivals');
     }
 };

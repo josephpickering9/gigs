@@ -99,6 +99,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
+import { useNotificationStore } from '~/store/NotificationStore';
 import GigForm from '~/components/gigs/GigForm.vue';
 import type { UpsertGigRequest, GetGigResponse } from '~~/api';
 import { format } from 'date-fns';
@@ -136,11 +137,12 @@ onMounted(async () => {
 });
 
 const handleUpdate = async (data: UpsertGigRequest) => {
-    try {
-        await gigStore.updateGig(gigId, data);
+    const result = await gigStore.updateGig(gigId, data);
+    if (result) {
+        useNotificationStore().displaySuccessNotification('Gig updated successfully');
         router.push('/gigs');
-    } catch {
-        // Error handled in store
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to update gig');
     }
 };
 
@@ -148,24 +150,27 @@ const handleUpdate = async (data: UpsertGigRequest) => {
 const handleEnrich = async () => {
     if (!gig.value?.id) return;
     
-    try {
-        await gigStore.enrichGig(gig.value.id);
-        
+    const result = await gigStore.enrichGig(gig.value.id);
+    
+    if (result) {
+         useNotificationStore().displaySuccessNotification('Gig enriched successfully');
         // Fetch the updated gig data
         gig.value = await gigStore.fetchGig(gig.value.id) || null;
-    } catch {
-        // Error handled in store
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to enrich gig');
     }
 };
 
 const handleDelete = async () => {
-    try {
-        await gigStore.deleteGig(gigId);
-        showDeleteConfirm.value = false;
-        router.push('/gigs');
-    } catch {
-        // Error handled in store
-        showDeleteConfirm.value = false;
+    const result = await gigStore.deleteGig(gigId);
+    if (result === undefined && !gigStore.saveError) {
+         // delete returns undefined on success, so we check for error
+         useNotificationStore().displaySuccessNotification('Gig deleted successfully');
+         showDeleteConfirm.value = false;
+         router.push('/gigs');
+    } else {
+         useNotificationStore().displayErrorNotification('Failed to delete gig');
+         showDeleteConfirm.value = false;
     }
 };
 </script>

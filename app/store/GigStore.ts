@@ -267,7 +267,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async createGig(gig: UpsertGigRequest) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await postApiGigs({ body: gig });
                 await this.fetchGigs();
                 return response.data;
@@ -275,7 +275,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async updateGig(id: string, gig: UpsertGigRequest) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 const response = await putApiGigsById({ path: { id }, body: gig });
                 await this.fetchGigs();
                 return response.data;
@@ -283,7 +283,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async enrichGig(id: string) {
-            await tryCatchFinally(ref(this.enrichForm), async () => {
+            return await tryCatchFinally(ref(this.enrichForm), async () => {
                 await postApiGigsByIdEnrich({ path: { id } });
                 const response = await getApiGigsById({ path: { id } });
                 await this.fetchGigs();
@@ -292,7 +292,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async deleteGig(id: string) {
-            await tryCatchFinally(ref(this.upsertForm), async () => {
+            return await tryCatchFinally(ref(this.upsertForm), async () => {
                 await deleteApiGigsById({ path: { id } });
                 await this.fetchGigs();
                 return undefined;
@@ -300,7 +300,7 @@ export const useGigStore = defineStore('gig', {
         },
 
         async importGigs(file: File) {
-            await tryCatchFinally(ref(this.importForm), async () => {
+            return await tryCatchFinally(ref(this.importForm), async () => {
                 await postApiImportCsv({
                     body: { file },
                     bodySerializer: (params) => {
