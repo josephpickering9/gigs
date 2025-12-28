@@ -34,6 +34,12 @@ export type GetArtistResponse = {
     slug?: string;
 };
 
+export type GetAttendeeResponse = {
+    id?: string;
+    name?: string;
+    slug?: string;
+};
+
 export type GetCalendarEventResponse = {
     id?: string;
     title?: string;
@@ -302,6 +308,22 @@ export type PostApiArtistsEnrichAllResponses = {
 };
 
 export type PostApiArtistsEnrichAllResponse = PostApiArtistsEnrichAllResponses[keyof PostApiArtistsEnrichAllResponses];
+
+export type GetApiAttendeesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/attendees';
+};
+
+export type GetApiAttendeesResponses = {
+    /**
+     * OK
+     */
+    200: Array<GetAttendeeResponse>;
+};
+
+export type GetApiAttendeesResponse = GetApiAttendeesResponses[keyof GetApiAttendeesResponses];
 
 export type PostApiCalendarImportData = {
     body?: ImportCalendarEventsRequest;

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest, GetAttendeeResponse } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -15,7 +15,8 @@ import {
     postApiFestivals,
     getApiFestivalsById,
     putApiFestivalsById,
-    deleteApiFestivalsById
+    deleteApiFestivalsById,
+    getApiAttendees,
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -29,6 +30,7 @@ interface GigState {
     venuesForm: AsyncForm<GetVenueResponse[]>;
     festivalsForm: AsyncForm<FestivalDto[]>;
     upsertFestivalForm: AsyncForm<FestivalDto>;
+    attendeesForm: AsyncForm<GetAttendeeResponse[]>;
     pagination: {
         page: number;
         pageSize: number;
@@ -57,6 +59,7 @@ export const useGigStore = defineStore('gig', {
         venuesForm: asyncForm<GetVenueResponse[]>(),
         festivalsForm: asyncForm<FestivalDto[]>(),
         upsertFestivalForm: asyncForm<FestivalDto>(),
+        attendeesForm: asyncForm<GetAttendeeResponse[]>(),
         pagination: {
             page: 1,
             pageSize: 500,
@@ -84,6 +87,8 @@ export const useGigStore = defineStore('gig', {
         loadingFestivals: (state) => state.festivalsForm.loading,
         savingFestival: (state) => state.upsertFestivalForm.loading,
         saveFestivalError: (state) => state.upsertFestivalForm.error,
+        attendees: (state) => state.attendeesForm.data || [],
+        loadingAttendees: (state) => state.attendeesForm.loading,
     },
 
     actions: {
@@ -220,6 +225,13 @@ export const useGigStore = defineStore('gig', {
                 await deleteApiFestivalsById({ path: { id } });
                 await this.fetchFestivals();
                 return undefined;
+            });
+        },
+
+        async fetchAttendees() {
+            await tryCatchFinally(ref(this.attendeesForm), async () => {
+                const response = await getApiAttendees();
+                return response.data;
             });
         },
 
