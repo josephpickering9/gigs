@@ -1,6 +1,5 @@
 <template>
   <form class="space-y-8" @submit.prevent="handleSubmit">
-    <!-- Artists Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <div class="flex items-center gap-2 mb-6">
@@ -14,7 +13,6 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Headliners -->
           <div class="space-y-2">
             <div class="flex items-center gap-2 mb-3">
               <div class="badge badge-accent gap-1">
@@ -32,7 +30,6 @@
             />
           </div>
 
-          <!-- Support Acts -->
           <div class="space-y-2">
             <div class="flex items-center gap-2 mb-3">
               <div class="badge badge-ghost gap-1">
@@ -57,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Event Details Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -93,7 +89,6 @@
       </div>
     </div>
 
-    <!-- Ticket Information Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -123,7 +118,6 @@
       </div>
     </div>
 
-    <!-- Attendees Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <div class="flex items-center gap-2 mb-4">
@@ -151,7 +145,6 @@
     </div>
 
 
-    <!-- Setlists Section -->
     <div v-if="form.acts && form.acts.length > 0" class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -229,7 +222,6 @@
       </div>
     </div>
 
-    <!-- Form Actions -->
     <div class="flex justify-between items-center gap-3 pt-4">
       <div>
         <slot name="left-actions" />
@@ -293,7 +285,7 @@ type FormState = Omit<UpsertGigRequest, 'acts'> & { acts: FormAct[] };
 const form = ref<FormState>({
   venueId: '',
   date: '',
-  ticketType: TicketType.STANDING, // Default
+  ticketType: TicketType.STANDING,
   ticketCost: null,
   imageUrl: '', 
   festivalId: null,
@@ -304,7 +296,6 @@ const form = ref<FormState>({
 
 const errors = ref<Record<string, string>>({});
 
-// Options
 const venueOptions = computed<SelectListItem[]>(() => 
     venues.value.map(v => ({ text: v.name || 'Unknown', value: v.id || '' }))
   );
@@ -322,6 +313,8 @@ const attendeeOptions = computed<SelectListItem[]>(() =>
   );
 
 const getArtistName = (id?: string) => {
+    if (!id) return 'Unknown Artist';
+    if (id.startsWith('new:')) return id.substring(4);
     return artists.value.find(a => a.id === id)?.name || 'Unknown Artist';
 };
 

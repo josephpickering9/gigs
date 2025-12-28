@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest, GetAttendeeResponse } from '~~/api';
+import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, GetFestivalResponse, UpsertFestivalRequest, GetAttendeeResponse } from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -28,8 +28,8 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
-    festivalsForm: AsyncForm<FestivalDto[]>;
-    upsertFestivalForm: AsyncForm<FestivalDto>;
+    festivalsForm: AsyncForm<GetFestivalResponse[]>;
+    upsertFestivalForm: AsyncForm<GetFestivalResponse>;
     attendeesForm: AsyncForm<GetAttendeeResponse[]>;
     pagination: {
         page: number;
@@ -57,8 +57,8 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
-        festivalsForm: asyncForm<FestivalDto[]>(),
-        upsertFestivalForm: asyncForm<FestivalDto>(),
+        festivalsForm: asyncForm<GetFestivalResponse[]>(),
+        upsertFestivalForm: asyncForm<GetFestivalResponse>(),
         attendeesForm: asyncForm<GetAttendeeResponse[]>(),
         pagination: {
             page: 1,
@@ -88,7 +88,7 @@ export const useGigStore = defineStore('gig', {
         savingFestival: (state) => state.upsertFestivalForm.loading,
         saveFestivalError: (state) => state.upsertFestivalForm.error,
         attendees: (state) => state.attendeesForm.data || [],
-        loadingAttendees: (state) => state.attendeesForm.loading,
+        loadingAttendees: (state) => state.attendeesForm?.loading || false,
     },
 
     actions: {

@@ -8,22 +8,46 @@
           <span>{{ festival.name }}</span>
           <span v-if="festival.year" class="text-base font-normal text-base-content/60">({{ festival.year }})</span>
       </h2>
-      <div class="flex items-center gap-2 text-base-content/70 mt-4">
+          <div class="flex items-center gap-2 text-base-content/70 mt-4">
           <Icon name="mdi:calendar-multiple" class="w-5 h-5 text-accent" />
-          <span class="font-semibold">{{ festival.gigs?.length || 0 }} gig{{ festival.gigs?.length !== 1 ? 's' : '' }}</span>
+          <span v-if="festival.startDate" class="font-semibold">
+              {{ formatDateRange(festival.startDate, festival.endDate) }}
+          </span>
+          <span v-else class="font-semibold">{{ festival.gigs?.length || 0 }} gig{{ festival.gigs?.length !== 1 ? 's' : '' }}</span>
+      </div>
+      
+      <div v-if="festival.price" class="flex items-center gap-2 text-base-content/70 mt-2">
+           <Icon name="mdi:cash" class="w-5 h-5 text-success" />
+           <span class="font-semibold">{{ formatCurrency(festival.price) }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { FestivalDto } from '~~/api';
+import type { GetFestivalResponse } from '~~/api';
 import { computed } from 'vue';
 import { getImageUrl } from '~/utils/image-helper';
+import { format, parseISO } from 'date-fns';
 
 const props = defineProps<{
-  festival: FestivalDto;
+  festival: GetFestivalResponse;
 }>();
+
+const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
+};
+
+const formatDateRange = (start: string | null | undefined, end: string | null | undefined) => {
+    if (!start) return '';
+    const startDate = parseISO(start);
+    const endDate = end ? parseISO(end) : null;
+    
+    if (endDate) {
+        return `${format(startDate, 'd MMM')} - ${format(endDate, 'd MMM yyyy')}`;
+    }
+    return format(startDate, 'd MMM yyyy');
+};
 
 const festivalImage = computed(() => {
     return props.festival.imageUrl ? getImageUrl(props.festival.imageUrl) : 'https://placehold.co/600x400?text=' + encodeURIComponent(props.festival.name || 'Festival');

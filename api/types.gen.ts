@@ -27,6 +27,11 @@ export type DashboardStatsResponse = {
     topAttendee?: TopAttendeeStats;
 };
 
+export type FestivalGigOrderRequest = {
+    gigId?: string;
+    order?: number;
+};
+
 export type GetArtistResponse = {
     id?: string;
     name?: string;
@@ -56,6 +61,11 @@ export type GetFestivalResponse = {
     slug?: string;
     imageUrl?: string | null;
     gigs?: Array<GetGigResponse> | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    price?: number | null;
+    dailyPrice?: number | null;
+    attendees?: Array<GetPersonResponse>;
 };
 
 export type GetGigArtistResponse = {
@@ -78,6 +88,7 @@ export type GetGigResponse = {
     festivalId?: string | null;
     festivalName?: string | null;
     date?: string;
+    order?: number;
     ticketCost?: number | null;
     ticketType?: TicketType;
     imageUrl?: string | null;
@@ -227,6 +238,11 @@ export type UpsertFestivalRequest = {
     name: string;
     year?: number | null;
     imageUrl?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    price?: number | null;
+    attendees?: Array<string>;
+    gigs?: Array<FestivalGigOrderRequest>;
 };
 
 export type UpsertGigRequest = {
@@ -236,6 +252,7 @@ export type UpsertGigRequest = {
     festivalId?: string | null;
     festivalName?: string | null;
     date: string;
+    order?: number;
     ticketCost?: number | null;
     ticketType: TicketType;
     imageUrl?: string | null;
