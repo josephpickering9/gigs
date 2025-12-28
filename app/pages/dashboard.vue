@@ -5,7 +5,6 @@
       <p class="text-base-content/70">Overview of your gig statistics and trends</p>
     </div>
 
-    <!-- Loading State -->
     <div v-if="dashboardStore.isLoading && !hasAnyData" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="i in 8" :key="i" class="skeleton h-32 rounded-lg"/>
@@ -16,15 +15,11 @@
       </div>
     </div>
 
-    <!-- Error State -->
     <div v-else-if="dashboardStore.statsError" class="alert alert-error">
       <Icon name="mdi:alert-circle" class="w-6 h-6" />
       <span>{{ dashboardStore.statsError }}</span>
     </div>
-
-    <!-- Dashboard Content -->
     <div v-else class="space-y-8">
-      <!-- Main Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           label="Total Gigs"
@@ -51,8 +46,6 @@
           icon="mdi:city"
         />
       </div>
-
-      <!-- Temporal & Insights Stats -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
           label="Unique Artists"
@@ -84,21 +77,14 @@
           icon="mdi:calendar-clock"
         />
       </div>
-
-      <!-- Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Gigs Per Year Chart -->
         <div v-if="dashboardStore.gigsPerYearData.length > 0">
           <GigsPerYearChart :data="dashboardStore.gigsPerYearData" />
         </div>
-        
-        <!-- Ticket Price Chart -->
         <div v-if="dashboardStore.priceChartData.length > 0">
           <TicketPriceChart :data="dashboardStore.priceChartData" />
         </div>
       </div>
-
-      <!-- Interesting Insights Section -->
       <div v-if="dashboardStore.interestingInsights" class="card bg-gradient-to-br from-accent/10 to-accent/5 shadow-xl border border-accent/20">
         <div class="card-body">
           <h2 class="card-title text-2xl font-bold text-accent mb-4">
@@ -125,10 +111,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Top Lists Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-        <!-- Top Artists -->
         <div class="card bg-base-100 shadow-xl border border-primary/20">
           <div class="card-body">
             <h3 class="card-title text-xl font-bold text-primary">
@@ -155,8 +138,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Top Venues -->
         <div class="card bg-base-100 shadow-xl border border-secondary/20">
           <div class="card-body">
             <h3 class="card-title text-xl font-bold text-secondary">
@@ -183,8 +164,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Top Cities -->
         <div class="card bg-base-100 shadow-xl border border-accent/20">
           <div class="card-body">
             <h3 class="card-title text-xl font-bold text-accent">
@@ -211,8 +190,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Top Attendees -->
         <div class="card bg-base-100 shadow-xl border border-info/20">
           <div class="card-body">
             <h3 class="card-title text-xl font-bold text-info">
@@ -240,8 +217,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Most Heard Songs -->
       <div v-if="dashboardStore.mostHeardSongs.length > 0" class="card bg-base-100 shadow-xl border border-primary/20">
         <div class="card-body">
           <h3 class="card-title text-2xl font-bold text-primary mb-4">
@@ -281,6 +256,13 @@ import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
 
+useHead({
+  title: 'Dashboard - Gig Stats',
+  meta: [
+    { name: 'description', content: 'Overview of your gig statistics and trends.' }
+  ]
+});
+
 const dashboardStore = useDashboardStore();
 
 const hasAnyData = computed(() => {
@@ -289,14 +271,6 @@ const hasAnyData = computed(() => {
          dashboardStore.gigsPerYearData.length > 0;
 });
 
-useHead({
-  title: 'Dashboard - Gig Stats',
-  meta: [
-    { name: 'description', content: 'Overview of your gig statistics and trends.' }
-  ]
-});
-
-// Fetch dashboard data on mount
 onMounted(() => {
   dashboardStore.fetchAll();
 });
