@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { DeleteApiFestivalsByIdData, DeleteApiFestivalsByIdResponses, DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, DeleteApiPersonsByIdData, DeleteApiPersonsByIdResponses, GetApiArtistsData, GetApiArtistsResponses, GetApiCalendardebugDebugData, GetApiCalendardebugDebugResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAttendeeInsightsData, GetApiDashboardAttendeeInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopAttendeesData, GetApiDashboardTopAttendeesResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiFestivalsByIdData, GetApiFestivalsByIdResponses, GetApiFestivalsData, GetApiFestivalsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiPersonsByIdData, GetApiPersonsByIdResponses, GetApiPersonsData, GetApiPersonsResponses, GetApiVenuesData, GetApiVenuesResponses, GetMediaUploadsByFileNameData, GetMediaUploadsByFileNameResponses, PostApiArtistsByIdEnrichData, PostApiArtistsByIdEnrichResponses, PostApiArtistsEnrichAllData, PostApiArtistsEnrichAllResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiFestivalsData, PostApiFestivalsResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsEnrichAllData, PostApiGigsEnrichAllResponses, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiPersonsData, PostApiPersonsResponses, PostApiVenuesByIdEnrichData, PostApiVenuesByIdEnrichResponses, PostApiVenuesEnrichAllData, PostApiVenuesEnrichAllResponses, PutApiFestivalsByIdData, PutApiFestivalsByIdResponses, PutApiGigsByIdData, PutApiGigsByIdResponses, PutApiPersonsByIdData, PutApiPersonsByIdResponses } from './types.gen';
+import type { DeleteApiFestivalsByIdData, DeleteApiFestivalsByIdResponses, DeleteApiGigsByIdData, DeleteApiGigsByIdResponses, DeleteApiPersonsByIdData, DeleteApiPersonsByIdResponses, GetApiArtistsData, GetApiArtistsResponses, GetApiCalendarEventsData, GetApiCalendarEventsResponses, GetApiDashboardArtistInsightsData, GetApiDashboardArtistInsightsResponses, GetApiDashboardAttendeeInsightsData, GetApiDashboardAttendeeInsightsResponses, GetApiDashboardAverageTicketPriceByYearData, GetApiDashboardAverageTicketPriceByYearResponses, GetApiDashboardGigsPerMonthData, GetApiDashboardGigsPerMonthResponses, GetApiDashboardGigsPerYearData, GetApiDashboardGigsPerYearResponses, GetApiDashboardInterestingInsightsData, GetApiDashboardInterestingInsightsResponses, GetApiDashboardMostHeardSongsData, GetApiDashboardMostHeardSongsResponses, GetApiDashboardStatsData, GetApiDashboardStatsResponses, GetApiDashboardTemporalStatsData, GetApiDashboardTemporalStatsResponses, GetApiDashboardTopArtistsData, GetApiDashboardTopArtistsResponses, GetApiDashboardTopAttendeesData, GetApiDashboardTopAttendeesResponses, GetApiDashboardTopCitiesData, GetApiDashboardTopCitiesResponses, GetApiDashboardTopVenuesData, GetApiDashboardTopVenuesResponses, GetApiDashboardVenueInsightsData, GetApiDashboardVenueInsightsResponses, GetApiFestivalsByIdData, GetApiFestivalsByIdResponses, GetApiFestivalsData, GetApiFestivalsResponses, GetApiGigsByIdData, GetApiGigsByIdResponses, GetApiGigsData, GetApiGigsResponses, GetApiPersonsByIdData, GetApiPersonsByIdResponses, GetApiPersonsData, GetApiPersonsResponses, GetApiVenuesData, GetApiVenuesResponses, GetMediaUploadsByFileNameData, GetMediaUploadsByFileNameResponses, PostApiArtistsByIdEnrichData, PostApiArtistsByIdEnrichResponses, PostApiArtistsEnrichAllData, PostApiArtistsEnrichAllResponses, PostApiCalendarImportData, PostApiCalendarImportResponses, PostApiFestivalsData, PostApiFestivalsResponses, PostApiGigsByIdEnrichData, PostApiGigsByIdEnrichResponses, PostApiGigsData, PostApiGigsEnrichAllData, PostApiGigsEnrichAllResponses, PostApiGigsResponses, PostApiImportCsvData, PostApiImportCsvResponses, PostApiPersonsData, PostApiPersonsResponses, PostApiVenuesByIdEnrichData, PostApiVenuesByIdEnrichResponses, PostApiVenuesEnrichAllData, PostApiVenuesEnrichAllResponses, PutApiFestivalsByIdData, PutApiFestivalsByIdResponses, PutApiGigsByIdData, PutApiGigsByIdResponses, PutApiPersonsByIdData, PutApiPersonsByIdResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -37,6 +37,7 @@ export const postApiArtistsEnrichAll = <ThrowOnError extends boolean = false>(op
 });
 
 export const postApiCalendarImport = <ThrowOnError extends boolean = false>(options?: Options<PostApiCalendarImportData, ThrowOnError>) => (options?.client ?? client).post<PostApiCalendarImportResponses, unknown, ThrowOnError>({
+    responseType: 'json',
     url: '/api/calendar/import',
     ...options,
     headers: {
@@ -45,9 +46,11 @@ export const postApiCalendarImport = <ThrowOnError extends boolean = false>(opti
     }
 });
 
-export const getApiCalendarEvents = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendarEventsData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendarEventsResponses, unknown, ThrowOnError>({ url: '/api/calendar/events', ...options });
-
-export const getApiCalendardebugDebug = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendardebugDebugData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendardebugDebugResponses, unknown, ThrowOnError>({ url: '/api/calendardebug/debug', ...options });
+export const getApiCalendarEvents = <ThrowOnError extends boolean = false>(options?: Options<GetApiCalendarEventsData, ThrowOnError>) => (options?.client ?? client).get<GetApiCalendarEventsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/calendar/events',
+    ...options
+});
 
 export const getApiDashboardStats = <ThrowOnError extends boolean = false>(options?: Options<GetApiDashboardStatsData, ThrowOnError>) => (options?.client ?? client).get<GetApiDashboardStatsResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -215,6 +218,7 @@ export const postApiGigsEnrichAll = <ThrowOnError extends boolean = false>(optio
 
 export const postApiImportCsv = <ThrowOnError extends boolean = false>(options?: Options<PostApiImportCsvData, ThrowOnError>) => (options?.client ?? client).post<PostApiImportCsvResponses, unknown, ThrowOnError>({
     ...formDataBodySerializer,
+    responseType: 'json',
     url: '/api/import/csv',
     ...options,
     headers: {

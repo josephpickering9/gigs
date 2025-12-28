@@ -27,20 +27,29 @@ export type DashboardStatsResponse = {
     topAttendee?: TopAttendeeStats;
 };
 
-export type FestivalDto = {
+export type GetArtistResponse = {
+    id?: string;
+    name?: string;
+    imageUrl?: string | null;
+    slug?: string;
+};
+
+export type GetCalendarEventResponse = {
+    id?: string;
+    title?: string;
+    startDateTime?: string;
+    endDateTime?: string | null;
+    location?: string | null;
+    description?: string | null;
+};
+
+export type GetFestivalResponse = {
     id?: string;
     name?: string;
     year?: number | null;
     slug?: string;
     imageUrl?: string | null;
     gigs?: Array<GetGigResponse> | null;
-};
-
-export type GetArtistResponse = {
-    id?: string;
-    name?: string;
-    imageUrl?: string | null;
-    slug?: string;
 };
 
 export type GetGigArtistResponse = {
@@ -115,6 +124,15 @@ export type GigsPerYearResponse = {
 export type ImportCalendarEventsRequest = {
     startDate?: string | null;
     endDate?: string | null;
+};
+
+export type ImportCalendarEventsResponse = {
+    eventsFound?: number;
+    gigsCreated?: number;
+    gigsUpdated?: number;
+    eventsSkipped?: number;
+    venuesCreated?: number;
+    message?: string;
 };
 
 export type InterestingInsightsResponse = {
@@ -296,8 +314,10 @@ export type PostApiCalendarImportResponses = {
     /**
      * OK
      */
-    200: unknown;
+    200: ImportCalendarEventsResponse;
 };
+
+export type PostApiCalendarImportResponse = PostApiCalendarImportResponses[keyof PostApiCalendarImportResponses];
 
 export type GetApiCalendarEventsData = {
     body?: never;
@@ -313,25 +333,10 @@ export type GetApiCalendarEventsResponses = {
     /**
      * OK
      */
-    200: unknown;
+    200: Array<GetCalendarEventResponse>;
 };
 
-export type GetApiCalendardebugDebugData = {
-    body?: never;
-    path?: never;
-    query?: {
-        startDate?: string;
-        endDate?: string;
-    };
-    url: '/api/calendardebug/debug';
-};
-
-export type GetApiCalendardebugDebugResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
+export type GetApiCalendarEventsResponse = GetApiCalendarEventsResponses[keyof GetApiCalendarEventsResponses];
 
 export type GetApiDashboardStatsData = {
     body?: never;
@@ -578,7 +583,7 @@ export type GetApiFestivalsResponses = {
     /**
      * OK
      */
-    200: Array<FestivalDto>;
+    200: Array<GetFestivalResponse>;
 };
 
 export type GetApiFestivalsResponse = GetApiFestivalsResponses[keyof GetApiFestivalsResponses];
@@ -594,7 +599,7 @@ export type PostApiFestivalsResponses = {
     /**
      * OK
      */
-    200: FestivalDto;
+    200: GetFestivalResponse;
 };
 
 export type PostApiFestivalsResponse = PostApiFestivalsResponses[keyof PostApiFestivalsResponses];
@@ -628,7 +633,7 @@ export type GetApiFestivalsByIdResponses = {
     /**
      * OK
      */
-    200: FestivalDto;
+    200: GetFestivalResponse;
 };
 
 export type GetApiFestivalsByIdResponse = GetApiFestivalsByIdResponses[keyof GetApiFestivalsByIdResponses];
@@ -646,7 +651,7 @@ export type PutApiFestivalsByIdResponses = {
     /**
      * OK
      */
-    200: FestivalDto;
+    200: GetFestivalResponse;
 };
 
 export type PutApiFestivalsByIdResponse = PutApiFestivalsByIdResponses[keyof PutApiFestivalsByIdResponses];
@@ -793,8 +798,10 @@ export type PostApiImportCsvResponses = {
     /**
      * OK
      */
-    200: unknown;
+    200: number;
 };
+
+export type PostApiImportCsvResponse = PostApiImportCsvResponses[keyof PostApiImportCsvResponses];
 
 export type GetMediaUploadsByFileNameData = {
     body?: never;
