@@ -75,7 +75,7 @@ const onUpdate = (val: SelectListItem[]) => {
     const existing = festivals.value.find(f => f.id === value);
     if (existing) {
       emit('update:modelValue', existing.id || null);
-      emit('update:name', existing.name || null);
+      emit('update:name', null);
     } else {
       emit('update:modelValue', null);
       emit('update:name', text);

@@ -17,6 +17,7 @@ import {
     putApiFestivalsById,
     deleteApiFestivalsById,
     getApiAttendees,
+    type FestivalGigOrderRequest,
 } from '~~/api';
 import { asyncForm, tryCatchFinally } from '~/utils/async-helper';
 import type { AsyncForm } from '~/types/AsyncForm';
@@ -196,11 +197,21 @@ export const useGigStore = defineStore('gig', {
             });
         },
 
-        async fetchFestival(id: string) {
-            const existing = this.festivals.find(f => f.id === id);
-            if (existing) return existing;
+        async fetchFestival(id: string, force = false) {
+            if (!force) {
+                const existing = this.festivals.find(f => f.id === id);
+                if (existing) return existing;
+            }
 
             const response = await getApiFestivalsById({ path: { id } });
+            if (response.data) {
+                const index = this.festivals.findIndex(f => f.id === id);
+                if (index !== -1) {
+                    this.festivals[index] = response.data;
+                } else {
+                    this.festivals.push(response.data);
+                }
+            }
             return response.data;
         },
 
@@ -235,18 +246,31 @@ export const useGigStore = defineStore('gig', {
             });
         },
 
-        async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
+        async updateFestivalGigs(festivalId: string, newGigs: FestivalGigOrderRequest[]) {
             const festival = await this.fetchFestival(festivalId);
             if (!festival) return;
 
             const currentGigIds = festival.gigs?.map(g => g.id).filter(Boolean) as string[] || [];
+            const newGigIds = newGigs.map(g => g.gigId).filter(Boolean) as string[];
 
             const toAdd = newGigIds.filter(id => !currentGigIds.includes(id));
             const toRemove = currentGigIds.filter(id => !newGigIds.includes(id));
 
+            // Also need to update existing gigs if their order changed
+            const existingToUpdate = newGigIds.filter(id => currentGigIds.includes(id));
+
             const updateGigFestival = async (gigId: string, targetFestivalId: string | null) => {
                 const gig = await this.fetchGig(gigId);
                 if (!gig) return;
+
+                // Find the new order if we are adding or updating
+                let newOrder = 0;
+                if (targetFestivalId) {
+                    const gigOrderReq = newGigs.find(g => g.gigId === gigId);
+                    if (gigOrderReq && gigOrderReq.order !== undefined) {
+                        newOrder = gigOrderReq.order;
+                    }
+                }
 
                 const updateRequest: UpsertGigRequest = {
                     venueId: gig.venueId,
@@ -255,6 +279,7 @@ export const useGigStore = defineStore('gig', {
                     festivalId: targetFestivalId,
                     festivalName: targetFestivalId && festival ? festival.name : null,
                     date: gig.date!,
+                    order: newOrder,
                     ticketCost: gig.ticketCost,
                     ticketType: gig.ticketType!,
                     imageUrl: gig.imageUrl,
@@ -274,8 +299,12 @@ export const useGigStore = defineStore('gig', {
             for (const id of toRemove) {
                 await updateGigFestival(id, null);
             }
+            // Update order for existing gigs
+            for (const id of existingToUpdate) {
+                await updateGigFestival(id, festivalId);
+            }
 
-            await this.fetchFestival(festivalId);
+            await this.fetchFestival(festivalId, true);
         },
 
         async createGig(gig: UpsertGigRequest) {

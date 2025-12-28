@@ -1,7 +1,7 @@
 <template>
   <div class="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300 border border-primary/20 block h-full">
-    <figure class="h-48 overflow-hidden bg-base-200">
-      <img :src="festivalImage" :alt="festival.name" class="h-full w-full object-cover">
+    <figure class="aspect-[3/2] overflow-hidden bg-base-200">
+      <img :src="festivalImage" :alt="festival.name" class="h-full w-full object-cover object-top">
     </figure>
     <div class="card-body p-6">
       <h2 class="card-title text-2xl font-bold text-primary flex-col items-start gap-1">

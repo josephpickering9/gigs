@@ -4,14 +4,9 @@ export type ClientOptions = {
     baseURL: 'http://localhost:5105' | (string & {});
 };
 
-export type ArtistInsightsResponse = {
-    totalUniqueArtists?: number;
-    totalArtistAppearances?: number;
-};
-
-export type AttendeeInsightsResponse = {
-    totalUniqueAttendees?: number;
-    totalGigsWithAttendees?: number;
+export type AverageFestivalPriceByYearResponse = {
+    year?: number;
+    averageDailyPrice?: number;
 };
 
 export type AverageTicketPriceByYearResponse = {
@@ -21,15 +16,23 @@ export type AverageTicketPriceByYearResponse = {
 
 export type DashboardStatsResponse = {
     totalGigs?: number;
+    totalFestivals?: number;
     topArtist?: TopArtistStats;
     topVenue?: TopVenueStats;
     topCity?: TopCityStats;
+    topFestival?: TopFestivalStats;
     topAttendee?: TopAttendeeStats;
+    nextGig?: NextGigStats;
 };
 
 export type FestivalGigOrderRequest = {
     gigId?: string;
     order?: number;
+};
+
+export type FestivalsPerYearResponse = {
+    year?: number;
+    festivalCount?: number;
 };
 
 export type GetArtistResponse = {
@@ -173,6 +176,12 @@ export type MostHeardSongResponse = {
     timesHeard?: number;
 };
 
+export type NextGigStats = {
+    venueName?: string;
+    headlineArtist?: string | null;
+    date?: string;
+};
+
 export type TemporalStatsResponse = {
     busiestYear?: number | null;
     busiestYearGigCount?: number | null;
@@ -220,6 +229,11 @@ export type TopCityResponse = {
 export type TopCityStats = {
     cityName?: string;
     gigCount?: number;
+};
+
+export type TopFestivalStats = {
+    festivalName?: string;
+    festivalCount?: number;
 };
 
 export type TopVenueResponse = {
@@ -409,6 +423,38 @@ export type GetApiDashboardAverageTicketPriceByYearResponses = {
 
 export type GetApiDashboardAverageTicketPriceByYearResponse = GetApiDashboardAverageTicketPriceByYearResponses[keyof GetApiDashboardAverageTicketPriceByYearResponses];
 
+export type GetApiDashboardAverageFestivalPriceByYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/average-festival-price-by-year';
+};
+
+export type GetApiDashboardAverageFestivalPriceByYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<AverageFestivalPriceByYearResponse>;
+};
+
+export type GetApiDashboardAverageFestivalPriceByYearResponse = GetApiDashboardAverageFestivalPriceByYearResponses[keyof GetApiDashboardAverageFestivalPriceByYearResponses];
+
+export type GetApiDashboardFestivalsPerYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/festivals-per-year';
+};
+
+export type GetApiDashboardFestivalsPerYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<FestivalsPerYearResponse>;
+};
+
+export type GetApiDashboardFestivalsPerYearResponse = GetApiDashboardFestivalsPerYearResponses[keyof GetApiDashboardFestivalsPerYearResponses];
+
 export type GetApiDashboardGigsPerYearData = {
     body?: never;
     path?: never;
@@ -456,22 +502,6 @@ export type GetApiDashboardTemporalStatsResponses = {
 };
 
 export type GetApiDashboardTemporalStatsResponse = GetApiDashboardTemporalStatsResponses[keyof GetApiDashboardTemporalStatsResponses];
-
-export type GetApiDashboardArtistInsightsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/dashboard/artist-insights';
-};
-
-export type GetApiDashboardArtistInsightsResponses = {
-    /**
-     * OK
-     */
-    200: ArtistInsightsResponse;
-};
-
-export type GetApiDashboardArtistInsightsResponse = GetApiDashboardArtistInsightsResponses[keyof GetApiDashboardArtistInsightsResponses];
 
 export type GetApiDashboardTopArtistsData = {
     body?: never;
@@ -576,22 +606,6 @@ export type GetApiDashboardMostHeardSongsResponses = {
 };
 
 export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
-
-export type GetApiDashboardAttendeeInsightsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/dashboard/attendee-insights';
-};
-
-export type GetApiDashboardAttendeeInsightsResponses = {
-    /**
-     * OK
-     */
-    200: AttendeeInsightsResponse;
-};
-
-export type GetApiDashboardAttendeeInsightsResponse = GetApiDashboardAttendeeInsightsResponses[keyof GetApiDashboardAttendeeInsightsResponses];
 
 export type GetApiDashboardTopAttendeesData = {
     body?: never;

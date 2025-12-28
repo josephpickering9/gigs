@@ -57,7 +57,7 @@
                 
                 <!-- Additional Details / Images could go here later -->
                 <div v-if="gig.imageUrl" class="card bg-base-100 shadow-xl overflow-hidden">
-                    <figure><img :src="getImageUrl(gig.imageUrl)" alt="Gig Image" class="w-full object-cover max-h-[400px]" ></figure>
+                    <figure><img :src="getImageUrl(gig.imageUrl)" alt="Gig Image" class="w-full object-cover object-top max-h-[500px]" ></figure>
                 </div>
             </div>
 

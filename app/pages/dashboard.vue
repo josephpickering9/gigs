@@ -26,45 +26,57 @@
           :value="dashboardStore.stats?.totalGigs || 0"
           icon="mdi:music-note"
           subtitle="All time"
+          to="/gigs"
         />
         <StatCard
           label="Top Artist"
           :value="dashboardStore.stats?.topArtist?.artistName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topArtist?.gigCount || 0} gigs`"
           icon="mdi:account-music"
+          :to="dashboardStore.stats?.topArtist ? `/gigs?artistId=${dashboardStore.stats?.topArtist?.artistName && dashboardStore.topArtists.find(a => a.artistName === dashboardStore.stats?.topArtist?.artistName)?.artistId}` : undefined"
+        />
+        <StatCard
+          label="Total Festivals"
+          :value="dashboardStore.stats?.totalFestivals || 0"
+          icon="mdi:tent"
+          subtitle="All time"
+          to="/festivals"
+        />
+        <StatCard
+          label="Top Festival"
+          :value="dashboardStore.stats?.topFestival?.festivalName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topFestival?.festivalCount || 0} gigs`"
+          icon="mdi:tent"
+        />
+        <StatCard
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
+        />
+        <StatCard
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
         />
         <StatCard
           label="Top Venue"
           :value="dashboardStore.stats?.topVenue?.venueName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
           icon="mdi:map-marker"
+          :to="dashboardStore.stats?.topVenue ? `/gigs?venueId=${dashboardStore.stats?.topVenue?.venueName && dashboardStore.topVenues.find(v => v.venueName === dashboardStore.stats?.topVenue?.venueName)?.venueId}` : undefined"
         />
         <StatCard
           label="Top City"
           :value="dashboardStore.stats?.topCity?.cityName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
+          :to="dashboardStore.stats?.topCity ? `/gigs?city=${dashboardStore.stats?.topCity?.cityName}` : undefined"
         />
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatCard
-          label="Unique Artists"
-          :value="dashboardStore.artistInsights?.totalUniqueArtists || 0"
-          :subtitle="`${dashboardStore.artistInsights?.totalArtistAppearances || 0} total appearances`"
-          icon="mdi:account-group"
-        />
-        <StatCard
-          label="Unique Venues"
-          :value="dashboardStore.venueInsights?.totalUniqueVenues || 0"
-          :subtitle="`${dashboardStore.venueInsights?.totalUniqueCities || 0} cities`"
-          icon="mdi:map-marker-multiple"
-        />
-        <StatCard
-          label="Unique Attendees"
-          :value="dashboardStore.attendeeInsights?.totalUniqueAttendees || 0"
-          :subtitle="`${dashboardStore.attendeeInsights?.totalGigsWithAttendees || 0} gigs with attendees`"
-          icon="mdi:account-multiple"
-        />
         <StatCard
           label="Busiest Year"
           :value="dashboardStore.temporalStats?.busiestYear || 'N/A'"
@@ -130,7 +142,11 @@
                 <tbody>
                   <tr v-for="(artist, index) in dashboardStore.topArtists.slice(0, 5)" :key="artist.artistId">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ artist.artistName }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?artistId=${artist.artistId}`" class="link link-hover hover:text-primary">
+                        {{ artist.artistName }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-primary font-bold">{{ artist.totalAppearances }}</td>
                   </tr>
                 </tbody>
@@ -156,7 +172,11 @@
                 <tbody>
                   <tr v-for="(venue, index) in dashboardStore.topVenues.slice(0, 5)" :key="venue.venueId">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ venue.venueName }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?venueId=${venue.venueId}`" class="link link-hover hover:text-secondary">
+                        {{ venue.venueName }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-secondary font-bold">{{ venue.gigCount }}</td>
                   </tr>
                 </tbody>
@@ -182,7 +202,11 @@
                 <tbody>
                   <tr v-for="(city, index) in dashboardStore.topCities.slice(0, 5)" :key="city.city">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ city.city }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?city=${city.city}`" class="link link-hover hover:text-accent">
+                        {{ city.city }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-accent font-bold">{{ city.gigCount }}</td>
                   </tr>
                 </tbody>
@@ -255,6 +279,7 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
+import { format, parseISO } from 'date-fns';
 
 useHead({
   title: 'Dashboard - Gig Stats',

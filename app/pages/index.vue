@@ -33,10 +33,35 @@
           subtitle="All time"
         />
         <StatCard
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
+        />
+        <StatCard
+          label="Total Festivals"
+          :value="dashboardStore.stats?.totalFestivals || 0"
+          icon="mdi:tent"
+          subtitle="All time"
+        />
+        <StatCard
+          label="Top Festival"
+          :value="dashboardStore.stats?.topFestival?.festivalName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topFestival?.festivalCount || 0} gigs`"
+          icon="mdi:tent"
+        />
+        <StatCard
           label="Top Artist"
           :value="dashboardStore.stats?.topArtist?.artistName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topArtist?.gigCount || 0} gigs`"
           icon="mdi:account-music"
+        />
+        <StatCard
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
         />
         <StatCard
           label="Top Venue"
@@ -53,19 +78,7 @@
       </div>
 
       <!-- Temporal & Insights Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          label="Unique Artists"
-          :value="dashboardStore.artistInsights?.totalUniqueArtists || 0"
-          :subtitle="`${dashboardStore.artistInsights?.totalArtistAppearances || 0} total appearances`"
-          icon="mdi:account-group"
-        />
-        <StatCard
-          label="Unique Venues"
-          :value="dashboardStore.venueInsights?.totalUniqueVenues || 0"
-          :subtitle="`${dashboardStore.venueInsights?.totalUniqueCities || 0} cities`"
-          icon="mdi:map-marker-multiple"
-        />
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
           label="Busiest Year"
           :value="dashboardStore.temporalStats?.busiestYear || 'N/A'"
@@ -246,6 +259,7 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
+import { format, parseISO } from 'date-fns';
 
 const dashboardStore = useDashboardStore();
 

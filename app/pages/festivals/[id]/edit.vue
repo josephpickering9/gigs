@@ -90,7 +90,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import { useNotificationStore } from '~/store/NotificationStore';
 import FestivalForm from '~/components/festivals/FestivalForm.vue';
-import type { UpsertFestivalRequest, FestivalDto } from '~~/api';
+import type { UpsertFestivalRequest, GetFestivalResponse } from '~~/api';
 
 definePageMeta({
   middleware: 'auth',
@@ -101,7 +101,7 @@ const router = useRouter();
 const gigStore = useGigStore();
 const festivalId = route.params['id'] as string;
 
-const festival = ref<FestivalDto | undefined>(undefined);
+const festival = ref<GetFestivalResponse | undefined>(undefined);
 const loading = ref(true);
 const showDeleteConfirm = ref(false);
 
@@ -117,12 +117,14 @@ onMounted(async () => {
     }
 });
 
-const handleUpdate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
+const handleUpdate = async (data: UpsertFestivalRequest) => {
     const result = await gigStore.updateFestival(festivalId, data);
     
     if (result) {
-        await gigStore.updateFestivalGigs(festivalId, gigIds);
-        await gigStore.fetchFestival(festivalId);
+        if (data.gigs) {
+             await gigStore.updateFestivalGigs(festivalId, data.gigs);
+        }
+        await gigStore.fetchFestival(festivalId, true);
         useNotificationStore().displaySuccessNotification('Festival updated successfully');
         router.push(`/festivals/${festivalId}`);
     } else {
