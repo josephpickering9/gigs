@@ -54,12 +54,12 @@
           </thead>
           <tbody>
             <tr v-for="i in 8" :key="i">
-              <td><div class="skeleton h-4 w-32"></div></td>
-              <td><div class="skeleton h-4 w-24"></div></td>
-              <td><div class="skeleton h-4 w-20"></div></td>
-              <td><div class="skeleton h-4 w-20"></div></td>
-              <td><div class="skeleton h-4 w-24"></div></td>
-              <td><div class="skeleton h-4 w-16"></div></td>
+              <td><div class="skeleton h-4 w-32"/></td>
+              <td><div class="skeleton h-4 w-24"/></td>
+              <td><div class="skeleton h-4 w-20"/></td>
+              <td><div class="skeleton h-4 w-20"/></td>
+              <td><div class="skeleton h-4 w-24"/></td>
+              <td><div class="skeleton h-4 w-16"/></td>
             </tr>
           </tbody>
         </table>
@@ -68,11 +68,11 @@
       <!-- Card View Skeleton -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="i in 6" :key="i" class="card bg-base-100 shadow-xl">
-          <div class="skeleton h-48 w-full"></div>
+          <div class="skeleton h-48 w-full"/>
           <div class="card-body">
-            <div class="skeleton h-6 w-3/4 mb-2"></div>
-            <div class="skeleton h-4 w-1/2 mb-2"></div>
-            <div class="skeleton h-4 w-2/3"></div>
+            <div class="skeleton h-6 w-3/4 mb-2"/>
+            <div class="skeleton h-4 w-1/2 mb-2"/>
+            <div class="skeleton h-4 w-2/3"/>
           </div>
         </div>
       </div>

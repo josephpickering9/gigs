@@ -100,7 +100,7 @@
                     {{ group.title }}
                 </h4>
                 
-                <draggable 
+                <Draggable 
                     v-model="group.gigs" 
                     item-key="id"
                     handle=".drag-handle"
@@ -134,7 +134,7 @@
                             </button>
                         </div>
                     </template>
-                </draggable>
+                </Draggable>
             </div>
         </div>
       </div>
@@ -174,7 +174,6 @@ import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { groupBy, sortBy } from 'lodash-es';
 import { format, parseISO, isValid } from 'date-fns';
-import draggable from 'vuedraggable'
 
 const props = defineProps<{
   initialData?: GetFestivalResponse;

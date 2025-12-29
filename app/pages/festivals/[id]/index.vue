@@ -118,7 +118,7 @@
                                                             :src="getImageUrl(act.imageUrl)" 
                                                             :alt="act.name" 
                                                             class="object-cover w-full h-full"
-                                                        />
+                                                        >
                                                         <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold opacity-50">
                                                             {{ (act.name || '?').charAt(0) }}
                                                         </div>
@@ -168,7 +168,7 @@
                             :src="getImageUrl(festival.posterImageUrl)" 
                             :alt="festival.name + ' Poster'" 
                             class="w-full h-auto object-cover"
-                        />
+                        >
                     </div>
 
                     <!-- Info Card -->

@@ -170,7 +170,7 @@
                   </span>
                 </label>
                 
-                <draggable 
+                <Draggable 
                     v-model="act.setlist" 
                     item-key="id"
                     handle=".drag-handle"
@@ -183,7 +183,7 @@
                             <button type="button" class="drag-handle btn btn-ghost btn-xs btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content">
                                 <Icon name="mdi:drag" class="w-5 h-5" />
                             </button>
-                            <div class="relative flex-1 flex items-center gap-2" v-if="act.setlist && act.setlist[songIndex]">
+                            <div v-if="act.setlist && act.setlist[songIndex]" class="relative flex-1 flex items-center gap-2">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-base-content/30 w-4 text-right">
                                     {{ songIndex + 1 }}
                                 </span>
@@ -195,7 +195,7 @@
                                     @keydown.enter.prevent="addSong(index, songIndex + 1)"
                                 >
                                 <label class="swap swap-rotate btn btn-xs btn-circle" :class="act.setlist[songIndex].isEncore ? 'btn-secondary text-white' : 'btn-ghost text-base-content/30'">
-                                    <input type="checkbox" v-model="act.setlist[songIndex].isEncore" />
+                                    <input v-model="act.setlist[songIndex].isEncore" type="checkbox" >
                                     <!-- check icon -->
                                     <Icon name="mdi:star" class="swap-on w-4 h-4" />
                                     <!-- close icon -->
@@ -211,7 +211,7 @@
                             </button>
                         </div>
                     </template>
-                </draggable>
+                </Draggable>
 
                  <button 
                     type="button" 
@@ -261,7 +261,6 @@ import FestivalSelector from '~/components/festivals/FestivalSelector.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
-import draggable from 'vuedraggable'
 
 const props = defineProps<{
   initialData?: GetGigResponse;

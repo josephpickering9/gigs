@@ -26,7 +26,7 @@
               <div class="flex gap-2 items-center">
                   <div class="avatar">
                       <div class="w-6 h-6 rounded-full">
-                          <img v-if="artist.imageUrl" :src="getArtistImage(artist)" :alt="artist.name" class="object-cover" />
+                          <img v-if="artist.imageUrl" :src="getArtistImage(artist)" :alt="artist.name" class="object-cover" >
                           <div v-else class="bg-base-300 flex items-center justify-center w-full h-full">
                               <Icon name="mdi:account-music" class="w-4 h-4 text-base-content/50" />
                           </div>
