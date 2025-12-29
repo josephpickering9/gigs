@@ -71,74 +71,81 @@
         </div>
 
         <!-- Content Container -->
-        <div class="container max-w-6xl mx-auto px-4 -mt-20 relative z-20 pb-20">
+        <div class="w-full max-w-6xl mx-auto px-0 md:px-4 -mt-20 relative z-20 pb-20">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 <!-- Main Content (Setlist) -->
                 <div class="lg:col-span-2 space-y-8 animate-slide-up order-2 lg:order-1">
-                    <GigSetlist :gig="gig" />
+                    <GigSetlist :gig="gig" class="rounded-none sm:rounded-2xl shadow-sm sm:shadow-xl border-x-0 sm:border card-compact sm:card-normal" />
                 </div>
 
                 <!-- Sidebar -->
                 <div class="lg:col-span-1 space-y-6 animate-slide-up order-1 lg:order-2" style="animation-delay: 100ms;">
+                    
                     <!-- Info Card -->
-                    <div class="card bg-base-100 shadow-xl border border-base-content/5 sticky top-6">
-                        <div class="card-body">
-                            <h3 class="card-title text-lg mb-4 flex items-center gap-2">
-                                <Icon name="mdi:information-slab-circle" class="w-6 h-6 text-primary" />
-                                Gig Info
+                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none sticky top-0 sm:top-6 z-30 sm:z-10">
+                        <div class="card-body p-4 sm:p-6">
+                            <h3 class="card-title text-lg mb-4 flex items-center justify-between">
+                                <span class="flex items-center gap-2">
+                                    <Icon name="mdi:information-slab-circle" class="w-6 h-6 text-primary" />
+                                    Gig Info
+                                </span>
+                                <!-- Mobile Collapse/Expand could go here if needed, keeping it simple for now -->
                             </h3>
                             
                             <div class="space-y-4">
                                 <!-- Date -->
-                                <div class="flex items-start gap-3">
-                                    <div class="p-2 rounded-lg bg-base-200 text-primary">
+                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                                         <Icon name="mdi:calendar" class="w-5 h-5" />
                                     </div>
                                     <div>
                                         <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Date</div>
-                                        <div class="font-medium">{{ formatDate(gig.date) }}</div>
+                                        <div class="font-medium text-base-content">{{ formatDate(gig.date) }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Venue -->
-                                <div class="flex items-start gap-3">
-                                    <div class="p-2 rounded-lg bg-base-200 text-accent">
+                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0">
                                         <Icon name="mdi:map-marker" class="w-5 h-5" />
                                     </div>
                                     <div>
                                         <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Location</div>
-                                        <div class="font-medium text-primary">{{ gig.venueName }}</div>
+                                        <div class="font-bold text-primary">{{ gig.venueName }}</div>
                                         <div v-if="gigVenue" class="text-sm text-base-content/70">{{ gigVenue.city }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Ticket Type/Price -->
-                                <div v-if="gig.ticketType || gig.ticketCost" class="flex items-start gap-3">
-                                    <div class="p-2 rounded-lg bg-base-200 text-success">
+                                <div v-if="gig.ticketType || gig.ticketCost" class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success shrink-0">
                                         <Icon name="mdi:ticket" class="w-5 h-5" />
                                     </div>
                                     <div>
                                         <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Ticket</div>
-                                        <div class="flex flex-col">
-                                            <span v-if="gig.ticketType" class="badge badge-outline badge-sm mb-1">{{ gig.ticketType }}</span>
-                                            <span v-if="gig.ticketCost" class="font-medium">{{ formatCurrency(gig.ticketCost) }}</span>
+                                        <div class="flex flex-wrap gap-2 items-center">
+                                            <span v-if="gig.ticketType" class="badge badge-outline text-xs">{{ gig.ticketType }}</span>
+                                            <span v-if="gig.ticketCost" class="font-bold font-mono">{{ formatCurrency(gig.ticketCost) }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Attendees -->
-                                <div v-if="gig.attendees && gig.attendees.length > 0" class="pt-2 border-t border-base-content/10">
-                                    <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                <div v-if="gig.attendees && gig.attendees.length > 0" class="pt-4 mt-2 border-t border-base-content/10">
+                                    <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide mb-3 flex items-center gap-2">
                                         <Icon name="mdi:account-group" class="w-4 h-4" />
-                                        Attendees
+                                        Attendees <span class="badge badge-ghost badge-sm text-xs">{{ gig.attendees.length }}</span>
                                     </div>
-                                    <div class="flex flex-wrap gap-1">
+                                    <div class="flex flex-wrap gap-2">
                                         <span 
                                             v-for="attendee in gig.attendees" 
                                             :key="attendee.personId" 
-                                            class="badge badge-secondary badge-sm"
+                                            class="badge badge-secondary badge-md pl-1 pr-3 gap-2"
                                         >
+                                            <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold">
+                                                {{ attendee.personName.charAt(0) }}
+                                            </div>
                                             {{ attendee.personName }}
                                         </span>
                                     </div>
@@ -148,7 +155,7 @@
                     </div>
 
                     <!-- Map Card -->
-                    <div class="card bg-base-100 shadow-xl border border-base-content/5 overflow-hidden h-[350px] sticky top-[400px]">
+                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none overflow-hidden h-[350px] sticky top-[400px]">
                         <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
                     </div>
                 </div>

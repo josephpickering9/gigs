@@ -23,6 +23,13 @@
           />
 
           <TextInput
+            v-model="posterImageUrlProxy"
+            label="Poster Image URL"
+            placeholder="https://..."
+            :error="errors['posterImageUrl']"
+          />
+
+          <TextInput
             v-model="yearProxy"
             label="Year"
             placeholder="e.g. 2023"
@@ -42,6 +49,17 @@
                 :error="errors['endDate']"
             />
           </div>
+
+
+
+          <Combobox
+             v-model="selectedVenue"
+             :options="venueOptions"
+             label="Venue"
+             placeholder="Select venue..."
+             :multiple="false"
+             :error="errors['venueId']"
+          />
 
           <RangeSlider
             v-model="form.price"
@@ -145,7 +163,7 @@
 
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed, onMounted, nextTick } from 'vue';
 import type { UpsertFestivalRequest, GetFestivalResponse, GetGigResponse } from '~~/api';
 import TextInput from '~/components/ui/input/TextInput.vue';
 import DatePicker from '~/components/ui/input/DatePicker.vue';
@@ -175,6 +193,9 @@ const form = ref<UpsertFestivalRequest>({
   name: '',
   year: null,
   imageUrl: '',
+  posterImageUrl: '',
+  venueId: null,
+  venueName: null,
   startDate: null,
   endDate: null,
   price: null,
@@ -184,23 +205,34 @@ const form = ref<UpsertFestivalRequest>({
 
 const selectedGigIds = ref<string[]>([]);
 const selectedAttendees = ref<SelectListItem[]>([]);
+const selectedVenue = ref<SelectListItem[]>([]);
 const orderedGigs = ref<GetGigResponse[]>([]);
 const loadingGigs = ref(false);
 const isInitializing = ref(false); // Flag to prevent watch interference during init
 
 onMounted(async () => {
-    if (gigStore.attendees.length === 0) {
-        await gigStore.fetchAttendees();
-    }
+    const promises = [];
+    if (gigStore.attendees.length === 0) promises.push(gigStore.fetchAttendees());
+    if (gigStore.venues.length === 0) promises.push(gigStore.fetchVenues());
+    await Promise.all(promises);
 });
 
 const attendeeOptions = computed<SelectListItem[]>(() => 
     gigStore.attendees.map((a: { name?: string; id?: string }) => ({ text: a.name || 'Unknown', value: a.id || '' }))
 );
 
+const venueOptions = computed<SelectListItem[]>(() => 
+    gigStore.venues.map((v: { name?: string; id?: string }) => ({ text: v.name || 'Unknown', value: v.id || '' }))
+);
+
 const imageUrlProxy = computed({
     get: () => form.value.imageUrl || '',
     set: (val: string) => form.value.imageUrl = val
+});
+
+const posterImageUrlProxy = computed({
+    get: () => form.value.posterImageUrl || '',
+    set: (val: string) => form.value.posterImageUrl = val
 });
 
 const yearProxy = computed({
@@ -230,12 +262,28 @@ watch(() => props.initialData, async (newData) => {
             name: newData.name || '',
             year: newData.year || null,
             imageUrl: newData.imageUrl || '',
+            posterImageUrl: newData.posterImageUrl || '',
+            venueId: newData.venueId || null,
+            venueName: newData.venueName || null,
             startDate: newData.startDate || null,
             endDate: newData.endDate || null,
             price: newData.price || null,
             attendees: newData.attendees?.map((a: { id?: string }) => a.id!).filter(Boolean) || [],
             gigs: [], // Will be populated on submit
         };
+        
+        // Map venue
+        if (newData.venueId) {
+            const v = gigStore.venues.find(v => v.id === newData.venueId);
+            if (v) {
+                selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
+            }
+        } else if (newData.venueName) {
+             // If we have a name but no ID matches (or just data oddity), use name
+             selectedVenue.value = [{ text: newData.venueName, value: newData.venueName }];
+        } else {
+            selectedVenue.value = [];
+        }
         
         // Populate orderedGigs FIRST from initial data if available
         // This ensures that when we set selectedGigIds below, the watcher won't think these are "missing"
@@ -290,6 +338,28 @@ watch(selectedGigIds, async (newIds) => {
         }
     } finally {
         loadingGigs.value = false;
+    }
+});
+
+watch(selectedVenue, (val) => {
+    if (val.length > 0 && val[0]) {
+        // Use value if it isn't the name (implies it's an ID), or if it matches an existing ID
+        // If it's a new name, value might be the name.
+        form.value.venueId = String(val[0].value);
+        form.value.venueName = val[0].text;
+    } else {
+        form.value.venueId = null;
+        form.value.venueName = null;
+    }
+});
+
+// Watch venues to populate selectedVenue if data comes in late
+watch(() => gigStore.venues, (newVenues) => {
+    if (form.value.venueId && selectedVenue.value.length === 0) {
+        const v = newVenues.find(v => v.id === form.value.venueId);
+        if (v) {
+            selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
+        }
     }
 });
 

@@ -740,6 +740,40 @@ export type PutApiFestivalsByIdResponses = {
 
 export type PutApiFestivalsByIdResponse = PutApiFestivalsByIdResponses[keyof PutApiFestivalsByIdResponses];
 
+export type PostApiFestivalsByIdEnrichData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}/enrich';
+};
+
+export type PostApiFestivalsByIdEnrichResponses = {
+    /**
+     * OK
+     */
+    200: GetFestivalResponse;
+};
+
+export type PostApiFestivalsByIdEnrichResponse = PostApiFestivalsByIdEnrichResponses[keyof PostApiFestivalsByIdEnrichResponses];
+
+export type PostApiFestivalsEnrichAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/festivals/enrich-all';
+};
+
+export type PostApiFestivalsEnrichAllResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type PostApiFestivalsEnrichAllResponse = PostApiFestivalsEnrichAllResponses[keyof PostApiFestivalsEnrichAllResponses];
+
 export type GetApiGigsData = {
     body?: never;
     path?: never;
