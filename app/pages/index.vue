@@ -39,12 +39,6 @@
           icon="mdi:account-music"
         />
         <StatCard
-          label="Top Attendee"
-          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
-          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
-          icon="mdi:account-star"
-        />
-        <StatCard
           label="Top Venue"
           :value="dashboardStore.stats?.topVenue?.venueName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
@@ -55,6 +49,19 @@
           :value="dashboardStore.stats?.topCity?.cityName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
+        />
+        <StatCard
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
+        />
+        <StatCard
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
         />
         <StatCard
           label="Busiest Year"

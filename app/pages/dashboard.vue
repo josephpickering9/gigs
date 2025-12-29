@@ -36,12 +36,6 @@
           :to="dashboardStore.stats?.topArtist ? `/gigs?artistId=${dashboardStore.stats?.topArtist?.artistName && dashboardStore.topArtists.find(a => a.artistName === dashboardStore.stats?.topArtist?.artistName)?.artistId}` : undefined"
         />
         <StatCard
-          label="Top Attendee"
-          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
-          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
-          icon="mdi:account-star"
-        />
-        <StatCard
           label="Top Venue"
           :value="dashboardStore.stats?.topVenue?.venueName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
@@ -55,8 +49,19 @@
           icon="mdi:city"
           :to="dashboardStore.stats?.topCity ? `/gigs?city=${dashboardStore.stats?.topCity?.cityName}` : undefined"
         />
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
+        />
+        <StatCard
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
+        />
         <StatCard
           label="Busiest Year"
           :value="dashboardStore.temporalStats?.busiestYear || 'N/A'"
@@ -259,6 +264,7 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
+import { format, parseISO } from 'date-fns';
 
 useHead({
   title: 'Dashboard - Gig Stats',
