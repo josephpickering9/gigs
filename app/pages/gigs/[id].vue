@@ -223,7 +223,6 @@ onMounted(async () => {
         const response = await getApiGigsById({ path: { id: gigId } });
         gig.value = response.data || null;
     } catch (error) {
-        console.error('Failed to fetch gig:', error);
         gig.value = null;
     } finally {
         loading.value = false;
