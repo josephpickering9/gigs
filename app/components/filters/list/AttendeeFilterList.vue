@@ -4,7 +4,7 @@
       <TextInput
         ref="searchInputRef"
         v-model="searchQuery"
-        placeholder="Search venues..."
+        placeholder="Search attendees..."
         size="sm"
         @keydown="handleSearchKeydown"
       />
@@ -12,26 +12,23 @@
     
     <div class="flex flex-col md:max-h-64 overflow-y-auto overscroll-contain p-1">
       <button
-        v-for="(venue, index) in filteredVenues"
-        :key="venue.id"
+        v-for="(attendee, index) in filteredAttendees"
+        :key="attendee.id"
         ref="itemRefs"
         type="button"
         class="btn btn-sm btn-ghost focus-visible:outline-none justify-start hover:bg-base-200 h-auto py-2"
         :class="{ 'ring-2 ring-primary': focusedIndex === index }"
-        @click="selectVenue(venue.id!)"
+        @click="selectAttendee(attendee.id!)"
         @mouseenter="focusedIndex = index"
         @keydown="handleItemKeydown"
       >
         <div class="flex flex-col items-start w-full">
-          <span class="font-medium">{{ venue.name }}</span>
-          <div class="flex items-center justify-between w-full">
-            <span class="text-xs text-base-content/60">{{ venue.city }}</span>
-            <span v-if="venue.gigCount !== undefined" class="text-xs text-base-content/60">{{ venue.gigCount }} gig{{ venue.gigCount !== 1 ? 's' : '' }}</span>
-          </div>
+          <span class="font-medium">{{ attendee.name }}</span>
+          <span v-if="attendee.gigCount !== undefined" class="text-xs text-base-content/60">{{ attendee.gigCount }} gig{{ attendee.gigCount !== 1 ? 's' : '' }}</span>
         </div>
       </button>
-      <div v-if="filteredVenues.length === 0" class="text-sm text-center py-4 opacity-50">
-        No venues found
+      <div v-if="filteredAttendees.length === 0" class="text-sm text-center py-4 opacity-50">
+        No attendees found
       </div>
     </div>
   </div>
@@ -40,12 +37,12 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue';
 import { orderBy } from 'lodash-es';
-import type { GetVenueResponse } from '~~/api';
+import type { GetAttendeeResponse } from '~~/api';
 import { useGigStore } from '~/store/GigStore';
 import TextInput from '~/components/ui/input/TextInput.vue';
 
 const emit = defineEmits<{
-  'select': [venueId: string];
+  'select': [attendeeId: string];
   'close': [];
 }>();
 
@@ -55,29 +52,27 @@ const itemRefs = ref<HTMLElement[]>([]);
 const searchQuery = ref('');
 const searchInputRef = ref<InstanceType<typeof TextInput> | null>(null);
 
-const venues = computed((): GetVenueResponse[] => {
-    // Sort by gig count descending, then by name
-    return orderBy(gigStore.venues || [], [(v) => v.gigCount ?? 0, (v) => v.name], ['desc', 'asc']);
+const attendees = computed((): GetAttendeeResponse[] => {
+    return orderBy(gigStore.attendees || [], [(a) => a.gigCount ?? 0], ['desc']);
 });
 
-const filteredVenues = computed(() => {
+const filteredAttendees = computed(() => {
   if (!searchQuery.value.trim()) {
-    return venues.value;
+    return attendees.value;
   }
   
   const query = searchQuery.value.toLowerCase();
-  return venues.value.filter(venue => 
-    venue.name?.toLowerCase().includes(query) || 
-    venue.city?.toLowerCase().includes(query)
+  return attendees.value.filter(attendee => 
+    attendee.name?.toLowerCase().includes(query)
   );
 });
 
-function selectVenue(venueId: string) {
-  emit('select', venueId);
+function selectAttendee(attendeeId: string) {
+  emit('select', attendeeId);
 }
 
 function handleSearchKeydown(event: KeyboardEvent) {
-  if (event.key === 'ArrowDown' && filteredVenues.value.length > 0) {
+  if (event.key === 'ArrowDown' && filteredAttendees.value.length > 0) {
     event.preventDefault();
     focusedIndex.value = 0;
     scrollToFocusedItem();
@@ -93,7 +88,7 @@ function handleItemKeydown(event: KeyboardEvent) {
   switch (event.key) {
     case 'ArrowDown':
       event.preventDefault();
-      if (focusedIndex.value < filteredVenues.value.length - 1) {
+      if (focusedIndex.value < filteredAttendees.value.length - 1) {
         focusedIndex.value++;
         scrollToFocusedItem();
       }
@@ -117,8 +112,11 @@ function handleItemKeydown(event: KeyboardEvent) {
       break;
     case 'Enter':
       event.preventDefault();
-      if (filteredVenues.value[focusedIndex.value]?.id) {
-        selectVenue(filteredVenues.value[focusedIndex.value].id!);
+      {
+        const item = filteredAttendees.value[focusedIndex.value];
+        if (item && item.id) {
+          selectAttendee(item.id);
+        }
       }
       break;
   }

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, FestivalDto, UpsertFestivalRequest, GetAttendeeResponse } from '~~/api';
+import type {
+    GetGigResponse, UpsertGigRequest, GetArtistResponse, GetVenueResponse, GetFestivalResponse, UpsertFestivalRequest, GetAttendeeResponse, FestivalGigOrderRequest
+} from '~~/api';
 import {
     getApiGigs,
     postApiImportCsv,
@@ -15,6 +17,7 @@ import {
     postApiFestivals,
     getApiFestivalsById,
     putApiFestivalsById,
+    postApiFestivalsByIdEnrich,
     deleteApiFestivalsById,
     getApiAttendees,
 } from '~~/api';
@@ -28,8 +31,9 @@ interface GigState {
     enrichForm: AsyncForm<GetGigResponse>;
     artistsForm: AsyncForm<GetArtistResponse[]>;
     venuesForm: AsyncForm<GetVenueResponse[]>;
-    festivalsForm: AsyncForm<FestivalDto[]>;
-    upsertFestivalForm: AsyncForm<FestivalDto>;
+    festivalsForm: AsyncForm<GetFestivalResponse[]>;
+    upsertFestivalForm: AsyncForm<GetFestivalResponse>;
+    enrichFestivalForm: AsyncForm<GetFestivalResponse>;
     attendeesForm: AsyncForm<GetAttendeeResponse[]>;
     pagination: {
         page: number;
@@ -40,6 +44,7 @@ interface GigState {
     filters: {
         venueId?: string;
         artistId?: string;
+        attendeeId?: string;
         city?: string;
         fromDate?: string;
         toDate?: string;
@@ -57,8 +62,9 @@ export const useGigStore = defineStore('gig', {
         enrichForm: asyncForm<GetGigResponse>(),
         artistsForm: asyncForm<GetArtistResponse[]>(),
         venuesForm: asyncForm<GetVenueResponse[]>(),
-        festivalsForm: asyncForm<FestivalDto[]>(),
-        upsertFestivalForm: asyncForm<FestivalDto>(),
+        festivalsForm: asyncForm<GetFestivalResponse[]>(),
+        upsertFestivalForm: asyncForm<GetFestivalResponse>(),
+        enrichFestivalForm: asyncForm<GetFestivalResponse>(),
         attendeesForm: asyncForm<GetAttendeeResponse[]>(),
         pagination: {
             page: 1,
@@ -87,8 +93,10 @@ export const useGigStore = defineStore('gig', {
         loadingFestivals: (state) => state.festivalsForm.loading,
         savingFestival: (state) => state.upsertFestivalForm.loading,
         saveFestivalError: (state) => state.upsertFestivalForm.error,
+        enrichingFestival: (state) => state.enrichFestivalForm.loading,
+        enrichFestivalError: (state) => state.enrichFestivalForm.error,
         attendees: (state) => state.attendeesForm.data || [],
-        loadingAttendees: (state) => state.attendeesForm.loading,
+        loadingAttendees: (state) => state.attendeesForm?.loading || false,
     },
 
     actions: {
@@ -97,6 +105,7 @@ export const useGigStore = defineStore('gig', {
             pageSize?: number;
             venueId?: string;
             artistId?: string;
+            attendeeId?: string;
             city?: string;
             fromDate?: string;
             toDate?: string;
@@ -112,6 +121,7 @@ export const useGigStore = defineStore('gig', {
                         PageSize: options.pageSize,
                         VenueId: options.venueId,
                         ArtistId: options.artistId,
+                        AttendeeId: options.attendeeId,
                         City: options.city,
                         FromDate: options.fromDate,
                         ToDate: options.toDate,
@@ -196,11 +206,21 @@ export const useGigStore = defineStore('gig', {
             });
         },
 
-        async fetchFestival(id: string) {
-            const existing = this.festivals.find(f => f.id === id);
-            if (existing) return existing;
+        async fetchFestival(id: string, force = false) {
+            if (!force) {
+                const existing = this.festivals.find(f => f.id === id);
+                if (existing) return existing;
+            }
 
             const response = await getApiFestivalsById({ path: { id } });
+            if (response.data) {
+                const index = this.festivals.findIndex(f => f.id === id);
+                if (index !== -1) {
+                    this.festivals[index] = response.data;
+                } else {
+                    this.festivals.push(response.data);
+                }
+            }
             return response.data;
         },
 
@@ -235,18 +255,31 @@ export const useGigStore = defineStore('gig', {
             });
         },
 
-        async updateFestivalGigs(festivalId: string, newGigIds: string[]) {
+        async updateFestivalGigs(festivalId: string, newGigs: FestivalGigOrderRequest[]) {
             const festival = await this.fetchFestival(festivalId);
             if (!festival) return;
 
             const currentGigIds = festival.gigs?.map(g => g.id).filter(Boolean) as string[] || [];
+            const newGigIds = newGigs.map(g => g.gigId).filter(Boolean) as string[];
 
             const toAdd = newGigIds.filter(id => !currentGigIds.includes(id));
             const toRemove = currentGigIds.filter(id => !newGigIds.includes(id));
 
+            // Also need to update existing gigs if their order changed
+            const existingToUpdate = newGigIds.filter(id => currentGigIds.includes(id));
+
             const updateGigFestival = async (gigId: string, targetFestivalId: string | null) => {
                 const gig = await this.fetchGig(gigId);
                 if (!gig) return;
+
+                // Find the new order if we are adding or updating
+                let newOrder = 0;
+                if (targetFestivalId) {
+                    const gigOrderReq = newGigs.find(g => g.gigId === gigId);
+                    if (gigOrderReq && gigOrderReq.order !== undefined) {
+                        newOrder = gigOrderReq.order;
+                    }
+                }
 
                 const updateRequest: UpsertGigRequest = {
                     venueId: gig.venueId,
@@ -255,6 +288,7 @@ export const useGigStore = defineStore('gig', {
                     festivalId: targetFestivalId,
                     festivalName: targetFestivalId && festival ? festival.name : null,
                     date: gig.date!,
+                    order: newOrder,
                     ticketCost: gig.ticketCost,
                     ticketType: gig.ticketType!,
                     imageUrl: gig.imageUrl,
@@ -274,8 +308,12 @@ export const useGigStore = defineStore('gig', {
             for (const id of toRemove) {
                 await updateGigFestival(id, null);
             }
+            // Update order for existing gigs
+            for (const id of existingToUpdate) {
+                await updateGigFestival(id, festivalId);
+            }
 
-            await this.fetchFestival(festivalId);
+            await this.fetchFestival(festivalId, true);
         },
 
         async createGig(gig: UpsertGigRequest) {
@@ -308,6 +346,13 @@ export const useGigStore = defineStore('gig', {
                 await deleteApiGigsById({ path: { id } });
                 await this.fetchGigs();
                 return undefined;
+            });
+        },
+
+        async enrichFestival(id: string) {
+            return await tryCatchFinally(ref(this.enrichFestivalForm), async () => {
+                await postApiFestivalsByIdEnrich({ path: { id } });
+                return await this.fetchFestival(id, true);
             });
         },
 

@@ -1,7 +1,7 @@
 <template>
   <NuxtLink :to="`/gigs/${gig.id}`" class="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300 border border-primary/20 block h-full">
     <figure>
-      <img :src="gigImage" :alt="gig.venueName" class="h-48 w-full object-cover">
+      <img :src="gigImage" :alt="gig.venueName" class="aspect-[3/2] w-full object-cover object-top">
     </figure>
     <div class="card-body">
       <h2 class="card-title text-2xl font-bold text-primary">{{ headliner }}</h2>
@@ -41,11 +41,11 @@ const props = defineProps<{
 }>();
 
 const gigImage = computed(() => {
-    return props.gig.imageUrl ? getImageUrl(props.gig.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
+  return props.gig.imageUrl ? getImageUrl(props.gig.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
 });
 
 const headliner = computed(() => {
-    return props.gig.acts?.find(act => act.isHeadliner)?.name || 'TBA';
+  return props.gig.acts?.find(act => act.isHeadliner)?.name || 'TBA';
 });
 
 const supportActs = computed(() => {

@@ -4,14 +4,9 @@ export type ClientOptions = {
     baseURL: 'http://localhost:5105' | (string & {});
 };
 
-export type ArtistInsightsResponse = {
-    totalUniqueArtists?: number;
-    totalArtistAppearances?: number;
-};
-
-export type AttendeeInsightsResponse = {
-    totalUniqueAttendees?: number;
-    totalGigsWithAttendees?: number;
+export type AverageFestivalPriceByYearResponse = {
+    year?: number;
+    averageDailyPrice?: number;
 };
 
 export type AverageTicketPriceByYearResponse = {
@@ -21,10 +16,23 @@ export type AverageTicketPriceByYearResponse = {
 
 export type DashboardStatsResponse = {
     totalGigs?: number;
+    totalFestivals?: number;
     topArtist?: TopArtistStats;
     topVenue?: TopVenueStats;
     topCity?: TopCityStats;
+    topFestival?: TopFestivalStats;
     topAttendee?: TopAttendeeStats;
+    nextGig?: NextGigStats;
+};
+
+export type FestivalGigOrderRequest = {
+    gigId?: string;
+    order?: number;
+};
+
+export type FestivalsPerYearResponse = {
+    year?: number;
+    festivalCount?: number;
 };
 
 export type GetArtistResponse = {
@@ -32,12 +40,14 @@ export type GetArtistResponse = {
     name?: string;
     imageUrl?: string | null;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GetAttendeeResponse = {
     id?: string;
     name?: string;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GetCalendarEventResponse = {
@@ -55,7 +65,15 @@ export type GetFestivalResponse = {
     year?: number | null;
     slug?: string;
     imageUrl?: string | null;
+    posterImageUrl?: string | null;
+    venueId?: string | null;
+    venueName?: string | null;
     gigs?: Array<GetGigResponse> | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    price?: number | null;
+    dailyPrice?: number | null;
+    attendees?: Array<GetPersonResponse>;
 };
 
 export type GetGigArtistResponse = {
@@ -63,7 +81,7 @@ export type GetGigArtistResponse = {
     name?: string;
     isHeadliner?: boolean;
     imageUrl?: string | null;
-    setlist?: Array<string>;
+    setlist?: Array<GetGigSongResponse>;
 };
 
 export type GetGigAttendeeResponse = {
@@ -78,6 +96,7 @@ export type GetGigResponse = {
     festivalId?: string | null;
     festivalName?: string | null;
     date?: string;
+    order?: number;
     ticketCost?: number | null;
     ticketType?: TicketType;
     imageUrl?: string | null;
@@ -94,6 +113,12 @@ export type GetGigResponsePaginatedResponse = {
     readonly totalPages?: number;
 };
 
+export type GetGigSongResponse = {
+    title?: string;
+    order?: number;
+    isEncore?: boolean;
+};
+
 export type GetPersonResponse = {
     id?: string;
     name?: string;
@@ -106,6 +131,7 @@ export type GetVenueResponse = {
     city?: string;
     imageUrl?: string | null;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GigArtistRequest = {
@@ -162,6 +188,12 @@ export type MostHeardSongResponse = {
     timesHeard?: number;
 };
 
+export type NextGigStats = {
+    venueName?: string;
+    headlineArtist?: string | null;
+    date?: string;
+};
+
 export type TemporalStatsResponse = {
     busiestYear?: number | null;
     busiestYearGigCount?: number | null;
@@ -211,6 +243,11 @@ export type TopCityStats = {
     gigCount?: number;
 };
 
+export type TopFestivalStats = {
+    festivalName?: string;
+    festivalCount?: number;
+};
+
 export type TopVenueResponse = {
     venueId?: string;
     venueName?: string;
@@ -227,6 +264,14 @@ export type UpsertFestivalRequest = {
     name: string;
     year?: number | null;
     imageUrl?: string | null;
+    posterImageUrl?: string | null;
+    venueId?: string | null;
+    venueName?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    price?: number | null;
+    attendees?: Array<string>;
+    gigs?: Array<FestivalGigOrderRequest>;
 };
 
 export type UpsertGigRequest = {
@@ -236,6 +281,7 @@ export type UpsertGigRequest = {
     festivalId?: string | null;
     festivalName?: string | null;
     date: string;
+    order?: number;
     ticketCost?: number | null;
     ticketType: TicketType;
     imageUrl?: string | null;
@@ -262,7 +308,15 @@ export type GetGigResponsePaginatedResponseWritable = {
 export type GetApiArtistsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/artists';
 };
 
@@ -312,7 +366,15 @@ export type PostApiArtistsEnrichAllResponse = PostApiArtistsEnrichAllResponses[k
 export type GetApiAttendeesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/attendees';
 };
 
@@ -392,6 +454,38 @@ export type GetApiDashboardAverageTicketPriceByYearResponses = {
 
 export type GetApiDashboardAverageTicketPriceByYearResponse = GetApiDashboardAverageTicketPriceByYearResponses[keyof GetApiDashboardAverageTicketPriceByYearResponses];
 
+export type GetApiDashboardAverageFestivalPriceByYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/average-festival-price-by-year';
+};
+
+export type GetApiDashboardAverageFestivalPriceByYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<AverageFestivalPriceByYearResponse>;
+};
+
+export type GetApiDashboardAverageFestivalPriceByYearResponse = GetApiDashboardAverageFestivalPriceByYearResponses[keyof GetApiDashboardAverageFestivalPriceByYearResponses];
+
+export type GetApiDashboardFestivalsPerYearData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/dashboard/festivals-per-year';
+};
+
+export type GetApiDashboardFestivalsPerYearResponses = {
+    /**
+     * OK
+     */
+    200: Array<FestivalsPerYearResponse>;
+};
+
+export type GetApiDashboardFestivalsPerYearResponse = GetApiDashboardFestivalsPerYearResponses[keyof GetApiDashboardFestivalsPerYearResponses];
+
 export type GetApiDashboardGigsPerYearData = {
     body?: never;
     path?: never;
@@ -439,22 +533,6 @@ export type GetApiDashboardTemporalStatsResponses = {
 };
 
 export type GetApiDashboardTemporalStatsResponse = GetApiDashboardTemporalStatsResponses[keyof GetApiDashboardTemporalStatsResponses];
-
-export type GetApiDashboardArtistInsightsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/dashboard/artist-insights';
-};
-
-export type GetApiDashboardArtistInsightsResponses = {
-    /**
-     * OK
-     */
-    200: ArtistInsightsResponse;
-};
-
-export type GetApiDashboardArtistInsightsResponse = GetApiDashboardArtistInsightsResponses[keyof GetApiDashboardArtistInsightsResponses];
 
 export type GetApiDashboardTopArtistsData = {
     body?: never;
@@ -560,22 +638,6 @@ export type GetApiDashboardMostHeardSongsResponses = {
 
 export type GetApiDashboardMostHeardSongsResponse = GetApiDashboardMostHeardSongsResponses[keyof GetApiDashboardMostHeardSongsResponses];
 
-export type GetApiDashboardAttendeeInsightsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/dashboard/attendee-insights';
-};
-
-export type GetApiDashboardAttendeeInsightsResponses = {
-    /**
-     * OK
-     */
-    200: AttendeeInsightsResponse;
-};
-
-export type GetApiDashboardAttendeeInsightsResponse = GetApiDashboardAttendeeInsightsResponses[keyof GetApiDashboardAttendeeInsightsResponses];
-
 export type GetApiDashboardTopAttendeesData = {
     body?: never;
     path?: never;
@@ -677,6 +739,40 @@ export type PutApiFestivalsByIdResponses = {
 };
 
 export type PutApiFestivalsByIdResponse = PutApiFestivalsByIdResponses[keyof PutApiFestivalsByIdResponses];
+
+export type PostApiFestivalsByIdEnrichData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/festivals/{id}/enrich';
+};
+
+export type PostApiFestivalsByIdEnrichResponses = {
+    /**
+     * OK
+     */
+    200: GetFestivalResponse;
+};
+
+export type PostApiFestivalsByIdEnrichResponse = PostApiFestivalsByIdEnrichResponses[keyof PostApiFestivalsByIdEnrichResponses];
+
+export type PostApiFestivalsEnrichAllData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/festivals/enrich-all';
+};
+
+export type PostApiFestivalsEnrichAllResponses = {
+    /**
+     * OK
+     */
+    200: number;
+};
+
+export type PostApiFestivalsEnrichAllResponse = PostApiFestivalsEnrichAllResponses[keyof PostApiFestivalsEnrichAllResponses];
 
 export type GetApiGigsData = {
     body?: never;
@@ -928,7 +1024,15 @@ export type PutApiPersonsByIdResponse = PutApiPersonsByIdResponses[keyof PutApiP
 export type GetApiVenuesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/venues';
 };
 

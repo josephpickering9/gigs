@@ -1,6 +1,5 @@
 <template>
   <form class="space-y-8" @submit.prevent="handleSubmit">
-    <!-- Artists Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <div class="flex items-center gap-2 mb-6">
@@ -14,7 +13,6 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Headliners -->
           <div class="space-y-2">
             <div class="flex items-center gap-2 mb-3">
               <div class="badge badge-accent gap-1">
@@ -32,7 +30,6 @@
             />
           </div>
 
-          <!-- Support Acts -->
           <div class="space-y-2">
             <div class="flex items-center gap-2 mb-3">
               <div class="badge badge-ghost gap-1">
@@ -57,7 +54,6 @@
       </div>
     </div>
 
-    <!-- Event Details Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -93,7 +89,6 @@
       </div>
     </div>
 
-    <!-- Ticket Information Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -123,7 +118,6 @@
       </div>
     </div>
 
-    <!-- Attendees Section -->
     <div class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <div class="flex items-center gap-2 mb-4">
@@ -151,7 +145,6 @@
     </div>
 
 
-    <!-- Setlists Section -->
     <div v-if="form.acts && form.acts.length > 0" class="card bg-base-200/50 shadow-sm">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4">
@@ -190,17 +183,24 @@
                             <button type="button" class="drag-handle btn btn-ghost btn-xs btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content">
                                 <Icon name="mdi:drag" class="w-5 h-5" />
                             </button>
-                            <div class="relative flex-1">
+                            <div v-if="act.setlist && act.setlist[songIndex]" class="relative flex-1 flex items-center gap-2">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-base-content/30 w-4 text-right">
                                     {{ songIndex + 1 }}
                                 </span>
                                 <input 
-                                    v-model="act.setlist[songIndex]" 
+                                    v-model="act.setlist[songIndex].title" 
                                     type="text" 
                                     class="input input-bordered input-sm w-full pl-9" 
                                     placeholder="Enter song name..." 
                                     @keydown.enter.prevent="addSong(index, songIndex + 1)"
                                 >
+                                <label class="swap swap-rotate btn btn-xs btn-circle" :class="act.setlist[songIndex].isEncore ? 'btn-secondary text-white' : 'btn-ghost text-base-content/30'">
+                                    <input v-model="act.setlist[songIndex].isEncore" type="checkbox" >
+                                    <!-- check icon -->
+                                    <Icon name="mdi:star" class="swap-on w-4 h-4" />
+                                    <!-- close icon -->
+                                    <Icon name="mdi:star-outline" class="swap-off w-4 h-4" />
+                                </label>
                             </div>
                             <button 
                                 type="button" 
@@ -229,7 +229,6 @@
       </div>
     </div>
 
-    <!-- Form Actions -->
     <div class="flex justify-between items-center gap-3 pt-4">
       <div>
         <slot name="left-actions" />
@@ -287,13 +286,13 @@ const supportActs = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
 const attendees = ref<SelectListItem[]>([]);
 
-type FormAct = Omit<GigArtistRequest, 'setlist'> & { setlist: string[] };
+type FormAct = Omit<GigArtistRequest, 'setlist'> & { setlist: Array<{ title: string; order: number; isEncore: boolean }> };
 type FormState = Omit<UpsertGigRequest, 'acts'> & { acts: FormAct[] };
 
 const form = ref<FormState>({
   venueId: '',
   date: '',
-  ticketType: TicketType.STANDING, // Default
+  ticketType: TicketType.STANDING,
   ticketCost: null,
   imageUrl: '', 
   festivalId: null,
@@ -304,7 +303,6 @@ const form = ref<FormState>({
 
 const errors = ref<Record<string, string>>({});
 
-// Options
 const venueOptions = computed<SelectListItem[]>(() => 
     venues.value.map(v => ({ text: v.name || 'Unknown', value: v.id || '' }))
   );
@@ -322,6 +320,8 @@ const attendeeOptions = computed<SelectListItem[]>(() =>
   );
 
 const getArtistName = (id?: string) => {
+    if (!id) return 'Unknown Artist';
+    if (id.startsWith('new:')) return id.substring(4);
     return artists.value.find(a => a.id === id)?.name || 'Unknown Artist';
 };
 
@@ -367,7 +367,11 @@ watch(() => props.initialData, (newData) => {
         acts: newData.acts?.map(a => ({
             artistId: a.artistId,
             isHeadliner: a.isHeadliner,
-            setlist: a.setlist || [],
+            setlist: a.setlist?.map(s => ({
+                title: s.title || '',
+                order: s.order || 0,
+                isEncore: s.isEncore || false
+            })) || [],
         })) || [],
         attendees: newData.attendees?.map(a => a.personName || '') || [],
     };
@@ -455,17 +459,24 @@ const addSong = (actIndex: number, afterIndex?: number) => {
         form.value.acts[actIndex].setlist = [];
     }
     
-    // Add empty song string
+    // Add empty song object
+    const newSong = { title: '', order: (form.value.acts[actIndex].setlist?.length || 0) + 1, isEncore: false };
+    
     if (typeof afterIndex === 'number') {
-         form.value.acts[actIndex].setlist!.splice(afterIndex, 0, '');
+         form.value.acts[actIndex].setlist!.splice(afterIndex, 0, newSong);
     } else {
-         form.value.acts[actIndex].setlist!.push('');
+         form.value.acts[actIndex].setlist!.push(newSong);
     }
+    
+    // Re-index orders
+    form.value.acts[actIndex].setlist!.forEach((s, i) => s.order = i + 1);
 };
 
 const removeSong = (actIndex: number, songIndex: number) => {
      if (!form.value.acts?.[actIndex]?.setlist) return;
      form.value.acts[actIndex].setlist!.splice(songIndex, 1);
+     // Re-index orders
+     form.value.acts[actIndex].setlist!.forEach((s, i) => s.order = i + 1);
 };
 
 
@@ -510,7 +521,11 @@ const handleSubmit = () => {
         attendees: attendeeIdsOrNames,
         acts: form.value.acts?.map(act => ({
             ...act,
-            setlist: act.setlist?.filter(song => song.trim() !== '') || []
+            setlist: act.setlist?.filter(song => song.title?.trim() !== '').map((s, i) => ({
+                title: s.title,
+                order: i + 1,
+                isEncore: s.isEncore
+            })) || []
         }))
     };
     emit('submit', submissionData as UpsertGigRequest);

@@ -1,10 +1,23 @@
 <template>
   <div class="container mx-auto p-4 max-w-2xl">
-    <div class="flex items-center mb-8">
-        <button class="btn btn-ghost mr-4" @click="router.back()">
-            <Icon name="mdi:arrow-left" class="w-6 h-6" />
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <button class="btn btn-ghost mr-4" @click="router.back()">
+                <Icon name="mdi:arrow-left" class="w-6 h-6" />
+            </button>
+            <h1 class="text-4xl font-bold text-primary">Edit Festival</h1>
+        </div>
+        <button 
+            v-if="festival"
+            type="button" 
+            class="btn btn-secondary gap-2" 
+            :disabled="gigStore.enrichingFestival"
+            @click="handleEnrich"
+        >
+            <span v-if="gigStore.enrichingFestival" class="loading loading-spinner" />
+            <Icon v-else name="mdi:auto-fix" class="w-5 h-5" />
+            Enrich Festival Data
         </button>
-        <h1 class="text-4xl font-bold text-primary">Edit Festival</h1>
     </div>
 
     <div v-if="loading" class="flex justify-center py-12">
@@ -90,7 +103,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import { useNotificationStore } from '~/store/NotificationStore';
 import FestivalForm from '~/components/festivals/FestivalForm.vue';
-import type { UpsertFestivalRequest, FestivalDto } from '~~/api';
+import type { UpsertFestivalRequest, GetFestivalResponse } from '~~/api';
 
 definePageMeta({
   middleware: 'auth',
@@ -101,7 +114,7 @@ const router = useRouter();
 const gigStore = useGigStore();
 const festivalId = route.params['id'] as string;
 
-const festival = ref<FestivalDto | undefined>(undefined);
+const festival = ref<GetFestivalResponse | undefined>(undefined);
 const loading = ref(true);
 const showDeleteConfirm = ref(false);
 
@@ -117,16 +130,32 @@ onMounted(async () => {
     }
 });
 
-const handleUpdate = async (data: UpsertFestivalRequest, gigIds: string[]) => {
+const handleUpdate = async (data: UpsertFestivalRequest) => {
     const result = await gigStore.updateFestival(festivalId, data);
     
     if (result) {
-        await gigStore.updateFestivalGigs(festivalId, gigIds);
-        await gigStore.fetchFestival(festivalId);
+        if (data.gigs) {
+             await gigStore.updateFestivalGigs(festivalId, data.gigs);
+        }
+        await gigStore.fetchFestival(festivalId, true);
         useNotificationStore().displaySuccessNotification('Festival updated successfully');
         router.push(`/festivals/${festivalId}`);
     } else {
         useNotificationStore().displayErrorNotification('Failed to update festival');
+    }
+};
+
+const handleEnrich = async () => {
+    if (!festival.value?.id) return;
+    
+    const result = await gigStore.enrichFestival(festival.value.id);
+    
+    if (result) {
+         useNotificationStore().displaySuccessNotification('Festival enriched successfully');
+        // Fetch the updated festival data
+        festival.value = await gigStore.fetchFestival(festival.value.id) || undefined;
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to enrich festival');
     }
 };
 

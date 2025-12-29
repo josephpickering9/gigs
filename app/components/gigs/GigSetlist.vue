@@ -19,7 +19,11 @@
           </h3>
           <ol class="list-decimal list-inside space-y-1 ml-2">
             <li v-for="(song, index) in act.setlist" :key="index" class="text-gray-700 dark:text-gray-300">
-              {{ song }}
+              <span class="mr-2">{{ song.title }}</span>
+              <span v-if="song.isEncore" class="badge badge-xs badge-secondary badge-outline gap-1" title="Encore">
+                <Icon name="mdi:star" class="w-3 h-3" />
+                Encore
+              </span>
             </li>
           </ol>
         </div>

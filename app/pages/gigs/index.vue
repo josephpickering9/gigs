@@ -1,31 +1,81 @@
 <template>
   <div class="container mx-auto p-4 min-h-screen">
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
       <h1 class="text-4xl font-bold text-primary">Gigs</h1>
-      <div class="flex gap-2 items-center">
-         <FilterBar v-model:filters="activeFilters" class="mr-2" />
-         <ViewToggle v-model="viewMode" class="mr-2" />
+      <div class="flex flex-wrap gap-2 items-center">
+         <FilterBar v-model:filters="activeFilters" />
+         <ViewToggle v-if="!isMobile" v-model="viewMode" />
         <template v-if="isAuthenticated">
-          <NuxtLink to="/gigs/create" class="btn btn-primary">
-              <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
-              Create Gig
-          </NuxtLink>
-          <button class="btn btn-secondary" @click="showImportModal = true">
-              <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
-              Import CSV
-          </button>
-          <button class="btn btn-accent" @click="showCalendarModal = true">
-              <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
-              Sync Calendar
-          </button>
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+                <Icon name="heroicons:ellipsis-vertical" size="1.5em" />
+            </div>
+            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                  <NuxtLink to="/gigs/create" class="btn btn-primary">
+                      <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
+                      Create Gig
+                  </NuxtLink>
+                </li>
+                <li>
+                    <button @click="showImportModal = true">
+                        <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
+                        Import CSV
+                    </button>
+                </li>
+                <li>
+                    <button @click="showCalendarModal = true">
+                        <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
+                        Sync Calendar
+                    </button>
+                </li>
+            </ul>
+          </div>
         </template>
       </div>
     </div>
     
 
 
-    <div v-if="gigStore.loading && gigStore.gigs.length === 0" class="flex justify-center items-center h-64">
-      <span class="loading loading-spinner loading-lg text-primary"/>
+    <!-- Skeleton Loading State -->
+    <div v-if="gigStore.loading && gigStore.gigs.length === 0">
+      <!-- Table View Skeleton -->
+      <div v-if="viewMode === ViewMode.TABLE" class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Artist</th>
+              <th>Venue</th>
+              <th>Festival</th>
+              <th>City</th>
+              <th>Date</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="i in 8" :key="i">
+              <td><div class="skeleton h-4 w-32"/></td>
+              <td><div class="skeleton h-4 w-24"/></td>
+              <td><div class="skeleton h-4 w-20"/></td>
+              <td><div class="skeleton h-4 w-20"/></td>
+              <td><div class="skeleton h-4 w-24"/></td>
+              <td><div class="skeleton h-4 w-16"/></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Card View Skeleton -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="i in 6" :key="i" class="card bg-base-100 shadow-xl">
+          <div class="skeleton h-48 w-full"/>
+          <div class="card-body">
+            <div class="skeleton h-6 w-3/4 mb-2"/>
+            <div class="skeleton h-4 w-1/2 mb-2"/>
+            <div class="skeleton h-4 w-2/3"/>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="gigStore.error" class="alert alert-error">
@@ -86,10 +136,12 @@ import ImportCalendarModal from '~/components/gigs/ImportCalendarModal.vue';
 import ViewToggle from '~/components/ui/button/ViewToggle.vue';
 import FilterBar from '~/components/filters/FilterBar.vue';
 import useAuth from '~/composables/useAuth';
+import { useDevice } from '~/composables/useDevice';
 import type { Filter } from '~/types/Filter';
 import { FilterType } from '~/types/FilterType';
 
 const { isAuthenticated } = useAuth();
+const { isMobile } = useDevice();
 
 const gigStore = useGigStore();
 const preferencesStore = usePreferencesStore();
@@ -112,8 +164,19 @@ useHead({
 });
 
 const viewMode = computed({
-  get: () => preferencesStore.gigsViewMode,
-  set: (value: ViewMode) => preferencesStore.setGigsViewMode(value),
+  get: () => {
+    // Force card view on mobile
+    if (isMobile.value) {
+      return ViewMode.CARD;
+    }
+    return preferencesStore.gigsViewMode;
+  },
+  set: (value: ViewMode) => {
+    // Only update preference if not on mobile
+    if (!isMobile.value) {
+      preferencesStore.setGigsViewMode(value);
+    }
+  },
 });
 
 const sortedGigs = computed(() => {
@@ -138,6 +201,10 @@ watch(activeFilters, (filters) => {
         if (f.type === FilterType.CITY) {
             storeFilters.city = f.value;
             query.city = f.value;
+        }
+        if (f.type === FilterType.ATTENDEE) {
+            storeFilters.attendeeId = f.value;
+            query.attendeeId = f.value;
         }
         if (f.type === FilterType.SEARCH) {
             storeFilters.search = f.value;
@@ -219,6 +286,14 @@ onMounted(async () => {
         const artist = gigStore.artists.find(a => a.id === query['artistId']);
         if (artist) {
              newFilters.push({ type: FilterType.ARTIST, value: query['artistId'] as string, label: 'Artist', displayValue: artist.name });
+        }
+    }
+
+    if (query['attendeeId']) {
+        if (!gigStore.attendees.length) await gigStore.fetchAttendees();
+        const attendee = gigStore.attendees.find(a => a.id === query['attendeeId']);
+        if (attendee) {
+             newFilters.push({ type: FilterType.ATTENDEE, value: query['attendeeId'] as string, label: 'Attendee', displayValue: attendee.name });
         }
     }
 

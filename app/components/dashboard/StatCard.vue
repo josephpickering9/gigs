@@ -1,6 +1,11 @@
 <template>
-  <div class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/20">
-    <div class="card-body">
+  <component
+    :is="to ? NuxtLink : 'div'"
+    :to="to"
+    class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/20 block h-full no-underline"
+    :class="{ 'cursor-pointer': to }"
+  >
+    <div class="p-4 flex-1">
       <div class="flex items-start justify-between">
         <div class="flex-1">
           <p class="text-sm font-medium text-base-content/70 uppercase tracking-wide">{{ label }}</p>
@@ -12,14 +17,17 @@
         </div>
       </div>
     </div>
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
+import { NuxtLink } from '#components';
+
 defineProps<{
   label: string;
   value: string | number;
   subtitle?: string;
+  to?: string;
   icon?: string;
 }>();
 </script>

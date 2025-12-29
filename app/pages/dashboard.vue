@@ -6,10 +6,10 @@
     </div>
 
     <div v-if="dashboardStore.isLoading && !hasAnyData" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div v-for="i in 8" :key="i" class="skeleton h-32 rounded-lg"/>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="skeleton h-96 rounded-lg"/>
         <div class="skeleton h-96 rounded-lg"/>
       </div>
@@ -20,50 +20,52 @@
       <span>{{ dashboardStore.statsError }}</span>
     </div>
     <div v-else class="space-y-8">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Gigs"
           :value="dashboardStore.stats?.totalGigs || 0"
           icon="mdi:music-note"
           subtitle="All time"
+          to="/gigs"
         />
         <StatCard
           label="Top Artist"
           :value="dashboardStore.stats?.topArtist?.artistName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topArtist?.gigCount || 0} gigs`"
           icon="mdi:account-music"
+          :to="dashboardStore.stats?.topArtist ? `/gigs?artistId=${dashboardStore.stats?.topArtist?.artistName && dashboardStore.topArtists.find(a => a.artistName === dashboardStore.stats?.topArtist?.artistName)?.artistId}` : undefined"
+          :cta-label="dashboardStore.stats?.topArtist ? `View ${dashboardStore.stats.topArtist.artistName} Gigs` : undefined"
         />
         <StatCard
           label="Top Venue"
           :value="dashboardStore.stats?.topVenue?.venueName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
           icon="mdi:map-marker"
+          :to="dashboardStore.stats?.topVenue ? `/gigs?venueId=${dashboardStore.stats?.topVenue?.venueName && dashboardStore.topVenues.find(v => v.venueName === dashboardStore.stats?.topVenue?.venueName)?.venueId}` : undefined"
+          :cta-label="dashboardStore.stats?.topVenue ? `View ${dashboardStore.stats.topVenue.venueName} Gigs` : undefined"
         />
         <StatCard
           label="Top City"
           :value="dashboardStore.stats?.topCity?.cityName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
-        />
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatCard
-          label="Unique Artists"
-          :value="dashboardStore.artistInsights?.totalUniqueArtists || 0"
-          :subtitle="`${dashboardStore.artistInsights?.totalArtistAppearances || 0} total appearances`"
-          icon="mdi:account-group"
+          :to="dashboardStore.stats?.topCity ? `/gigs?city=${dashboardStore.stats?.topCity?.cityName}` : undefined"
+          :cta-label="dashboardStore.stats?.topCity ? `View ${dashboardStore.stats.topCity.cityName} Gigs` : undefined"
         />
         <StatCard
-          label="Unique Venues"
-          :value="dashboardStore.venueInsights?.totalUniqueVenues || 0"
-          :subtitle="`${dashboardStore.venueInsights?.totalUniqueCities || 0} cities`"
-          icon="mdi:map-marker-multiple"
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
         />
         <StatCard
-          label="Unique Attendees"
-          :value="dashboardStore.attendeeInsights?.totalUniqueAttendees || 0"
-          :subtitle="`${dashboardStore.attendeeInsights?.totalGigsWithAttendees || 0} gigs with attendees`"
-          icon="mdi:account-multiple"
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
+          :to="dashboardStore.stats?.topAttendee ? `/gigs?attendeeId=${dashboardStore.topAttendees.find(a => a.personName === dashboardStore.stats?.topAttendee?.personName)?.personId}` : undefined"
+          :cta-label="dashboardStore.stats?.topAttendee ? `View ${dashboardStore.stats.topAttendee.personName} Gigs` : undefined"
         />
         <StatCard
           label="Busiest Year"
@@ -77,7 +79,7 @@
           icon="mdi:calendar-clock"
         />
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div v-if="dashboardStore.gigsPerYearData.length > 0">
           <GigsPerYearChart :data="dashboardStore.gigsPerYearData" />
         </div>
@@ -86,7 +88,7 @@
         </div>
       </div>
       <div v-if="dashboardStore.interestingInsights" class="card bg-gradient-to-br from-accent/10 to-accent/5 shadow-xl border border-accent/20">
-        <div class="card-body">
+        <div class="p-4 flex flex-col flex-1">
           <h2 class="card-title text-2xl font-bold text-accent mb-4">
             <Icon name="mdi:lightbulb" class="w-6 h-6" />
             Interesting Insights
@@ -111,9 +113,9 @@
           </div>
         </div>
       </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         <div class="card bg-base-100 shadow-xl border border-primary/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-primary">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Artists
@@ -130,7 +132,11 @@
                 <tbody>
                   <tr v-for="(artist, index) in dashboardStore.topArtists.slice(0, 5)" :key="artist.artistId">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ artist.artistName }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?artistId=${artist.artistId}`" class="link link-hover hover:text-primary">
+                        {{ artist.artistName }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-primary font-bold">{{ artist.totalAppearances }}</td>
                   </tr>
                 </tbody>
@@ -139,7 +145,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-secondary/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-secondary">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Venues
@@ -156,7 +162,11 @@
                 <tbody>
                   <tr v-for="(venue, index) in dashboardStore.topVenues.slice(0, 5)" :key="venue.venueId">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ venue.venueName }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?venueId=${venue.venueId}`" class="link link-hover hover:text-secondary">
+                        {{ venue.venueName }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-secondary font-bold">{{ venue.gigCount }}</td>
                   </tr>
                 </tbody>
@@ -165,7 +175,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-accent/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-accent">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Cities
@@ -182,7 +192,11 @@
                 <tbody>
                   <tr v-for="(city, index) in dashboardStore.topCities.slice(0, 5)" :key="city.city">
                     <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ city.city }}</td>
+                    <td class="font-semibold">
+                      <NuxtLink :to="`/gigs?city=${city.city}`" class="link link-hover hover:text-accent">
+                        {{ city.city }}
+                      </NuxtLink>
+                    </td>
                     <td class="text-accent font-bold">{{ city.gigCount }}</td>
                   </tr>
                 </tbody>
@@ -191,7 +205,7 @@
           </div>
         </div>
         <div class="card bg-base-100 shadow-xl border border-info/20">
-          <div class="card-body">
+          <div class="p-4 flex flex-col flex-1">
             <h3 class="card-title text-xl font-bold text-info">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Attendees
@@ -218,7 +232,7 @@
         </div>
       </div>
       <div v-if="dashboardStore.mostHeardSongs.length > 0" class="card bg-base-100 shadow-xl border border-primary/20">
-        <div class="card-body">
+        <div class="p-4 flex flex-col flex-1">
           <h3 class="card-title text-2xl font-bold text-primary mb-4">
             <Icon name="mdi:music-note-eighth" class="w-6 h-6" />
             Most Heard Songs
@@ -255,6 +269,7 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
+import { format, parseISO } from 'date-fns';
 
 useHead({
   title: 'Dashboard - Gig Stats',

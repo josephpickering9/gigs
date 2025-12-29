@@ -25,7 +25,7 @@
     <!-- Dashboard Content -->
     <div v-else class="space-y-8">
       <!-- Main Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <StatCard
           label="Total Gigs"
           :value="dashboardStore.stats?.totalGigs || 0"
@@ -50,21 +50,18 @@
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
         />
-      </div>
-
-      <!-- Temporal & Insights Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          label="Unique Artists"
-          :value="dashboardStore.artistInsights?.totalUniqueArtists || 0"
-          :subtitle="`${dashboardStore.artistInsights?.totalArtistAppearances || 0} total appearances`"
-          icon="mdi:account-group"
+          label="Next Gig"
+          :value="dashboardStore.stats?.nextGig?.date ? format(parseISO(dashboardStore.stats?.nextGig?.date), 'dd MMM yyyy') : 'No upcoming gigs'"
+          :subtitle="dashboardStore.stats?.nextGig?.headlineArtist ? `${dashboardStore.stats?.nextGig?.headlineArtist} @ ${dashboardStore.stats?.nextGig?.venueName}` : ''"
+          icon="mdi:calendar-arrow-right"
+          :to="dashboardStore.stats?.nextGig ? '/gigs?future=true' : undefined"
         />
         <StatCard
-          label="Unique Venues"
-          :value="dashboardStore.venueInsights?.totalUniqueVenues || 0"
-          :subtitle="`${dashboardStore.venueInsights?.totalUniqueCities || 0} cities`"
-          icon="mdi:map-marker-multiple"
+          label="Top Attendee"
+          :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
+          :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
+          icon="mdi:account-star"
         />
         <StatCard
           label="Busiest Year"

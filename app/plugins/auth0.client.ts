@@ -9,6 +9,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     authorizationParams: {
       redirect_uri: window.location.origin,
       audience: config.public.auth0Audience,
+      scope: 'openid profile email offline_access',
     },
     useRefreshTokens: true,
     cacheLocation: 'localstorage',

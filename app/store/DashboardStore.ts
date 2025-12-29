@@ -5,9 +5,6 @@ import type {
     GigsPerYearResponse,
     GigsPerMonthResponse,
     TemporalStatsResponse,
-    ArtistInsightsResponse,
-    VenueInsightsResponse,
-    AttendeeInsightsResponse,
     TopArtistResponse,
     TopVenueResponse,
     TopCityResponse,
@@ -21,9 +18,6 @@ import {
     getApiDashboardGigsPerYear,
     getApiDashboardGigsPerMonth,
     getApiDashboardTemporalStats,
-    getApiDashboardArtistInsights,
-    getApiDashboardVenueInsights,
-    getApiDashboardAttendeeInsights,
     getApiDashboardTopArtists,
     getApiDashboardTopVenues,
     getApiDashboardTopCities,
@@ -40,9 +34,6 @@ interface DashboardState {
     gigsPerYearForm: AsyncForm<GigsPerYearResponse[]>;
     gigsPerMonthForm: AsyncForm<GigsPerMonthResponse[]>;
     temporalStatsForm: AsyncForm<TemporalStatsResponse>;
-    artistInsightsForm: AsyncForm<ArtistInsightsResponse>;
-    venueInsightsForm: AsyncForm<VenueInsightsResponse>;
-    attendeeInsightsForm: AsyncForm<AttendeeInsightsResponse>;
     topArtistsForm: AsyncForm<TopArtistResponse[]>;
     topVenuesForm: AsyncForm<TopVenueResponse[]>;
     topCitiesForm: AsyncForm<TopCityResponse[]>;
@@ -58,9 +49,6 @@ export const useDashboardStore = defineStore('dashboard', {
         gigsPerYearForm: asyncForm<GigsPerYearResponse[]>(),
         gigsPerMonthForm: asyncForm<GigsPerMonthResponse[]>(),
         temporalStatsForm: asyncForm<TemporalStatsResponse>(),
-        artistInsightsForm: asyncForm<ArtistInsightsResponse>(),
-        venueInsightsForm: asyncForm<VenueInsightsResponse>(),
-        attendeeInsightsForm: asyncForm<AttendeeInsightsResponse>(),
         topArtistsForm: asyncForm<TopArtistResponse[]>(),
         topVenuesForm: asyncForm<TopVenueResponse[]>(),
         topCitiesForm: asyncForm<TopCityResponse[]>(),
@@ -86,15 +74,6 @@ export const useDashboardStore = defineStore('dashboard', {
         temporalStats: (state) => state.temporalStatsForm.data,
         loadingTemporalStats: (state) => state.temporalStatsForm.loading,
 
-        artistInsights: (state) => state.artistInsightsForm.data,
-        loadingArtistInsights: (state) => state.artistInsightsForm.loading,
-
-        venueInsights: (state) => state.venueInsightsForm.data,
-        loadingVenueInsights: (state) => state.venueInsightsForm.loading,
-
-        attendeeInsights: (state) => state.attendeeInsightsForm.data,
-        loadingAttendeeInsights: (state) => state.attendeeInsightsForm.loading,
-
         topArtists: (state) => state.topArtistsForm.data || [],
         loadingTopArtists: (state) => state.topArtistsForm.loading,
 
@@ -119,9 +98,6 @@ export const useDashboardStore = defineStore('dashboard', {
             state.gigsPerYearForm.loading ||
             state.gigsPerMonthForm.loading ||
             state.temporalStatsForm.loading ||
-            state.artistInsightsForm.loading ||
-            state.venueInsightsForm.loading ||
-            state.attendeeInsightsForm.loading ||
             state.topArtistsForm.loading ||
             state.topVenuesForm.loading ||
             state.topCitiesForm.loading ||
@@ -162,27 +138,6 @@ export const useDashboardStore = defineStore('dashboard', {
         async fetchTemporalStats() {
             await tryCatchFinally(ref(this.temporalStatsForm), async () => {
                 const response = await getApiDashboardTemporalStats();
-                return response.data;
-            });
-        },
-
-        async fetchArtistInsights() {
-            await tryCatchFinally(ref(this.artistInsightsForm), async () => {
-                const response = await getApiDashboardArtistInsights();
-                return response.data;
-            });
-        },
-
-        async fetchVenueInsights() {
-            await tryCatchFinally(ref(this.venueInsightsForm), async () => {
-                const response = await getApiDashboardVenueInsights();
-                return response.data;
-            });
-        },
-
-        async fetchAttendeeInsights() {
-            await tryCatchFinally(ref(this.attendeeInsightsForm), async () => {
-                const response = await getApiDashboardAttendeeInsights();
                 return response.data;
             });
         },
@@ -236,9 +191,6 @@ export const useDashboardStore = defineStore('dashboard', {
                 this.fetchGigsPerYear(),
                 this.fetchGigsPerMonth(),
                 this.fetchTemporalStats(),
-                this.fetchArtistInsights(),
-                this.fetchVenueInsights(),
-                this.fetchAttendeeInsights(),
                 this.fetchTopArtists(10),
                 this.fetchTopVenues(10),
                 this.fetchTopCities(10),
