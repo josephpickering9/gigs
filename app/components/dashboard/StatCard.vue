@@ -1,6 +1,6 @@
 <template>
   <component
-    :is="to ? 'NuxtLink' : 'div'"
+    :is="to ? NuxtLink : 'div'"
     :to="to"
     class="card bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-primary/20 block h-full no-underline"
     :class="{ 'cursor-pointer': to }"
@@ -21,6 +21,8 @@
 </template>
 
 <script setup lang="ts">
+import { NuxtLink } from '#components';
+
 defineProps<{
   label: string;
   value: string | number;

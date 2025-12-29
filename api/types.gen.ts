@@ -296,7 +296,15 @@ export type GetGigResponsePaginatedResponseWritable = {
 export type GetApiArtistsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/artists';
 };
 
@@ -346,7 +354,15 @@ export type PostApiArtistsEnrichAllResponse = PostApiArtistsEnrichAllResponses[k
 export type GetApiAttendeesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/attendees';
 };
 
@@ -962,7 +978,15 @@ export type PutApiPersonsByIdResponse = PutApiPersonsByIdResponses[keyof PutApiP
 export type GetApiVenuesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        VenueId?: string;
+        FestivalId?: string;
+        City?: string;
+        FromDate?: string;
+        ToDate?: string;
+        ArtistId?: string;
+        AttendeeId?: string;
+    };
     url: '/api/venues';
 };
 

@@ -43,7 +43,7 @@
             Back
           </button>
           
-          <div class="flex-1 overflow-y-auto overscroll-contain px-4 md:px-0">
+          <div class="flex-1 overflow-y-auto overscroll-contain px-4 md:px-0 py-1">
             <VenueFilterList
               v-if="activeSubmenu === FilterType.VENUE"
               @select="handleVenueSelect"

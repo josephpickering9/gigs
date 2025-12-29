@@ -140,7 +140,7 @@ const handleUpdate = async (data: UpsertGigRequest) => {
     const result = await gigStore.updateGig(gigId, data);
     if (result) {
         useNotificationStore().displaySuccessNotification('Gig updated successfully');
-        router.push('/gigs');
+        router.back();
     } else {
         useNotificationStore().displayErrorNotification('Failed to update gig');
     }

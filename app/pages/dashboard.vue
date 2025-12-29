@@ -34,6 +34,7 @@
           :subtitle="`${dashboardStore.stats?.topArtist?.gigCount || 0} gigs`"
           icon="mdi:account-music"
           :to="dashboardStore.stats?.topArtist ? `/gigs?artistId=${dashboardStore.stats?.topArtist?.artistName && dashboardStore.topArtists.find(a => a.artistName === dashboardStore.stats?.topArtist?.artistName)?.artistId}` : undefined"
+          :cta-label="dashboardStore.stats?.topArtist ? `View ${dashboardStore.stats.topArtist.artistName} Gigs` : undefined"
         />
         <StatCard
           label="Top Venue"
@@ -41,6 +42,7 @@
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
           icon="mdi:map-marker"
           :to="dashboardStore.stats?.topVenue ? `/gigs?venueId=${dashboardStore.stats?.topVenue?.venueName && dashboardStore.topVenues.find(v => v.venueName === dashboardStore.stats?.topVenue?.venueName)?.venueId}` : undefined"
+          :cta-label="dashboardStore.stats?.topVenue ? `View ${dashboardStore.stats.topVenue.venueName} Gigs` : undefined"
         />
         <StatCard
           label="Top City"
@@ -48,6 +50,7 @@
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
           :to="dashboardStore.stats?.topCity ? `/gigs?city=${dashboardStore.stats?.topCity?.cityName}` : undefined"
+          :cta-label="dashboardStore.stats?.topCity ? `View ${dashboardStore.stats.topCity.cityName} Gigs` : undefined"
         />
         <StatCard
           label="Next Gig"
@@ -61,6 +64,8 @@
           :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
           icon="mdi:account-star"
+          :to="dashboardStore.stats?.topAttendee ? `/gigs?attendeeId=${dashboardStore.topAttendees.find(a => a.personName === dashboardStore.stats?.topAttendee?.personName)?.personId}` : undefined"
+          :cta-label="dashboardStore.stats?.topAttendee ? `View ${dashboardStore.stats.topAttendee.personName} Gigs` : undefined"
         />
         <StatCard
           label="Busiest Year"

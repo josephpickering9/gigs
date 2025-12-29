@@ -22,9 +22,19 @@
         @mouseenter="focusedIndex = index"
         @keydown="handleItemKeydown"
       >
-          <div class="flex gap-2 items-center">
-               <!-- Assuming we might have images later, but just name for now -->
-              <span class="font-medium">{{ artist.name }}</span>
+          <div class="flex gap-2 items-center justify-between w-full">
+              <div class="flex gap-2 items-center">
+                  <div class="avatar">
+                      <div class="w-6 h-6 rounded-full">
+                          <img v-if="artist.imageUrl" :src="getArtistImage(artist)" :alt="artist.name" class="object-cover" />
+                          <div v-else class="bg-base-300 flex items-center justify-center w-full h-full">
+                              <Icon name="mdi:account-music" class="w-4 h-4 text-base-content/50" />
+                          </div>
+                      </div>
+                  </div>
+                  <span class="font-medium">{{ artist.name }}</span>
+              </div>
+              <span v-if="artist.gigCount !== undefined" class="text-xs text-base-content/60">{{ artist.gigCount }} gig{{ artist.gigCount !== 1 ? 's' : '' }}</span>
           </div>
       </button>
       <div v-if="filteredArtists.length === 0" class="text-sm text-center py-4 opacity-50">
@@ -39,6 +49,7 @@ import { ref, computed, nextTick, onMounted } from 'vue';
 import { orderBy } from 'lodash-es';
 import type { GetArtistResponse } from '~~/api';
 import { useGigStore } from '~/store/GigStore';
+import { getImageUrl } from '~/utils/image-helper';
 import TextInput from '~/components/ui/input/TextInput.vue';
 
 const emit = defineEmits<{
@@ -53,7 +64,8 @@ const searchQuery = ref('');
 const searchInputRef = ref<InstanceType<typeof TextInput> | null>(null);
 
 const artists = computed((): GetArtistResponse[] => {
-    return orderBy(gigStore.artists || [], [(a) => a.name], ['asc']);
+    // Sort by gig count descending, then by name
+    return orderBy(gigStore.artists || [], [(a) => a.gigCount ?? 0, (a) => a.name], ['desc', 'asc']);
 });
 
 const filteredArtists = computed(() => {
@@ -66,6 +78,10 @@ const filteredArtists = computed(() => {
     artist.name?.toLowerCase().includes(query)
   );
 });
+
+function getArtistImage(artist: GetArtistResponse) {
+  return artist.imageUrl ? getImageUrl(artist.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
+}
 
 function selectArtist(artistId: string) {
   emit('select', artistId);

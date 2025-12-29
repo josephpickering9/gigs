@@ -61,6 +61,18 @@
             </div>
        </div>
 
+       <!-- Support Acts -->
+       <div v-if="supportActs.length > 0" class="flex flex-wrap gap-2 items-center">
+           <span class="text-sm text-base-content/60">Support:</span>
+           <span 
+               v-for="act in supportActs" 
+               :key="act.artistId" 
+               class="badge badge-outline"
+           >
+               {{ act.name }}
+           </span>
+       </div>
+
        <!-- Main Content Grid -->
        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
@@ -94,6 +106,7 @@ import useAuth from '~/composables/useAuth';
 import GigSetlist from '~/components/gigs/GigSetlist.vue';
 import GigMap from '~/components/gigs/GigMap.vue';
 import type { GetGigResponse } from '~~/api';
+import { getApiGigsById } from '~~/api';
 
 const { isAuthenticated } = useAuth();
 
@@ -108,6 +121,10 @@ const gig = ref<GetGigResponse | null>(null);
 // Helper to find headliner
 const headliner = computed(() => {
     return gig.value?.acts?.find(a => a.isHeadliner);
+});
+
+const supportActs = computed(() => {
+    return gig.value?.acts?.filter(a => !a.isHeadliner) || [];
 });
 
 const gigVenue = computed(() => {
@@ -130,13 +147,18 @@ const formatCurrency = (value: number) => {
 
 onMounted(async () => {
     loading.value = true;
-    // Ensure we have venues loaded for lookups
-    if (gigStore.venues.length === 0) await gigStore.fetchVenues();
-    
-    // Fetch the gig
-    const fetchedGig = await gigStore.fetchGig(gigId);
-    gig.value = fetchedGig || null;
-    
-    loading.value = false;
+    try {
+        // Ensure we have venues loaded for lookups
+        if (gigStore.venues.length === 0) await gigStore.fetchVenues();
+        
+        // Always fetch fresh gig data from API to ensure we have complete setlist information
+        const response = await getApiGigsById({ path: { id: gigId } });
+        gig.value = response.data || null;
+    } catch (error) {
+        console.error('Failed to fetch gig:', error);
+        gig.value = null;
+    } finally {
+        loading.value = false;
+    }
 });
 </script>

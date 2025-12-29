@@ -22,9 +22,12 @@
         @mouseenter="focusedIndex = index"
         @keydown="handleItemKeydown"
       >
-        <div class="flex flex-col items-start">
+        <div class="flex flex-col items-start w-full">
           <span class="font-medium">{{ venue.name }}</span>
-          <span class="text-xs text-base-content/60">{{ venue.city }}</span>
+          <div class="flex items-center justify-between w-full">
+            <span class="text-xs text-base-content/60">{{ venue.city }}</span>
+            <span v-if="venue.gigCount !== undefined" class="text-xs text-base-content/60">{{ venue.gigCount }} gig{{ venue.gigCount !== 1 ? 's' : '' }}</span>
+          </div>
         </div>
       </button>
       <div v-if="filteredVenues.length === 0" class="text-sm text-center py-4 opacity-50">
@@ -53,9 +56,8 @@ const searchQuery = ref('');
 const searchInputRef = ref<InstanceType<typeof TextInput> | null>(null);
 
 const venues = computed((): GetVenueResponse[] => {
-    // If venues aren't loaded, we might need to fetch them. 
-    // Assuming FilterBar triggers fetch or Store already has them.
-    return orderBy(gigStore.venues || [], [(v) => v.name], ['asc']);
+    // Sort by gig count descending, then by name
+    return orderBy(gigStore.venues || [], [(v) => v.gigCount ?? 0, (v) => v.name], ['desc', 'asc']);
 });
 
 const filteredVenues = computed(() => {

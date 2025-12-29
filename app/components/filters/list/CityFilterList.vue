@@ -12,17 +12,20 @@
     
     <div class="flex flex-col md:max-h-64 overflow-y-auto overscroll-contain p-1">
       <button
-        v-for="(city, index) in filteredCities"
-        :key="city"
+        v-for="(cityData, index) in filteredCities"
+        :key="cityData.name"
         ref="itemRefs"
         type="button"
         class="btn btn-sm btn-ghost focus-visible:outline-none justify-start hover:bg-base-200 h-auto py-2"
         :class="{ 'ring-2 ring-primary': focusedIndex === index }"
-        @click="selectCity(city)"
+        @click="selectCity(cityData.name)"
         @mouseenter="focusedIndex = index"
         @keydown="handleItemKeydown"
       >
-        <span class="font-medium">{{ city }}</span>
+        <div class="flex items-center justify-between w-full">
+          <span class="font-medium">{{ cityData.name }}</span>
+          <span class="text-xs text-base-content/60">{{ cityData.gigCount }} gig{{ cityData.gigCount !== 1 ? 's' : '' }}</span>
+        </div>
       </button>
       <div v-if="filteredCities.length === 0" class="text-sm text-center py-4 opacity-50">
         No cities found
@@ -33,7 +36,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted } from 'vue';
-import { orderBy, uniq, compact } from 'lodash-es';
+import { orderBy } from 'lodash-es';
 import { useGigStore } from '~/store/GigStore';
 import TextInput from '~/components/ui/input/TextInput.vue';
 
@@ -48,9 +51,26 @@ const itemRefs = ref<HTMLElement[]>([]);
 const searchQuery = ref('');
 const searchInputRef = ref<InstanceType<typeof TextInput> | null>(null);
 
-const cities = computed((): string[] => {
-    const allCities = (gigStore.venues || []).map(v => v.city);
-    return orderBy(uniq(compact(allCities)), (c) => c, ['asc']);
+interface CityData {
+  name: string;
+  gigCount: number;
+}
+
+const cities = computed((): CityData[] => {
+    const venues = gigStore.venues || [];
+    const cityMap = new Map<string, number>();
+    
+    // Count gigs per city
+    venues.forEach(venue => {
+        if (venue.city) {
+            const count = cityMap.get(venue.city) || 0;
+            cityMap.set(venue.city, count + (venue.gigCount ?? 0));
+        }
+    });
+    
+    // Convert to array and sort by gig count descending, then by name
+    const cityArray = Array.from(cityMap.entries()).map(([name, gigCount]) => ({ name, gigCount }));
+    return orderBy(cityArray, [(c) => c.gigCount, (c) => c.name], ['desc', 'asc']);
 });
 
 const filteredCities = computed(() => {
@@ -59,13 +79,13 @@ const filteredCities = computed(() => {
   }
   
   const query = searchQuery.value.toLowerCase();
-  return cities.value.filter(city => 
-    city.toLowerCase().includes(query)
+  return cities.value.filter(cityData => 
+    cityData.name.toLowerCase().includes(query)
   );
 });
 
-function selectCity(city: string) {
-  emit('select', city);
+function selectCity(cityName: string) {
+  emit('select', cityName);
 }
 
 function handleSearchKeydown(event: KeyboardEvent) {
@@ -110,7 +130,7 @@ function handleItemKeydown(event: KeyboardEvent) {
     case 'Enter':
       event.preventDefault();
       if (filteredCities.value[focusedIndex.value]) {
-        selectCity(filteredCities.value[focusedIndex.value]);
+        selectCity(filteredCities.value[focusedIndex.value].name);
       }
       break;
   }

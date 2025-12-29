@@ -41,11 +41,11 @@ const props = defineProps<{
 }>();
 
 const gigImage = computed(() => {
-    return props.gig.imageUrl ? getImageUrl(props.gig.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
+  return props.gig.imageUrl ? getImageUrl(props.gig.imageUrl) : 'https://placehold.co/600x400?text=No+Image';
 });
 
 const headliner = computed(() => {
-    return props.gig.acts?.find(act => act.isHeadliner)?.name || 'TBA';
+  return props.gig.acts?.find(act => act.isHeadliner)?.name || 'TBA';
 });
 
 const supportActs = computed(() => {
