@@ -8,17 +8,25 @@
           <span>{{ festival.name }}</span>
           <span v-if="festival.year" class="text-base font-normal text-base-content/60">({{ festival.year }})</span>
       </h2>
-          <div class="flex items-center gap-2 text-base-content/70 mt-4">
+      <div class="flex items-center gap-2 text-base-content/70 mt-4">
           <Icon name="mdi:calendar-multiple" class="w-5 h-5 text-accent" />
           <span v-if="festival.startDate" class="font-semibold">
               {{ formatDateRange(festival.startDate, festival.endDate) }}
           </span>
           <span v-else class="font-semibold">{{ festival.gigs?.length || 0 }} gig{{ festival.gigs?.length !== 1 ? 's' : '' }}</span>
       </div>
+
+      <div v-if="festival.venueName" class="flex items-center gap-2 text-base-content/70 mt-2">
+          <Icon name="mdi:map-marker" class="w-5 h-5 text-primary" />
+          <span class="font-semibold">{{ festival.venueName }}</span>
+      </div>
       
       <div v-if="festival.price" class="flex items-center gap-2 text-base-content/70 mt-2">
            <Icon name="mdi:cash" class="w-5 h-5 text-success" />
            <span class="font-semibold">{{ formatCurrency(festival.price) }}</span>
+           <span v-if="festival.dailyPrice" class="text-xs opacity-70">
+              ({{ formatCurrency(festival.dailyPrice) }} / day)
+           </span>
       </div>
     </div>
   </div>

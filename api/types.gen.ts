@@ -65,6 +65,9 @@ export type GetFestivalResponse = {
     year?: number | null;
     slug?: string;
     imageUrl?: string | null;
+    posterImageUrl?: string | null;
+    venueId?: string | null;
+    venueName?: string | null;
     gigs?: Array<GetGigResponse> | null;
     startDate?: string | null;
     endDate?: string | null;
@@ -78,7 +81,7 @@ export type GetGigArtistResponse = {
     name?: string;
     isHeadliner?: boolean;
     imageUrl?: string | null;
-    setlist?: Array<string>;
+    setlist?: Array<GetGigSongResponse>;
 };
 
 export type GetGigAttendeeResponse = {
@@ -108,6 +111,12 @@ export type GetGigResponsePaginatedResponse = {
     pageSize?: number;
     totalCount?: number;
     readonly totalPages?: number;
+};
+
+export type GetGigSongResponse = {
+    title?: string;
+    order?: number;
+    isEncore?: boolean;
 };
 
 export type GetPersonResponse = {
@@ -255,6 +264,9 @@ export type UpsertFestivalRequest = {
     name: string;
     year?: number | null;
     imageUrl?: string | null;
+    posterImageUrl?: string | null;
+    venueId?: string | null;
+    venueName?: string | null;
     startDate?: string | null;
     endDate?: string | null;
     price?: number | null;

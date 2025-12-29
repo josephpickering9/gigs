@@ -19,7 +19,7 @@
         <div class="relative w-full h-[60vh] min-h-[400px] flex items-center justify-center text-white overflow-hidden group">
             <!-- Background Image -->
             <div 
-                class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] ease-out select-none"
+                class="absolute inset-0 bg-cover transition-transform duration-[10s] ease-out select-none"
                 :class="{ 'scale-105': !loading }"
                 :style="`background-image: url('${getImageUrl(festival.imageUrl || '')}');`"
             />
@@ -104,14 +104,29 @@
                                     <!-- Lineup Info -->
                                     <div class="flex-grow space-y-2">
                                         <!-- Headliners -->
-                                        <div class="flex flex-wrap gap-x-4 gap-y-1 items-baseline">
+                                        <div class="flex flex-wrap gap-x-6 gap-y-2 items-center">
                                             <NuxtLink 
                                                 v-for="act in (gig.acts || []).filter((a: any) => a.isHeadliner)" 
                                                 :key="act.artistId" 
                                                 :to="`/gigs/${gig.id}`" 
-                                                class="text-2xl font-black tracking-tight text-base-content hover:text-primary transition-colors cursor-pointer"
+                                                class="flex items-center gap-3 group/artist hover:opacity-80 transition-opacity"
                                             >
-                                                {{ act.name }}
+                                                <div class="avatar placeholder">
+                                                    <div class="w-10 h-10 rounded-full bg-base-300 ring ring-base-content/10 ring-offset-base-100 ring-offset-2 overflow-hidden">
+                                                        <img 
+                                                            v-if="act.imageUrl"
+                                                            :src="getImageUrl(act.imageUrl)" 
+                                                            :alt="act.name" 
+                                                            class="object-cover w-full h-full"
+                                                        />
+                                                        <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold opacity-50">
+                                                            {{ (act.name || '?').charAt(0) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span class="text-2xl font-black tracking-tight text-base-content group-hover/artist:text-primary transition-colors cursor-pointer">
+                                                    {{ act.name }}
+                                                </span>
                                             </NuxtLink>
                                         </div>
                                         
@@ -147,6 +162,15 @@
 
                 <!-- Sidebar -->
                 <div class="lg:col-span-1 space-y-6">
+                    <!-- Poster Card -->
+                    <div v-if="festival.posterImageUrl" class="card bg-base-100 shadow-xl border border-base-content/5 overflow-hidden">
+                        <img 
+                            :src="getImageUrl(festival.posterImageUrl)" 
+                            :alt="festival.name + ' Poster'" 
+                            class="w-full h-auto object-cover"
+                        />
+                    </div>
+
                     <!-- Info Card -->
                     <div class="card bg-base-100 shadow-xl border border-base-content/5 sticky top-6">
                         <div class="card-body">
@@ -163,7 +187,7 @@
                                     </div>
                                     <div>
                                         <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Location</div>
-                                        <div class="font-medium">{{ venueNames }}</div>
+                                        <div class="font-medium">{{ festival.venueName || venueNames }}</div>
                                     </div>
                                 </div>
 
@@ -186,6 +210,9 @@
                                     <div>
                                         <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Price</div>
                                         <div class="font-medium">{{ formatCurrency(festival.price) }}</div>
+                                        <div v-if="festival.dailyPrice" class="text-xs opacity-70">
+                                            ({{ formatCurrency(festival.dailyPrice) }} / day)
+                                        </div>
                                     </div>
                                 </div>
                             </div>
