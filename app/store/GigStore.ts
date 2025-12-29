@@ -17,6 +17,7 @@ import {
     postApiFestivals,
     getApiFestivalsById,
     putApiFestivalsById,
+    postApiFestivalsByIdEnrich,
     deleteApiFestivalsById,
     getApiAttendees,
 } from '~~/api';
@@ -32,6 +33,7 @@ interface GigState {
     venuesForm: AsyncForm<GetVenueResponse[]>;
     festivalsForm: AsyncForm<GetFestivalResponse[]>;
     upsertFestivalForm: AsyncForm<GetFestivalResponse>;
+    enrichFestivalForm: AsyncForm<GetFestivalResponse>;
     attendeesForm: AsyncForm<GetAttendeeResponse[]>;
     pagination: {
         page: number;
@@ -62,6 +64,7 @@ export const useGigStore = defineStore('gig', {
         venuesForm: asyncForm<GetVenueResponse[]>(),
         festivalsForm: asyncForm<GetFestivalResponse[]>(),
         upsertFestivalForm: asyncForm<GetFestivalResponse>(),
+        enrichFestivalForm: asyncForm<GetFestivalResponse>(),
         attendeesForm: asyncForm<GetAttendeeResponse[]>(),
         pagination: {
             page: 1,
@@ -90,6 +93,8 @@ export const useGigStore = defineStore('gig', {
         loadingFestivals: (state) => state.festivalsForm.loading,
         savingFestival: (state) => state.upsertFestivalForm.loading,
         saveFestivalError: (state) => state.upsertFestivalForm.error,
+        enrichingFestival: (state) => state.enrichFestivalForm.loading,
+        enrichFestivalError: (state) => state.enrichFestivalForm.error,
         attendees: (state) => state.attendeesForm.data || [],
         loadingAttendees: (state) => state.attendeesForm?.loading || false,
     },
@@ -341,6 +346,13 @@ export const useGigStore = defineStore('gig', {
                 await deleteApiGigsById({ path: { id } });
                 await this.fetchGigs();
                 return undefined;
+            });
+        },
+
+        async enrichFestival(id: string) {
+            return await tryCatchFinally(ref(this.enrichFestivalForm), async () => {
+                await postApiFestivalsByIdEnrich({ path: { id } });
+                return await this.fetchFestival(id, true);
             });
         },
 

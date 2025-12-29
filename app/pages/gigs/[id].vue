@@ -85,45 +85,34 @@
                     <!-- Info Card -->
                     <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none sticky top-0 sm:top-6 z-30 sm:z-10">
                         <div class="card-body p-4 sm:p-6">
-                            <h3 class="card-title text-lg mb-4 flex items-center justify-between">
-                                <span class="flex items-center gap-2">
-                                    <Icon name="mdi:information-slab-circle" class="w-6 h-6 text-primary" />
-                                    Gig Info
-                                </span>
-                                <!-- Mobile Collapse/Expand could go here if needed, keeping it simple for now -->
-                            </h3>
-                            
                             <div class="space-y-4">
                                 <!-- Date -->
-                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                <div class="flex items-center gap-4 rounded-xl hover:bg-base-200/50 transition-colors">
                                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                                         <Icon name="mdi:calendar" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Date</div>
                                         <div class="font-medium text-base-content">{{ formatDate(gig.date) }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Venue -->
-                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                <div class="flex items-center gap-4 rounded-xl hover:bg-base-200/50 transition-colors">
                                     <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent shrink-0">
                                         <Icon name="mdi:map-marker" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Location</div>
                                         <div class="font-bold text-primary">{{ gig.venueName }}</div>
                                         <div v-if="gigVenue" class="text-sm text-base-content/70">{{ gigVenue.city }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Ticket Type/Price -->
-                                <div v-if="gig.ticketType || gig.ticketCost" class="flex items-center gap-4 p-3 rounded-xl hover:bg-base-200/50 transition-colors">
+                                <div v-if="gig.ticketType || gig.ticketCost" class="flex items-center gap-4 rounded-xl hover:bg-base-200/50 transition-colors">
                                     <div class="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success shrink-0">
                                         <Icon name="mdi:ticket" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Ticket</div>
                                         <div class="flex flex-wrap gap-2 items-center">
                                             <span v-if="gig.ticketType" class="badge badge-outline text-xs">{{ gig.ticketType }}</span>
                                             <span v-if="gig.ticketCost" class="font-bold font-mono">{{ formatCurrency(gig.ticketCost) }}</span>

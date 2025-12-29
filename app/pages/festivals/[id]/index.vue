@@ -174,41 +174,33 @@
                     <!-- Info Card -->
                     <div class="card bg-base-100 shadow-xl border border-base-content/5 sticky top-6">
                         <div class="card-body">
-                            <h3 class="card-title text-lg mb-4 flex items-center gap-2">
-                                <Icon name="mdi:information-slab-circle" class="w-6 h-6 text-primary" />
-                                Festival Info
-                            </h3>
-                            
                             <div class="space-y-4">
                                 <!-- Venue -->
-                                <div v-if="venueNames" class="flex items-start gap-3">
+                                <div v-if="venueNames" class="flex items-center gap-3">
                                     <div class="p-2 rounded-lg bg-base-200 text-accent">
                                         <Icon name="mdi:map-marker" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Location</div>
                                         <div class="font-medium">{{ festival.venueName || venueNames }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Date Range -->
-                                <div v-if="formattedDateRange" class="flex items-start gap-3">
+                                <div v-if="formattedDateRange" class="flex items-center gap-3">
                                     <div class="p-2 rounded-lg bg-base-200 text-primary">
                                         <Icon name="mdi:calendar-range" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Dates</div>
                                         <div class="font-medium">{{ formattedDateRange }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Price -->
-                                <div v-if="festival.price" class="flex items-start gap-3">
+                                <div v-if="festival.price" class="flex items-center gap-3">
                                     <div class="p-2 rounded-lg bg-base-200 text-success">
                                         <Icon name="mdi:currency-gbp" class="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div class="text-xs font-bold text-base-content/50 uppercase tracking-wide">Price</div>
                                         <div class="font-medium">{{ formatCurrency(festival.price) }}</div>
                                         <div v-if="festival.dailyPrice" class="text-xs opacity-70">
                                             ({{ formatCurrency(festival.dailyPrice) }} / day)

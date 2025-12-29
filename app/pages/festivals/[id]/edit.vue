@@ -1,10 +1,23 @@
 <template>
   <div class="container mx-auto p-4 max-w-2xl">
-    <div class="flex items-center mb-8">
-        <button class="btn btn-ghost mr-4" @click="router.back()">
-            <Icon name="mdi:arrow-left" class="w-6 h-6" />
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center">
+            <button class="btn btn-ghost mr-4" @click="router.back()">
+                <Icon name="mdi:arrow-left" class="w-6 h-6" />
+            </button>
+            <h1 class="text-4xl font-bold text-primary">Edit Festival</h1>
+        </div>
+        <button 
+            v-if="festival"
+            type="button" 
+            class="btn btn-secondary gap-2" 
+            :disabled="gigStore.enrichingFestival"
+            @click="handleEnrich"
+        >
+            <span v-if="gigStore.enrichingFestival" class="loading loading-spinner" />
+            <Icon v-else name="mdi:auto-fix" class="w-5 h-5" />
+            Enrich Festival Data
         </button>
-        <h1 class="text-4xl font-bold text-primary">Edit Festival</h1>
     </div>
 
     <div v-if="loading" class="flex justify-center py-12">
@@ -129,6 +142,20 @@ const handleUpdate = async (data: UpsertFestivalRequest) => {
         router.push(`/festivals/${festivalId}`);
     } else {
         useNotificationStore().displayErrorNotification('Failed to update festival');
+    }
+};
+
+const handleEnrich = async () => {
+    if (!festival.value?.id) return;
+    
+    const result = await gigStore.enrichFestival(festival.value.id);
+    
+    if (result) {
+         useNotificationStore().displaySuccessNotification('Festival enriched successfully');
+        // Fetch the updated festival data
+        festival.value = await gigStore.fetchFestival(festival.value.id) || undefined;
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to enrich festival');
     }
 };
 
