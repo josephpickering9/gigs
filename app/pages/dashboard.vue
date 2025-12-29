@@ -259,7 +259,6 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
-import { format, parseISO } from 'date-fns';
 
 useHead({
   title: 'Dashboard - Gig Stats',

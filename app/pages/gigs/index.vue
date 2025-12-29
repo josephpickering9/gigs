@@ -4,18 +4,19 @@
       <h1 class="text-4xl font-bold text-primary">Gigs</h1>
       <div class="flex flex-wrap gap-2 items-center">
          <FilterBar v-model:filters="activeFilters" />
-         <ViewToggle v-model="viewMode" />
+         <ViewToggle v-if="!isMobile" v-model="viewMode" />
         <template v-if="isAuthenticated">
-          <NuxtLink to="/gigs/create" class="btn btn-primary">
-              <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
-              Create Gig
-          </NuxtLink>
-          
           <div class="dropdown dropdown-end">
             <div tabindex="0" role="button" class="btn btn-ghost btn-square">
                 <Icon name="heroicons:ellipsis-vertical" size="1.5em" />
             </div>
             <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                  <NuxtLink to="/gigs/create" class="btn btn-primary">
+                      <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
+                      Create Gig
+                  </NuxtLink>
+                </li>
                 <li>
                     <button @click="showImportModal = true">
                         <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
@@ -98,10 +99,12 @@ import ImportCalendarModal from '~/components/gigs/ImportCalendarModal.vue';
 import ViewToggle from '~/components/ui/button/ViewToggle.vue';
 import FilterBar from '~/components/filters/FilterBar.vue';
 import useAuth from '~/composables/useAuth';
+import { useDevice } from '~/composables/useDevice';
 import type { Filter } from '~/types/Filter';
 import { FilterType } from '~/types/FilterType';
 
 const { isAuthenticated } = useAuth();
+const { isMobile } = useDevice();
 
 const gigStore = useGigStore();
 const preferencesStore = usePreferencesStore();
@@ -124,8 +127,19 @@ useHead({
 });
 
 const viewMode = computed({
-  get: () => preferencesStore.gigsViewMode,
-  set: (value: ViewMode) => preferencesStore.setGigsViewMode(value),
+  get: () => {
+    // Force card view on mobile
+    if (isMobile.value) {
+      return ViewMode.CARD;
+    }
+    return preferencesStore.gigsViewMode;
+  },
+  set: (value: ViewMode) => {
+    // Only update preference if not on mobile
+    if (!isMobile.value) {
+      preferencesStore.setGigsViewMode(value);
+    }
+  },
 });
 
 const sortedGigs = computed(() => {

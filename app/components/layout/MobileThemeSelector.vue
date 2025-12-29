@@ -43,8 +43,8 @@
             <h3 class="text-lg font-semibold">Choose Theme</h3>
             <button
               class="btn btn-circle btn-ghost btn-sm"
-              @click="isOpen = false"
               aria-label="Close"
+              @click="isOpen = false"
             >
               <Icon name="mdi:close" size="1.5em" />
             </button>

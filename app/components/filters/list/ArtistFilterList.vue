@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col max-h-64 overflow-y-auto p-1">
+  <div class="flex flex-col md:max-h-64 overflow-y-auto overscroll-contain p-1">
     <button
       v-for="(artist, index) in filteredArtists"
       :key="artist.id"
