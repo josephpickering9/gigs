@@ -1,23 +1,35 @@
 <template>
-  <div class="flex flex-col md:max-h-64 overflow-y-auto overscroll-contain p-1">
-    <button
-      v-for="(venue, index) in filteredVenues"
-      :key="venue.id"
-      ref="itemRefs"
-      type="button"
-      class="btn btn-sm btn-ghost focus-visible:outline-none justify-start hover:bg-base-200 h-auto py-2"
-      :class="{ 'ring-2 ring-primary': focusedIndex === index }"
-      @click="selectVenue(venue.id!)"
-      @mouseenter="focusedIndex = index"
-      @keydown="handleItemKeydown"
-    >
-      <div class="flex flex-col items-start">
-        <span class="font-medium">{{ venue.name }}</span>
-        <span class="text-xs text-base-content/60">{{ venue.city }}</span>
+  <div class="flex flex-col">
+    <div class="px-1 pb-2 sticky top-0 bg-base-100 z-10">
+      <TextInput
+        ref="searchInputRef"
+        v-model="searchQuery"
+        placeholder="Search venues..."
+        size="sm"
+        @keydown="handleSearchKeydown"
+      />
+    </div>
+    
+    <div class="flex flex-col md:max-h-64 overflow-y-auto overscroll-contain p-1">
+      <button
+        v-for="(venue, index) in filteredVenues"
+        :key="venue.id"
+        ref="itemRefs"
+        type="button"
+        class="btn btn-sm btn-ghost focus-visible:outline-none justify-start hover:bg-base-200 h-auto py-2"
+        :class="{ 'ring-2 ring-primary': focusedIndex === index }"
+        @click="selectVenue(venue.id!)"
+        @mouseenter="focusedIndex = index"
+        @keydown="handleItemKeydown"
+      >
+        <div class="flex flex-col items-start">
+          <span class="font-medium">{{ venue.name }}</span>
+          <span class="text-xs text-base-content/60">{{ venue.city }}</span>
+        </div>
+      </button>
+      <div v-if="filteredVenues.length === 0" class="text-sm text-center py-4 opacity-50">
+        No venues found
       </div>
-    </button>
-    <div v-if="filteredVenues.length === 0" class="text-sm text-center py-4 opacity-50">
-      No venues found
     </div>
   </div>
 </template>
@@ -27,6 +39,7 @@ import { ref, computed, nextTick, onMounted } from 'vue';
 import { orderBy } from 'lodash-es';
 import type { GetVenueResponse } from '~~/api';
 import { useGigStore } from '~/store/GigStore';
+import TextInput from '~/components/ui/input/TextInput.vue';
 
 const emit = defineEmits<{
   'select': [venueId: string];
@@ -36,6 +49,8 @@ const emit = defineEmits<{
 const gigStore = useGigStore();
 const focusedIndex = ref(-1);
 const itemRefs = ref<HTMLElement[]>([]);
+const searchQuery = ref('');
+const searchInputRef = ref<InstanceType<typeof TextInput> | null>(null);
 
 const venues = computed((): GetVenueResponse[] => {
     // If venues aren't loaded, we might need to fetch them. 
@@ -44,11 +59,30 @@ const venues = computed((): GetVenueResponse[] => {
 });
 
 const filteredVenues = computed(() => {
-  return venues.value;
+  if (!searchQuery.value.trim()) {
+    return venues.value;
+  }
+  
+  const query = searchQuery.value.toLowerCase();
+  return venues.value.filter(venue => 
+    venue.name?.toLowerCase().includes(query) || 
+    venue.city?.toLowerCase().includes(query)
+  );
 });
 
 function selectVenue(venueId: string) {
   emit('select', venueId);
+}
+
+function handleSearchKeydown(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' && filteredVenues.value.length > 0) {
+    event.preventDefault();
+    focusedIndex.value = 0;
+    scrollToFocusedItem();
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    emit('close');
+  }
 }
 
 function handleItemKeydown(event: KeyboardEvent) {
@@ -67,6 +101,11 @@ function handleItemKeydown(event: KeyboardEvent) {
       if (focusedIndex.value > 0) {
         focusedIndex.value--;
         scrollToFocusedItem();
+      } else if (focusedIndex.value === 0) {
+        focusedIndex.value = -1;
+        nextTick(() => {
+          searchInputRef.value?.focus();
+        });
       }
       break;
     case 'ArrowRight':
@@ -96,9 +135,8 @@ function scrollToFocusedItem() {
 }
 
 onMounted(() => {
-  if (filteredVenues.value.length > 0) {
-    focusedIndex.value = 0;
-    scrollToFocusedItem();
-  }
+  nextTick(() => {
+    searchInputRef.value?.focus();
+  });
 });
 </script>

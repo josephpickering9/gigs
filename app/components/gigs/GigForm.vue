@@ -170,7 +170,7 @@
                   </span>
                 </label>
                 
-                <Draggable 
+                <draggable 
                     v-model="act.setlist" 
                     item-key="id"
                     handle=".drag-handle"
@@ -204,7 +204,7 @@
                             </button>
                         </div>
                     </template>
-                </Draggable>
+                </draggable>
 
                  <button 
                     type="button" 
@@ -254,6 +254,7 @@ import FestivalSelector from '~/components/festivals/FestivalSelector.vue';
 import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
+import draggable from 'vuedraggable'
 
 const props = defineProps<{
   initialData?: GetGigResponse;

@@ -37,6 +37,19 @@
                      <div v-if="gig.ticketCost" class="badge badge-neutral">
                         {{ formatCurrency(gig.ticketCost) }}
                      </div>
+                     
+                     <div v-if="gig.attendees && gig.attendees.length > 0" class="flex items-center gap-2">
+                        <Icon name="mdi:account-multiple" class="w-4 h-4" />
+                        <div class="flex flex-wrap gap-1">
+                            <span 
+                                v-for="attendee in gig.attendees" 
+                                :key="attendee.personId" 
+                                class="badge badge-secondary badge-sm"
+                            >
+                                {{ attendee.personName }}
+                            </span>
+                        </div>
+                     </div>
                 </div>
             </div>
 
@@ -61,31 +74,10 @@
                 </div>
             </div>
 
-            <!-- Right Column: Map & Info (Takes 1 column) -->
+            <!-- Right Column: Map (Takes 1 column) -->
             <div class="space-y-6">
                  <div class="h-[400px]">
                     <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
-                 </div>
-                 
-                 <!-- Attendees Section -->
-                 <div v-if="gig.attendees && gig.attendees.length > 0" class="card bg-base-100 shadow-xl">
-                     <div class="card-body">
-                         <h2 class="card-title text-lg mb-3 flex items-center gap-2">
-                             <Icon name="mdi:account-multiple" class="w-5 h-5" />
-                             Attendees
-                             <span class="badge badge-secondary badge-sm">{{ gig.attendees.length }}</span>
-                         </h2>
-                         <div class="flex flex-wrap gap-2">
-                             <span 
-                                 v-for="attendee in gig.attendees" 
-                                 :key="attendee.personId" 
-                                 class="badge badge-outline gap-2"
-                             >
-                                 <Icon name="mdi:account" class="w-3 h-3" />
-                                 {{ attendee.personName }}
-                             </span>
-                         </div>
-                     </div>
                  </div>
             </div>
        </div>

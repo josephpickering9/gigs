@@ -40,6 +40,7 @@ export type GetArtistResponse = {
     name?: string;
     imageUrl?: string | null;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GetAttendeeResponse = {
@@ -121,6 +122,7 @@ export type GetVenueResponse = {
     city?: string;
     imageUrl?: string | null;
     slug?: string;
+    gigCount?: number;
 };
 
 export type GigArtistRequest = {

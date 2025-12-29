@@ -82,7 +82,7 @@
                     {{ group.title }}
                 </h4>
                 
-                <Draggable 
+                <draggable 
                     v-model="group.gigs" 
                     item-key="id"
                     handle=".drag-handle"
@@ -116,7 +116,7 @@
                             </button>
                         </div>
                     </template>
-                </Draggable>
+                </draggable>
             </div>
         </div>
       </div>
@@ -156,6 +156,7 @@ import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { groupBy, sortBy } from 'lodash-es';
 import { format, parseISO, isValid } from 'date-fns';
+import draggable from 'vuedraggable'
 
 const props = defineProps<{
   initialData?: GetFestivalResponse;
@@ -185,6 +186,7 @@ const selectedGigIds = ref<string[]>([]);
 const selectedAttendees = ref<SelectListItem[]>([]);
 const orderedGigs = ref<GetGigResponse[]>([]);
 const loadingGigs = ref(false);
+const isInitializing = ref(false); // Flag to prevent watch interference during init
 
 onMounted(async () => {
     if (gigStore.attendees.length === 0) {
@@ -222,6 +224,8 @@ const errors = ref<Record<string, string>>({});
 
 watch(() => props.initialData, async (newData) => {
     if (newData) {
+        isInitializing.value = true;
+        
         form.value = {
             name: newData.name || '',
             year: newData.year || null,
@@ -233,17 +237,17 @@ watch(() => props.initialData, async (newData) => {
             gigs: [], // Will be populated on submit
         };
         
-        // Initial selected IDs
+        // Populate orderedGigs FIRST from initial data if available
+        // This ensures that when we set selectedGigIds below, the watcher won't think these are "missing"
+        if (newData.gigs && newData.gigs.length > 0) {
+            orderedGigs.value = [...newData.gigs];
+        } else {
+            orderedGigs.value = [];
+        }
+        
+        // Then set selected IDs - the watcher will fire but orderedGigs is already populated
         const initialIds = newData.gigs?.map((g: { id?: string }) => g.id!).filter(Boolean) || [];
         selectedGigIds.value = initialIds;
-        
-        // Populate orderedGigs from initial data if available, ensuring we have the full objects
-        if (newData.gigs && newData.gigs.length > 0) {
-             // We use the gigs directly from the response as they should have the correct initial order if sorted by backend
-             // But we might need to fetch full details if not all fields are present, though GetGigResponse usually has enough.
-             // For now, assume newData.gigs is sufficient.
-            orderedGigs.value = [...newData.gigs];
-        }
 
         // Map existing attendees to SelectItems
         if (newData.attendees) {
@@ -252,11 +256,20 @@ watch(() => props.initialData, async (newData) => {
                 value: a.id || ''
             }));
         }
+        
+        // Use nextTick to ensure all reactive updates are processed before clearing the flag
+        await nextTick();
+        isInitializing.value = false;
     }
 }, { immediate: true });
 
 // Watch for changes in selectedGigIds to update orderedGigs
 watch(selectedGigIds, async (newIds) => {
+    // Don't run this watch during initialization from initialData
+    if (isInitializing.value) {
+        return;
+    }
+    
     loadingGigs.value = true;
     try {
         // 1. Remove gigs that are no longer selected
