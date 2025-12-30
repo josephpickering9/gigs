@@ -28,6 +28,10 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
   },
 
+  build: {
+    transpile: ['vuedraggable'],
+  },
+
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
