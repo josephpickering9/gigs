@@ -56,7 +56,7 @@
                 </h1>
                 
                 <!-- Support Acts -->
-                <div v-if="supportActs.length > 0" class="flex flex-wrap justify-center gap-3 mb-8">
+                <div v-if="supportActs.length > 0" class="flex flex-wrap items-center justify-center gap-3 mb-8">
                     <span class="text-lg font-light text-white/80 uppercase tracking-widest border-r border-white/30 pr-3 mr-1">Support</span>
                     <span 
                         v-for="act in supportActs" 
@@ -163,7 +163,6 @@ import GigMap from '~/components/gigs/GigMap.vue';
 import GigDetailSkeleton from '~/components/gigs/GigDetailSkeleton.vue';
 import type { GetGigResponse } from '~~/api';
 import { getApiGigsById } from '~~/api';
-import { getImageUrl } from '~/utils/image-helper';
 
 const { isAuthenticated } = useAuth();
 
