@@ -3,8 +3,8 @@
     <div role="tablist" class="tabs tabs-lifted tabs-lg w-full">
       <a 
         role="tab" 
-        class="tab" 
-        :class="{ 'tab-active font-bold text-primary': activeTab === 'details' }"
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'details' }"
         @click="activeTab = 'details'"
       >
         <Icon name="mdi:calendar-clock" class="w-4 h-4 mr-2" />
@@ -12,8 +12,8 @@
       </a>
       <a 
         role="tab" 
-        class="tab" 
-        :class="{ 'tab-active font-bold text-primary': activeTab === 'lineup' }"
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'lineup' }"
         @click="activeTab = 'lineup'"
       >
         <Icon name="mdi:account-music" class="w-4 h-4 mr-2" />
@@ -21,8 +21,8 @@
       </a>
       <a 
         role="tab" 
-        class="tab" 
-        :class="{ 'tab-active font-bold text-primary': activeTab === 'setlists' }"
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'setlists' }"
         @click="activeTab = 'setlists'"
       >
         <Icon name="mdi:playlist-music" class="w-4 h-4 mr-2" />
@@ -31,12 +31,21 @@
       </a>
        <a 
         role="tab" 
-        class="tab" 
-        :class="{ 'tab-active font-bold text-primary': activeTab === 'attendees' }"
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'attendees' }"
         @click="activeTab = 'attendees'"
       >
         <Icon name="mdi:account-multiple" class="w-4 h-4 mr-2" />
         Attendees
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'images' }"
+        @click="activeTab = 'images'"
+      >
+        <Icon name="mdi:image" class="w-4 h-4 mr-2" />
+        Images
       </a>
     </div>
 
@@ -69,6 +78,12 @@
             <GigAttendeesStep
                 v-model:attendees="attendees"
                 :attendee-options="attendeeOptions"
+            />
+        </div>
+
+        <div v-show="activeTab === 'images'" class="animate-fade-in">
+            <GigImagesStep
+                v-model:imageUrl="form.imageUrl"
             />
         </div>
     </div>
@@ -107,6 +122,7 @@ import GigDetailsStep from './form/GigDetailsStep.vue';
 import GigLineupStep from './form/GigLineupStep.vue';
 import GigSetlistStep from './form/GigSetlistStep.vue';
 import GigAttendeesStep from './form/GigAttendeesStep.vue';
+import GigImagesStep from './form/GigImagesStep.vue';
 
 const props = defineProps<{
   initialData?: GetGigResponse;

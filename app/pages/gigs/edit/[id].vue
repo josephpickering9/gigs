@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 max-w-2xl">
+  <div class="container mx-auto p-4 max-w-4xl">
     <div class="flex items-center justify-between mb-8">
         <div class="flex items-center">
             <button class="btn btn-ghost mr-4" @click="router.back()">
