@@ -18,7 +18,7 @@
               :src="getImageUrl(act.imageUrl)" 
               :alt="act.name"
               class="w-12 h-12 rounded-full object-cover ring-2 ring-base-300"
-            />
+            >
             <div>
               <h3 class="text-lg font-semibold text-secondary flex items-center gap-2">
                 {{ act.name }}
