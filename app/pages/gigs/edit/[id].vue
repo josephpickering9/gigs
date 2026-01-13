@@ -194,8 +194,6 @@ const handleImageSelection = async (imageUrl: string) => {
         }))
     };
 
-    console.log('Sending Update Request:', JSON.stringify(updateRequest, null, 2));
-
     const result = await gigStore.updateGig(gigId, updateRequest);
     if (result) {
         useNotificationStore().displaySuccessNotification('Image updated successfully');

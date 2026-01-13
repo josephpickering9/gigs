@@ -222,7 +222,7 @@ onMounted(async () => {
         // Always fetch fresh gig data from API to ensure we have complete setlist information
         const response = await getApiGigsById({ path: { id: gigId } });
         gig.value = response.data || null;
-    } catch (error) {
+    } catch {
         gig.value = null;
     } finally {
         loading.value = false;

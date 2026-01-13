@@ -42,7 +42,7 @@
                   :animation="200"
                   ghost-class="opacity-50"
               >
-                  <template #item="{ element: song, index: songIndex }">
+                  <template #item="{ index: songIndex }">
                        <div class="flex items-center gap-2 group bg-base-200/50 p-2 rounded-lg hover:bg-base-200 transition-colors">
                           <button type="button" class="drag-handle btn btn-ghost btn-xs btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content hover:bg-base-300">
                               <Icon name="mdi:drag" class="w-5 h-5" />
@@ -61,7 +61,8 @@
                               >
                               
                               <div class="tooltip tooltip-left" :data-tip="act.setlist[songIndex].isEncore ? 'Encore Song' : 'Mark as Encore'">
-                                  <label class="swap swap-rotate btn btn-xs btn-circle transition-all duration-300" 
+                                  <label
+class="swap swap-rotate btn btn-xs btn-circle transition-all duration-300" 
                                     :class="act.setlist[songIndex].isEncore ? 'btn-secondary text-white shadow-sm' : 'btn-ghost text-base-content/20 hover:text-secondary hover:bg-secondary/10'">
                                       <input v-model="act.setlist[songIndex].isEncore" type="checkbox" >
                                       <Icon name="mdi:star" class="swap-on w-4 h-4" />

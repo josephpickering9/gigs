@@ -6,7 +6,7 @@
            <Icon name="mdi:account-music" class="w-5 h-5 text-primary" />
         </div>
         <div>
-           <h3 class="card-title text-lg">Artists & Lineup</h3>
+           <h3 class="card-title text-lg">Artists &amp; Lineup</h3>
            <p class="text-sm text-base-content/60">Select the performers for this gig</p>
         </div>
       </div>
@@ -86,8 +86,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:headliners', value: SelectListItem[]): void;
-  (e: 'update:supportActs', value: SelectListItem[]): void;
+  (e: 'update:headliners' | 'update:supportActs', value: SelectListItem[]): void;
 }>();
 
 const headlinersModel = computed({

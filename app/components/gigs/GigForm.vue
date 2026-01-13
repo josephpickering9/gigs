@@ -53,7 +53,7 @@
         <div v-show="activeTab === 'details'" class="animate-fade-in">
             <GigDetailsStep 
                 v-model:form="form"
-                v-model:selectedVenue="selectedVenue"
+                v-model:selected-venue="selectedVenue"
                 :venue-options="venueOptions"
                 :errors="errors"
             />
@@ -62,7 +62,7 @@
         <div v-show="activeTab === 'lineup'" class="animate-fade-in">
              <GigLineupStep
                 v-model:headliners="headliners"
-                v-model:supportActs="supportActs"
+                v-model:support-acts="supportActs"
                 :artist-options="artistOptions"
                 :errors="errors"
             />
@@ -83,7 +83,7 @@
 
         <div v-show="activeTab === 'images'" class="animate-fade-in">
             <GigImagesStep
-                v-model:imageUrl="form.imageUrl"
+                v-model:image-url="form.imageUrl"
             />
         </div>
     </div>
@@ -116,7 +116,6 @@ import { TicketType, type UpsertGigRequest, type GetGigResponse, type GigArtistR
 import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
-
 // Steps
 import GigDetailsStep from './form/GigDetailsStep.vue';
 import GigLineupStep from './form/GigLineupStep.vue';

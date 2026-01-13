@@ -33,15 +33,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <template v-if="gigType === 'festival'">
               <FestivalSelector 
+                v-model="festivalId"
                 class="col-span-2 md:col-span-1"
-                v-model="form.festivalId"
                 :initial-name="form.festivalName"
-                @update:name="form.festivalName = $event"
+                @update:name="festivalName = $event"
               />
 
               <SelectMenu
                 v-if="festivalDateOptions.length > 0"
-                v-model="form.date"
+                v-model="date"
                 label="Festival Day"
                 :options="festivalDateOptions"
                 class="w-full"
@@ -54,7 +54,7 @@
                     No dates found for this festival. Please select manually.
                  </div>
                  <DatePicker
-                    v-model="form.date"
+                    v-model="date"
                     label="Date"
                     placeholder="Pick a date"
                     class="w-full"
@@ -80,7 +80,7 @@
               />
 
               <DatePicker
-                v-model="form.date"
+                v-model="date"
                 label="Date"
                 placeholder="Pick a date"
                 class="w-full"
@@ -89,20 +89,20 @@
           </template>
 
           <TextInput
-            v-model="form.imageUrl"
+            v-model="imageUrl"
             label="Image URL"
             placeholder="https://..."
             :error="errors['imageUrl']"
             class="col-span-2"
           >
-            <template #append v-if="form.imageUrl">
+            <template v-if="form.imageUrl" #append>
               <div class="dropdown dropdown-end dropdown-hover">
                 <label tabindex="0" class="btn btn-ghost btn-xs btn-circle">
                   <Icon name="mdi:eye" class="w-4 h-4" />
                 </label>
                 <div tabindex="0" class="dropdown-content z-[1] card card-compact w-64 p-2 shadow bg-base-100 rounded-box">
                   <figure class="rounded-lg overflow-hidden relative pt-[56.25%]">
-                     <img :src="form.imageUrl" class="absolute top-0 left-0 w-full h-full object-cover" alt="Preview"/>
+                     <img :src="form.imageUrl" class="absolute top-0 left-0 w-full h-full object-cover" alt="Preview">
                   </figure>
                 </div>
               </div>
@@ -123,7 +123,7 @@
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <SelectMenu
-            v-model="form.ticketType"
+            v-model="ticketType"
             label="Ticket Type"
             :options="ticketTypeOptions"
             class="w-full"
@@ -131,7 +131,7 @@
           />
 
           <RangeSlider
-            v-model="form.ticketCost"
+            v-model="ticketCost"
             label="Ticket Cost (£)"
             :min="0"
             :max="100"
@@ -168,6 +168,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:selectedVenue', value: SelectListItem[]): void;
+  (e: 'update:form', value: any): void;
 }>();
 
 const gigStore = useGigStore();
@@ -176,6 +177,37 @@ const gigType = ref<'regular' | 'festival'>('regular');
 const venueModel = computed({
   get: () => props.selectedVenue,
   set: (val) => emit('update:selectedVenue', val),
+});
+
+// Computed properties for form fields to prevent direct mutation
+const festivalId = computed({
+  get: () => props.form.festivalId,
+  set: (val) => emit('update:form', { ...props.form, festivalId: val }),
+});
+
+const festivalName = computed({
+  get: () => props.form.festivalName,
+  set: (val) => emit('update:form', { ...props.form, festivalName: val }),
+});
+
+const date = computed({
+  get: () => props.form.date,
+  set: (val) => emit('update:form', { ...props.form, date: val }),
+});
+
+const imageUrl = computed({
+  get: () => props.form.imageUrl,
+  set: (val) => emit('update:form', { ...props.form, imageUrl: val }),
+});
+
+const ticketType = computed({
+  get: () => props.form.ticketType,
+  set: (val) => emit('update:form', { ...props.form, ticketType: val }),
+});
+
+const ticketCost = computed({
+  get: () => props.form.ticketCost,
+  set: (val) => emit('update:form', { ...props.form, ticketCost: val }),
 });
 
 const ticketTypeOptions = computed<SelectListItem[]>(() => 
@@ -203,6 +235,7 @@ const festivalDateOptions = computed<SelectListItem[]>(() => {
             value: format(date, "yyyy-MM-dd'T'HH:mm:ss")
         }));
     } catch (e) {
+        // eslint-disable-next-line no-console
         console.error("Error generating festival dates", e);
         return [];
     }
@@ -216,8 +249,8 @@ onMounted(() => {
 
 watch(gigType, (newType) => {
     if (newType === 'regular') {
-        props.form.festivalId = null;
-        props.form.festivalName = null;
+        festivalId.value = null;
+        festivalName.value = null;
     }
 });
 </script>

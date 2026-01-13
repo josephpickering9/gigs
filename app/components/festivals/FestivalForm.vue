@@ -22,7 +22,7 @@
             :error="errors['imageUrl']"
           />
           <div v-if="imageUrlProxy" class="mt-2">
-            <img :src="imageUrlProxy" alt="Festival Image Preview" class="h-32 w-auto object-cover rounded-md shadow-sm" />
+            <img :src="imageUrlProxy" alt="Festival Image Preview" class="h-32 w-auto object-cover rounded-md shadow-sm" >
           </div>
 
           <TextInput
@@ -32,7 +32,7 @@
             :error="errors['posterImageUrl']"
           />
           <div v-if="posterImageUrlProxy" class="mt-2">
-            <img :src="posterImageUrlProxy" alt="Poster Image Preview" class="h-48 w-auto object-cover rounded-md shadow-sm" />
+            <img :src="posterImageUrlProxy" alt="Poster Image Preview" class="h-48 w-auto object-cover rounded-md shadow-sm" >
           </div>
 
           <TextInput

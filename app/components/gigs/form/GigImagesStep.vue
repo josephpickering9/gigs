@@ -14,7 +14,7 @@
             alt="Gig image" 
             class="w-full h-full object-cover"
             @error="handleImageError"
-          />
+          >
         </div>
       </div>
 
@@ -29,7 +29,7 @@
           placeholder="Enter image URL" 
           class="input input-bordered w-full"
           @input="handleInput"
-        />
+        >
         <label class="label">
           <span class="label-text-alt">Paste a direct link to an image</span>
         </label>
