@@ -296,6 +296,8 @@ export const useGigStore = defineStore('gig', {
                         artistId: a.artistId,
                         isHeadliner: a.isHeadliner,
                         order: 0,
+                        // Preserve setlist as array of strings (just titles)
+                        setlist: a.setlist?.map(s => s.title || '') || []
                     })).map((a, idx) => ({ ...a, order: idx + 1 }))
                 };
 
@@ -350,8 +352,8 @@ export const useGigStore = defineStore('gig', {
 
         async enrichFestival(id: string) {
             return await tryCatchFinally(ref(this.enrichFestivalForm), async () => {
-                await postApiFestivalsByIdEnrich({ path: { id } });
-                return await this.fetchFestival(id, true);
+                const response = await postApiFestivalsByIdEnrich({ path: { id } });
+                return response.data;
             });
         },
 

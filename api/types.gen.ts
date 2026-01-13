@@ -73,6 +73,7 @@ export type GetFestivalResponse = {
     endDate?: string | null;
     price?: number | null;
     dailyPrice?: number | null;
+    imageCandidates?: Array<string>;
     attendees?: Array<GetPersonResponse>;
 };
 
@@ -135,18 +136,12 @@ export type GetVenueResponse = {
     gigCount?: number;
 };
 
-export type GigSongRequest = {
-    title: string;
-    order: number;
-    isEncore: boolean;
-};
-
 export type GigArtistRequest = {
     artistId?: string;
     isHeadliner?: boolean;
     order?: number;
     setlistUrl?: string | null;
-    setlist?: Array<GigSongRequest>;
+    setlist?: Array<string>;
 };
 
 export type GigsPerMonthResponse = {
@@ -253,6 +248,15 @@ export type TopCityStats = {
 export type TopFestivalStats = {
     festivalName?: string;
     festivalCount?: number;
+};
+
+export type TopValueFestivalResponse = {
+    festivalName?: string;
+    slug?: string;
+    year?: number | null;
+    price?: number;
+    actCount?: number;
+    pricePerAct?: number;
 };
 
 export type TopVenueResponse = {
@@ -658,6 +662,24 @@ export type GetApiDashboardTopAttendeesResponses = {
 };
 
 export type GetApiDashboardTopAttendeesResponse = GetApiDashboardTopAttendeesResponses[keyof GetApiDashboardTopAttendeesResponses];
+
+export type GetApiDashboardTopValueFestivalsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+    };
+    url: '/api/dashboard/top-value-festivals';
+};
+
+export type GetApiDashboardTopValueFestivalsResponses = {
+    /**
+     * OK
+     */
+    200: Array<TopValueFestivalResponse>;
+};
+
+export type GetApiDashboardTopValueFestivalsResponse = GetApiDashboardTopValueFestivalsResponses[keyof GetApiDashboardTopValueFestivalsResponses];
 
 export type GetApiFestivalsData = {
     body?: never;

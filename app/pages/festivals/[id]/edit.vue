@@ -94,6 +94,11 @@
         </div>
         <div class="modal-backdrop" @click="showDeleteConfirm = false"/>
     </dialog>
+    <ImageSelectionModal 
+        v-model="showImageSelection"
+        :images="imageCandidates"
+        @select="handleImageSelection"
+    />
   </div>
 </template>
 
@@ -103,7 +108,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import { useNotificationStore } from '~/store/NotificationStore';
 import FestivalForm from '~/components/festivals/FestivalForm.vue';
-import type { UpsertFestivalRequest, GetFestivalResponse } from '~~/api';
+import ImageSelectionModal from '~/components/ui/modal/ImageSelectionModal.vue';
+import type { UpsertFestivalRequest, GetFestivalResponse, GetGigResponse, GetPersonResponse } from '~~/api';
 
 definePageMeta({
   middleware: 'auth',
@@ -117,6 +123,9 @@ const festivalId = route.params['id'] as string;
 const festival = ref<GetFestivalResponse | undefined>(undefined);
 const loading = ref(true);
 const showDeleteConfirm = ref(false);
+
+const showImageSelection = ref(false);
+const imageCandidates = ref<string[]>([]);
 
 useHead({
   title: 'Edit Festival - Gigs',
@@ -151,11 +160,62 @@ const handleEnrich = async () => {
     const result = await gigStore.enrichFestival(festival.value.id);
     
     if (result) {
-         useNotificationStore().displaySuccessNotification('Festival enriched successfully');
+        useNotificationStore().displaySuccessNotification('Festival enriched successfully');
         // Fetch the updated festival data
-        festival.value = await gigStore.fetchFestival(festival.value.id) || undefined;
+        festival.value = result;
+
+        if (result.imageCandidates && result.imageCandidates.length > 0) {
+            imageCandidates.value = result.imageCandidates;
+            showImageSelection.value = true;
+        }
     } else {
         useNotificationStore().displayErrorNotification('Failed to enrich festival');
+    }
+};
+
+const handleImageSelection = async (imageUrl: string) => {
+    if (!festival.value) return;
+
+    // Create a request with the new image URL, preserving other fields
+    const updateRequest: UpsertFestivalRequest = {
+        name: festival.value.name!,
+        year: festival.value.year,
+        imageUrl: imageUrl, 
+        posterImageUrl: festival.value.posterImageUrl,
+        venueId: festival.value.venueId,
+        startDate: festival.value.startDate,
+        endDate: festival.value.endDate,
+        price: festival.value.price,
+        // We need to pass the gigs and attendees back to avoid wiping them if the API requires it
+        // based on UpsertFestivalRequest type:
+        // gigs?: Array<FestivalGigOrderRequest>;
+        // attendees?: Array<string>;
+        
+        // However, based on how generic update usually works, check if we need to map complex objects back to IDs/Requests.
+        // Looking at GigStore.updateFestival, it takes UpsertFestivalRequest.
+        // Let's assume we need to be careful with existing data.
+
+        // Mapping existing gigs to order request
+        gigs: festival.value.gigs?.map((g: GetGigResponse) => ({
+            gigId: g.id,
+            order: g.order
+        })),
+        attendees: festival.value.attendees?.map((a: GetPersonResponse) => a.id!)
+    };
+    
+    // Note: The API types show 'venueName' in UpsertFestivalRequest, but usually ID is enough. 
+    // Let's check the type def again.
+    // UpsertFestivalRequest has venueId and venueName.
+    if (festival.value.venueName) {
+        updateRequest.venueName = festival.value.venueName;
+    }
+
+    const result = await gigStore.updateFestival(festivalId, updateRequest);
+    if (result) {
+        useNotificationStore().displaySuccessNotification('Image updated successfully');
+        festival.value = result;
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to update image');
     }
 };
 

@@ -180,8 +180,6 @@ const handleEnrich = async () => {
 const handleImageSelection = async (imageUrl: string) => {
     if (!gig.value) return;
 
-    // Create a request with the new image URL, preserving other fields
-    // We need to map GetGigResponse to UpsertGigRequest
     const updateRequest: UpsertGigRequest = {
         venueId: gig.value.venueId,
         date: gig.value.date!,
@@ -192,11 +190,7 @@ const handleImageSelection = async (imageUrl: string) => {
         acts: gig.value.acts?.map(a => ({
              artistId: a.artistId,
              isHeadliner: a.isHeadliner,
-             setlist: a.setlist?.map(s => ({
-                 title: s.title || '',
-                 order: s.order || 0,
-                 isEncore: s.isEncore || false
-             })) || []
+             setlist: a.setlist?.map(s => s.title || '') || []
         }))
     };
 

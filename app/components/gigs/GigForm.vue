@@ -263,11 +263,28 @@ const updateActs = () => {
     form.value.acts = newActs;
 };
 
+const festivals = computed(() => gigStore.festivals);
+
+watch(() => form.value.festivalId, (newId) => {
+    if (newId) {
+        const festival = festivals.value.find(f => f.id === newId);
+        if (festival && festival.venueId) {
+            form.value.venueId = festival.venueId;
+            
+            // Sync selectedVenue for UI consistency
+            const v = venues.value.find(v => v.id === festival.venueId);
+            if (v) {
+                selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
+            }
+        }
+    }
+});
+
 const validate = () => {
     errors.value = {};
     let isValid = true;
 
-    if (!form.value.venueId) {
+    if (!form.value.venueId && !form.value.festivalId) {
         errors.value['venueId'] = 'Venue is required';
         activeTab.value = 'details'; // Switch to tab with error
         isValid = false;
@@ -277,7 +294,7 @@ const validate = () => {
         activeTab.value = 'details';
         isValid = false;
     }
-    if (!form.value.ticketType) {
+    if (!form.value.ticketType && !form.value.festivalId) {
         errors.value['ticketType'] = 'Ticket Type is required';
         // if we had a tickets tab, switch to it, but it's in details
         if (activeTab.value !== 'details') activeTab.value = 'details';
@@ -304,11 +321,8 @@ const handleSubmit = () => {
         attendees: attendeeIdsOrNames,
         acts: form.value.acts?.map(act => ({
             ...act,
-            setlist: act.setlist?.filter(song => song.title?.trim() !== '').map((s, i) => ({
-                title: s.title,
-                order: i + 1,
-                isEncore: s.isEncore
-            })) || []
+            // API expects setlist as Array<string> (just song titles), not objects
+            setlist: act.setlist?.filter(song => song.title?.trim() !== '').map(s => s.title) || []
         }))
     };
     emit('submit', submissionData as UpsertGigRequest);

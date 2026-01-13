@@ -2,43 +2,98 @@
   <div class="space-y-6">
     <div class="card bg-base-200/50 shadow-sm border border-base-content/5">
       <div class="card-body">
-        <h3 class="card-title text-lg mb-4 flex items-center gap-2">
-          <div class="p-2 bg-primary/10 rounded-lg">
-            <Icon name="mdi:calendar-clock" class="w-5 h-5 text-primary" />
-          </div>
-          Event Details
-        </h3>
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title text-lg flex items-center gap-2">
+            <div class="p-2 bg-primary/10 rounded-lg">
+                <Icon name="mdi:calendar-clock" class="w-5 h-5 text-primary" />
+            </div>
+            Event Details
+            </h3>
+
+            <div class="join">
+                <button 
+                    type="button"
+                    class="join-item btn btn-sm" 
+                    :class="{ 'btn-primary': gigType === 'regular' }"
+                    @click="gigType = 'regular'"
+                >
+                    Gig
+                </button>
+                <button 
+                    type="button"
+                    class="join-item btn btn-sm" 
+                    :class="{ 'btn-secondary': gigType === 'festival' }"
+                    @click="gigType = 'festival'"
+                >
+                    Festival Gig
+                </button>
+            </div>
+        </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Combobox
-            v-model="venueModel"
-            label="Venue"
-            placeholder="Search or add venue..."
-            :options="venueOptions"
-            :multiple="false"
-            class="w-full"
-            :error="errors['venueId']"
-          />
+          <template v-if="gigType === 'festival'">
+              <FestivalSelector 
+                class="col-span-2 md:col-span-1"
+                v-model="form.festivalId"
+                :initial-name="form.festivalName"
+                @update:name="form.festivalName = $event"
+              />
 
-          <FestivalSelector 
-             v-model="form.festivalId"
-             :initial-name="form.festivalName"
-             @update:name="form.festivalName = $event"
-          />
+              <SelectMenu
+                v-if="festivalDateOptions.length > 0"
+                v-model="form.date"
+                label="Festival Day"
+                :options="festivalDateOptions"
+                class="w-full"
+                :error="errors['date']"
+              />
+              
+              <div v-else-if="form.festivalId && festivalDateOptions.length === 0" class="col-span-1">
+                 <div class="alert alert-warning text-xs py-2 mb-2">
+                    <Icon name="mdi:alert" class="w-4 h-4" />
+                    No dates found for this festival. Please select manually.
+                 </div>
+                 <DatePicker
+                    v-model="form.date"
+                    label="Date"
+                    placeholder="Pick a date"
+                    class="w-full"
+                    :error="errors['date']"
+                  />
+              </div>
 
-          <DatePicker
-            v-model="form.date"
-            label="Date"
-            placeholder="Pick a date"
-            class="w-full"
-            :error="errors['date']"
-          />
+               <div v-else class="alert alert-info text-sm flex items-center col-span-1">
+                  <Icon name="mdi:information" class="w-5 h-5 mr-2" />
+                  Select a festival to see dates
+              </div>
+          </template>
+
+          <template v-else>
+              <Combobox
+                v-model="venueModel"
+                label="Venue"
+                placeholder="Search or add venue..."
+                :options="venueOptions"
+                :multiple="false"
+                class="w-full"
+                :error="errors['venueId']"
+              />
+
+              <DatePicker
+                v-model="form.date"
+                label="Date"
+                placeholder="Pick a date"
+                class="w-full"
+                :error="errors['date']"
+              />
+          </template>
 
           <TextInput
             v-model="form.imageUrl"
             label="Image URL"
             placeholder="https://..."
             :error="errors['imageUrl']"
+            class="col-span-2"
           >
             <template #append v-if="form.imageUrl">
               <div class="dropdown dropdown-end dropdown-hover">
@@ -57,7 +112,7 @@
       </div>
     </div>
 
-    <div class="card bg-base-200/50 shadow-sm border border-base-content/5">
+    <div v-if="gigType === 'regular'" class="card bg-base-200/50 shadow-sm border border-base-content/5">
       <div class="card-body">
         <h3 class="card-title text-lg mb-4 flex items-center gap-2">
           <div class="p-2 bg-secondary/10 rounded-lg">
@@ -91,8 +146,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { TicketType } from '~~/api';
+import { useGigStore } from '~/store/GigStore';
+import { eachDayOfInterval, parseISO, format, isValid } from 'date-fns';
 import SelectMenu from '~/components/ui/input/SelectMenu.vue';
 import DatePicker from '~/components/ui/input/DatePicker.vue';
 import Combobox from '~/components/ui/input/Combobox.vue';
@@ -106,11 +163,15 @@ const props = defineProps<{
   errors: Record<string, string>;
   venueOptions: SelectListItem[];
   selectedVenue: SelectListItem[];
+  isFestival?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:selectedVenue', value: SelectListItem[]): void;
 }>();
+
+const gigStore = useGigStore();
+const gigType = ref<'regular' | 'festival'>('regular');
 
 const venueModel = computed({
   get: () => props.selectedVenue,
@@ -120,4 +181,43 @@ const venueModel = computed({
 const ticketTypeOptions = computed<SelectListItem[]>(() => 
   Object.values(TicketType).map(t => ({ text: t, value: t }))
 );
+
+const selectedFestival = computed(() => {
+    if (!props.form.festivalId) return null;
+    return gigStore.festivals.find(f => f.id === props.form.festivalId);
+});
+
+const festivalDateOptions = computed<SelectListItem[]>(() => {
+    const festival = selectedFestival.value;
+    if (!festival || !festival.startDate || !festival.endDate) return [];
+
+    try {
+        const start = parseISO(festival.startDate);
+        const end = parseISO(festival.endDate);
+        
+        if (!isValid(start) || !isValid(end)) return [];
+
+        const days = eachDayOfInterval({ start, end });
+        return days.map(date => ({
+            text: format(date, 'EEEE (dd/MM/yyyy)'),
+            value: format(date, "yyyy-MM-dd'T'HH:mm:ss")
+        }));
+    } catch (e) {
+        console.error("Error generating festival dates", e);
+        return [];
+    }
+});
+
+onMounted(() => {
+    if (props.form.festivalId) {
+        gigType.value = 'festival';
+    }
+});
+
+watch(gigType, (newType) => {
+    if (newType === 'regular') {
+        props.form.festivalId = null;
+        props.form.festivalName = null;
+    }
+});
 </script>
