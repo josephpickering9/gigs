@@ -289,10 +289,6 @@ export type UpsertGigRequest = {
     attendees?: Array<string>;
 };
 
-export type UpsertPersonRequest = {
-    name: string;
-};
-
 export type VenueInsightsResponse = {
     totalUniqueVenues?: number;
     totalUniqueCities?: number;
@@ -936,90 +932,6 @@ export type GetMediaUploadsByFileNameResponses = {
      */
     200: unknown;
 };
-
-export type GetApiPersonsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/persons';
-};
-
-export type GetApiPersonsResponses = {
-    /**
-     * OK
-     */
-    200: Array<GetPersonResponse>;
-};
-
-export type GetApiPersonsResponse = GetApiPersonsResponses[keyof GetApiPersonsResponses];
-
-export type PostApiPersonsData = {
-    body?: UpsertPersonRequest;
-    path?: never;
-    query?: never;
-    url: '/api/persons';
-};
-
-export type PostApiPersonsResponses = {
-    /**
-     * OK
-     */
-    200: GetPersonResponse;
-};
-
-export type PostApiPersonsResponse = PostApiPersonsResponses[keyof PostApiPersonsResponses];
-
-export type DeleteApiPersonsByIdData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/persons/{id}';
-};
-
-export type DeleteApiPersonsByIdResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
-};
-
-export type GetApiPersonsByIdData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/persons/{id}';
-};
-
-export type GetApiPersonsByIdResponses = {
-    /**
-     * OK
-     */
-    200: GetPersonResponse;
-};
-
-export type GetApiPersonsByIdResponse = GetApiPersonsByIdResponses[keyof GetApiPersonsByIdResponses];
-
-export type PutApiPersonsByIdData = {
-    body?: UpsertPersonRequest;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/persons/{id}';
-};
-
-export type PutApiPersonsByIdResponses = {
-    /**
-     * OK
-     */
-    200: GetPersonResponse;
-};
-
-export type PutApiPersonsByIdResponse = PutApiPersonsByIdResponses[keyof PutApiPersonsByIdResponses];
 
 export type GetApiVenuesData = {
     body?: never;

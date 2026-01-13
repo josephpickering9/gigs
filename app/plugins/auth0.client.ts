@@ -18,10 +18,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   if (import.meta.client) {
     nuxtApp.vueApp.use(auth0)
 
-    // Silent check session on app start
-    auth0.checkSession()
-
-    // Watch for authentication state changes to set the API token
     watchEffect(async () => {
       if (auth0.isAuthenticated.value) {
         try {
@@ -33,9 +29,14 @@ export default defineNuxtPlugin((nuxtApp) => {
               },
             })
           }
-        } catch (e) {
+        } catch (e: any) {
           // eslint-disable-next-line no-console
           console.log('token error', e)
+
+          // If the refresh token is missing, we need to logout to clear the invalid state
+          if (e?.message?.includes('Missing Refresh Token')) {
+            auth0.logout({ logoutParams: { returnTo: window.location.origin } })
+          }
         }
       }
     })
