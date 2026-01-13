@@ -100,6 +100,7 @@ export type GetGigResponse = {
     ticketCost?: number | null;
     ticketType?: TicketType;
     imageUrl?: string | null;
+    imageCandidates?: Array<string> | null;
     slug?: string;
     acts?: Array<GetGigArtistResponse>;
     attendees?: Array<GetGigAttendeeResponse>;
@@ -134,12 +135,18 @@ export type GetVenueResponse = {
     gigCount?: number;
 };
 
+export type GigSongRequest = {
+    title: string;
+    order: number;
+    isEncore: boolean;
+};
+
 export type GigArtistRequest = {
     artistId?: string;
     isHeadliner?: boolean;
     order?: number;
     setlistUrl?: string | null;
-    setlist?: Array<string>;
+    setlist?: Array<GigSongRequest>;
 };
 
 export type GigsPerMonthResponse = {

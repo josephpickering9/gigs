@@ -334,8 +334,7 @@ export const useGigStore = defineStore('gig', {
 
         async enrichGig(id: string) {
             return await tryCatchFinally(ref(this.enrichForm), async () => {
-                await postApiGigsByIdEnrich({ path: { id } });
-                const response = await getApiGigsById({ path: { id } });
+                const response = await postApiGigsByIdEnrich({ path: { id } });
                 await this.fetchGigs();
                 return response.data;
             });

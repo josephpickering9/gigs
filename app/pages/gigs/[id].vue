@@ -1,9 +1,8 @@
 <template>
   <div class="min-h-screen bg-base-200 mx-auto">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center h-screen">
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
+    <!-- Loading State -->
+    <GigDetailSkeleton v-if="loading" />
 
     <!-- Error State -->
     <div v-else-if="!gig" class="container mx-auto p-4 pt-12">
@@ -161,6 +160,7 @@ import { format } from 'date-fns';
 import useAuth from '~/composables/useAuth';
 import GigSetlist from '~/components/gigs/GigSetlist.vue';
 import GigMap from '~/components/gigs/GigMap.vue';
+import GigDetailSkeleton from '~/components/gigs/GigDetailSkeleton.vue';
 import type { GetGigResponse } from '~~/api';
 import { getApiGigsById } from '~~/api';
 import { getImageUrl } from '~/utils/image-helper';
