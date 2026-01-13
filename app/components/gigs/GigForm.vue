@@ -1,235 +1,95 @@
 <template>
-  <form class="space-y-8" @submit.prevent="handleSubmit">
-    <div class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <div class="flex items-center gap-2 mb-6">
-          <div class="badge badge-primary badge-lg gap-2">
-            <Icon name="mdi:account-music" class="w-4 h-4" />
-            Artists
-          </div>
-          <div class="text-sm text-base-content/60">
-            Select the performers for this gig
-          </div>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="badge badge-accent gap-1">
-                <Icon name="mdi:star" class="w-3 h-3" />
-                Headliners
-              </div>
-              <span class="text-xs text-base-content/50">Main acts</span>
-            </div>
-            <Combobox
-              v-model="headliners"
-              :options="artistOptions"
-              placeholder="Search or add headliners..."
-              class="w-full"
-              :error="errors['artistIds']"
+  <form class="space-y-6" @submit.prevent="handleSubmit">
+    <div role="tablist" class="tabs tabs-lifted tabs-lg w-full">
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'details' }"
+        @click="activeTab = 'details'"
+      >
+        <Icon name="mdi:calendar-clock" class="w-4 h-4 mr-2" />
+        Details
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'lineup' }"
+        @click="activeTab = 'lineup'"
+      >
+        <Icon name="mdi:account-music" class="w-4 h-4 mr-2" />
+        Lineup
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'setlists' }"
+        @click="activeTab = 'setlists'"
+      >
+        <Icon name="mdi:playlist-music" class="w-4 h-4 mr-2" />
+        Setlists
+        <span v-if="form.acts?.length" class="badge badge-sm badge-ghost ml-2">{{ form.acts.length }}</span>
+      </a>
+       <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'attendees' }"
+        @click="activeTab = 'attendees'"
+      >
+        <Icon name="mdi:account-multiple" class="w-4 h-4 mr-2" />
+        Attendees
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'images' }"
+        @click="activeTab = 'images'"
+      >
+        <Icon name="mdi:image" class="w-4 h-4 mr-2" />
+        Images
+      </a>
+    </div>
+
+    <div class="bg-base-100 border-base-300 rounded-b-box rounded-tr-box min-h-[400px]">
+        <div v-show="activeTab === 'details'" class="animate-fade-in">
+            <GigDetailsStep 
+                v-model:form="form"
+                v-model:selected-venue="selectedVenue"
+                :venue-options="venueOptions"
+                :errors="errors"
             />
-          </div>
+        </div>
 
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 mb-3">
-              <div class="badge badge-ghost gap-1">
-                <Icon name="mdi:account-group" class="w-3 h-3" />
-                Support Acts
-              </div>
-              <span class="text-xs text-base-content/50">Optional</span>
-            </div>
-            <Combobox
-              v-model="supportActs"
-              :options="artistOptions"
-              placeholder="Search or add support..."
-              class="w-full"
+        <div v-show="activeTab === 'lineup'" class="animate-fade-in">
+             <GigLineupStep
+                v-model:headliners="headliners"
+                v-model:support-acts="supportActs"
+                :artist-options="artistOptions"
+                :errors="errors"
             />
-          </div>
         </div>
-        
-        <div class="mt-4 flex items-start gap-2 text-sm text-base-content/70 bg-base-300/30 rounded-lg p-3">
-          <Icon name="mdi:lightbulb-outline" class="w-4 h-4 mt-0.5 flex-shrink-0" />
-          <span>You can select multiple artists. New artists can be typed in but may need to be saved separately.</span>
+
+        <div v-show="activeTab === 'setlists'" class="animate-fade-in">
+            <GigSetlistStep
+                v-model:acts="form.acts"
+            />
         </div>
-      </div>
-    </div>
 
-    <div class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">
-          <Icon name="mdi:calendar-clock" class="w-5 h-5" />
-          Event Details
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Combobox
-            v-model="selectedVenue"
-            label="Venue"
-            placeholder="Search or add venue..."
-            :options="venueOptions"
-            :multiple="false"
-            class="w-full"
-            :error="errors['venueId']"
-          />
-
-          <FestivalSelector 
-             v-model="form.festivalId"
-             :initial-name="form.festivalName"
-             @update:name="form.festivalName = $event"
-          />
-
-          <DatePicker
-            v-model="datePart"
-            label="Date"
-            placeholder="Pick a date"
-            class="w-full"
-            :error="errors['date']"
-          />
+        <div v-show="activeTab === 'attendees'" class="animate-fade-in">
+            <GigAttendeesStep
+                v-model:attendees="attendees"
+                :attendee-options="attendeeOptions"
+            />
         </div>
-      </div>
-    </div>
 
-    <div class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">
-          <Icon name="mdi:ticket" class="w-5 h-5" />
-          Ticket Information
-        </h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <SelectMenu
-            v-model="form.ticketType"
-            label="Ticket Type"
-            :options="ticketTypeOptions"
-            class="w-full"
-            :error="errors['ticketType']"
-          />
-
-          <RangeSlider
-            v-model="form.ticketCost"
-            label="Ticket Cost (£)"
-            :min="0"
-            :max="100"
-            :step="1"
-            class="w-full"
-            :error="errors['ticketCost']"
-          />
+        <div v-show="activeTab === 'images'" class="animate-fade-in">
+            <GigImagesStep
+                v-model:image-url="form.imageUrl"
+            />
         </div>
-      </div>
-    </div>
-
-    <div class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <div class="flex items-center gap-2 mb-4">
-          <div class="badge badge-secondary badge-lg gap-2">
-            <Icon name="mdi:account-multiple" class="w-4 h-4" />
-            Attendees
-          </div>
-          <div class="text-sm text-base-content/60">
-            Who attended this gig?
-          </div>
-        </div>
-        
-        <Combobox
-          v-model="attendees"
-          placeholder="Add people who attended..."
-          :options="attendeeOptions"
-          class="w-full"
-        />
-        
-        <div class="mt-3 flex items-start gap-2 text-sm text-base-content/70 bg-base-300/30 rounded-lg p-3">
-          <Icon name="mdi:information-outline" class="w-4 h-4 mt-0.5 flex-shrink-0" />
-          <span>Type names of people who attended and press Enter to add them.</span>
-        </div>
-      </div>
     </div>
 
 
-    <div v-if="form.acts && form.acts.length > 0" class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">
-          <Icon name="mdi:playlist-music" class="w-5 h-5" />
-          Setlists
-        </h3>
-        
-        <div class="space-y-6">
-          <div v-for="(act, index) in form.acts" :key="index" class="collapse collapse-arrow bg-base-100 border border-base-300">
-            <input type="checkbox" :name="'setlist-accordion-' + index" > 
-            <div class="collapse-title text-base font-medium flex items-center gap-2">
-              <span class="badge" :class="act.isHeadliner ? 'badge-accent' : 'badge-ghost'">
-                {{ act.isHeadliner ? 'Headliner' : 'Support' }}
-              </span>
-              {{ getArtistName(act.artistId) }}
-            </div>
-            <div class="collapse-content">
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Setlist</span>
-                  <span class="label-text-alt text-base-content/60">
-                    {{ (act.setlist?.length || 0) }} song{{ (act.setlist?.length || 0) !== 1 ? 's' : '' }}
-                  </span>
-                </label>
-                
-                <Draggable 
-                    v-model="act.setlist" 
-                    item-key="id"
-                    handle=".drag-handle"
-                    class="space-y-2 mb-4"
-                    :animation="200"
-                    ghost-class="opacity-50"
-                >
-                    <template #item="{ index: songIndex }">
-                         <div class="flex items-center gap-2 group">
-                            <button type="button" class="drag-handle btn btn-ghost btn-xs btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content">
-                                <Icon name="mdi:drag" class="w-5 h-5" />
-                            </button>
-                            <div v-if="act.setlist && act.setlist[songIndex]" class="relative flex-1 flex items-center gap-2">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-base-content/30 w-4 text-right">
-                                    {{ songIndex + 1 }}
-                                </span>
-                                <input 
-                                    v-model="act.setlist[songIndex].title" 
-                                    type="text" 
-                                    class="input input-bordered input-sm w-full pl-9" 
-                                    placeholder="Enter song name..." 
-                                    @keydown.enter.prevent="addSong(index, songIndex + 1)"
-                                >
-                                <label class="swap swap-rotate btn btn-xs btn-circle" :class="act.setlist[songIndex].isEncore ? 'btn-secondary text-white' : 'btn-ghost text-base-content/30'">
-                                    <input v-model="act.setlist[songIndex].isEncore" type="checkbox" >
-                                    <!-- check icon -->
-                                    <Icon name="mdi:star" class="swap-on w-4 h-4" />
-                                    <!-- close icon -->
-                                    <Icon name="mdi:star-outline" class="swap-off w-4 h-4" />
-                                </label>
-                            </div>
-                            <button 
-                                type="button" 
-                                class="btn btn-ghost btn-xs btn-square text-error/60 hover:text-error hover:bg-error/10"
-                                @click="removeSong(index, songIndex)"
-                            >
-                                <Icon name="heroicons:trash" class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </template>
-                </Draggable>
-
-                 <button 
-                    type="button" 
-                    class="btn btn-sm btn-ghost gap-2 border-dashed border-base-content/20 hover:border-base-content/40 hover:bg-base-200 w-full"
-                    @click="addSong(index)"
-                >
-                    <Icon name="heroicons:plus" class="w-4 h-4" />
-                    Add Song
-                </button>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex justify-between items-center gap-3 pt-4">
+    <div class="flex justify-between items-center gap-3 pt-6 border-t border-base-content/10">
       <div>
         <slot name="left-actions" />
       </div>
@@ -251,16 +111,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { TicketType, type UpsertGigRequest, type GetGigResponse, type GigArtistRequest } from '~~/api';
 import { useGigStore } from '~/store/GigStore';
-import SelectMenu from '~/components/ui/input/SelectMenu.vue';
-import DatePicker from '~/components/ui/input/DatePicker.vue';
-import Combobox from '~/components/ui/input/Combobox.vue';
-import FestivalSelector from '~/components/festivals/FestivalSelector.vue';
-import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
+// Steps
+import GigDetailsStep from './form/GigDetailsStep.vue';
+import GigLineupStep from './form/GigLineupStep.vue';
+import GigSetlistStep from './form/GigSetlistStep.vue';
+import GigAttendeesStep from './form/GigAttendeesStep.vue';
+import GigImagesStep from './form/GigImagesStep.vue';
 
 const props = defineProps<{
   initialData?: GetGigResponse;
@@ -278,18 +139,15 @@ const venues = computed(() => gigStore.venues);
 const artists = computed(() => gigStore.artists);
 const attendeesList = computed(() => gigStore.attendees);
 
-const datePart = ref('');
-const imageUrlProxy = ref(''); 
+const activeTab = ref('details');
 
 const headliners = ref<SelectListItem[]>([]);
 const supportActs = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
 const attendees = ref<SelectListItem[]>([]);
+const isInitializing = ref(false);
 
-type FormAct = Omit<GigArtistRequest, 'setlist'> & { setlist: Array<{ title: string; order: number; isEncore: boolean }> };
-type FormState = Omit<UpsertGigRequest, 'acts'> & { acts: FormAct[] };
-
-const form = ref<FormState>({
+const form = ref<UpsertGigRequest>({
   venueId: '',
   date: '',
   ticketType: TicketType.STANDING,
@@ -307,10 +165,6 @@ const venueOptions = computed<SelectListItem[]>(() =>
     venues.value.map(v => ({ text: v.name || 'Unknown', value: v.id || '' }))
   );
 
-  const ticketTypeOptions = computed<SelectListItem[]>(() => 
-    Object.values(TicketType).map(t => ({ text: t, value: t }))
-  );
-
 const artistOptions = computed<SelectListItem[]>(() => 
     artists.value.map(a => ({ text: a.name || 'Unknown', value: a.id || '' }))
   );
@@ -318,24 +172,6 @@ const artistOptions = computed<SelectListItem[]>(() =>
 const attendeeOptions = computed<SelectListItem[]>(() => 
     attendeesList.value.map(a => ({ text: a.name || 'Unknown', value: a.id || '' }))
   );
-
-const getArtistName = (id?: string) => {
-    if (!id) return 'Unknown Artist';
-    if (id.startsWith('new:')) return id.substring(4);
-    return artists.value.find(a => a.id === id)?.name || 'Unknown Artist';
-};
-
-watch(imageUrlProxy, (val) => {
-    if (val !== form.value.imageUrl) {
-        form.value.imageUrl = val;
-    }
-});
-
-watch(() => form.value.imageUrl, (val) => {
-     if (val !== imageUrlProxy.value) {
-        imageUrlProxy.value = val || '';
-    }
-});
 
 onMounted(async () => {
     const promises = [];
@@ -353,8 +189,10 @@ watch(selectedVenue, (val) => {
     }
 });
 
-watch(() => props.initialData, (newData) => {
+watch(() => props.initialData, async (newData) => {
     if (!newData) return;
+    
+    isInitializing.value = true;
 
     form.value = {
         venueId: newData.venueId || '',
@@ -376,12 +214,6 @@ watch(() => props.initialData, (newData) => {
         attendees: newData.attendees?.map(a => a.personName || '') || [],
     };
     
-    // Set the date picker value
-    datePart.value = newData.date || '';
-    
-    // Set the image URL proxy
-    imageUrlProxy.value = newData.imageUrl || '';
-    
     if (newData.venueId) {
         const v = venues.value.find(v => v.id === newData.venueId);
         if (v) {
@@ -400,6 +232,9 @@ watch(() => props.initialData, (newData) => {
             value: a.personId || a.personName || `attendee-${index}` 
         }));
     }
+    
+    await nextTick();
+    isInitializing.value = false;
 }, { immediate: true });
 
 watch(venues, (newVenues) => {
@@ -411,26 +246,18 @@ watch(venues, (newVenues) => {
     }
 });
 
-watch(datePart, (val) => {
-    if (val) {
-        form.value.date = val;
-    }
-});
-
-watch(headliners, () => {
+watch([headliners, supportActs], () => {
     updateActs();
-});
-
-watch(supportActs, () => {
-    updateActs();
-});
+}, { deep: true });
 
 const updateActs = () => {
-    const newActs: FormAct[] = [];
+    if (isInitializing.value) return;
+
+    const newActs: GigArtistRequest[] = [];
     
     // Add Headliners
     headliners.value.forEach(h => {
-        const existing = form.value.acts?.find(a => a.artistId === h.value);
+        const existing = form.value.acts?.find(a => String(a.artistId) === String(h.value));
         newActs.push({
             artistId: String(h.value),
             isHeadliner: true,
@@ -440,7 +267,7 @@ const updateActs = () => {
 
     // Add Support Acts
     supportActs.value.forEach(s => {
-        const existing = form.value.acts?.find(a => a.artistId === s.value);
+        const existing = form.value.acts?.find(a => String(a.artistId) === String(s.value));
         newActs.push({
             artistId: String(s.value),
             isHeadliner: false,
@@ -451,83 +278,79 @@ const updateActs = () => {
     form.value.acts = newActs;
 };
 
-const addSong = (actIndex: number, afterIndex?: number) => {
-    if (!form.value.acts?.[actIndex]) return;
-    
-    // Initialize setlist if needed
-    if (!form.value.acts[actIndex].setlist) {
-        form.value.acts[actIndex].setlist = [];
-    }
-    
-    // Add empty song object
-    const newSong = { title: '', order: (form.value.acts[actIndex].setlist?.length || 0) + 1, isEncore: false };
-    
-    if (typeof afterIndex === 'number') {
-         form.value.acts[actIndex].setlist!.splice(afterIndex, 0, newSong);
-    } else {
-         form.value.acts[actIndex].setlist!.push(newSong);
-    }
-    
-    // Re-index orders
-    form.value.acts[actIndex].setlist!.forEach((s, i) => s.order = i + 1);
-};
+const festivals = computed(() => gigStore.festivals);
 
-const removeSong = (actIndex: number, songIndex: number) => {
-     if (!form.value.acts?.[actIndex]?.setlist) return;
-     form.value.acts[actIndex].setlist!.splice(songIndex, 1);
-     // Re-index orders
-     form.value.acts[actIndex].setlist!.forEach((s, i) => s.order = i + 1);
-};
-
+watch(() => form.value.festivalId, (newId) => {
+    if (newId) {
+        const festival = festivals.value.find(f => f.id === newId);
+        if (festival && festival.venueId) {
+            form.value.venueId = festival.venueId;
+            
+            // Sync selectedVenue for UI consistency
+            const v = venues.value.find(v => v.id === festival.venueId);
+            if (v) {
+                selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
+            }
+        }
+    }
+});
 
 const validate = () => {
     errors.value = {};
     let isValid = true;
 
-    if (!form.value.venueId) {
+    if (!form.value.venueId && !form.value.festivalId) {
         errors.value['venueId'] = 'Venue is required';
+        activeTab.value = 'details'; // Switch to tab with error
         isValid = false;
     }
-    if (!datePart.value) { 
+    if (!form.value.date) { 
         errors.value['date'] = 'Date is required';
+        activeTab.value = 'details';
         isValid = false;
     }
-    if (!form.value.ticketType) {
+    if (!form.value.ticketType && !form.value.festivalId) {
         errors.value['ticketType'] = 'Ticket Type is required';
+        // if we had a tickets tab, switch to it, but it's in details
+        if (activeTab.value !== 'details') activeTab.value = 'details';
         isValid = false;
     }
 
     return isValid;
 };
 
-
 const handleSubmit = () => {
     if (!validate()) return;
-    // Prepare attendees from combobox items
-    // map values (IDs) if they exist, otherwise text (new names)
-    // NOTE: If the value starts with 'attendee-' it was a generated ID for display only, so fallback to text
+    
     const attendeeIdsOrNames = attendees.value.map(a => {
         const val = String(a.value);
         if (val && !val.startsWith('attendee-') && val !== a.text) {
-             return val; // It's likely an ID
+             return val; 
         }
         return a.text;
     }).filter(v => v.trim() !== '');
     
-    // Filter out empty strings from setlists before submitting
     const submissionData = {
         ...form.value,
         imageUrl: isEmpty(form.value.imageUrl) ? undefined : form.value.imageUrl,
         attendees: attendeeIdsOrNames,
         acts: form.value.acts?.map(act => ({
             ...act,
-            setlist: act.setlist?.filter(song => song.title?.trim() !== '').map((s, i) => ({
-                title: s.title,
-                order: i + 1,
-                isEncore: s.isEncore
-            })) || []
+            // API expects setlist as Array<string> (just song titles), not objects
+            setlist: act.setlist?.filter(song => song.title?.trim() !== '').map(s => s.title) || []
         }))
     };
     emit('submit', submissionData as UpsertGigRequest);
 };
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

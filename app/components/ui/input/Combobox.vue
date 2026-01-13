@@ -2,7 +2,7 @@
   <FormElementContainer :label="label">
     <div ref="containerRef" class="relative">
       <div 
-        class="input input-bordered flex flex-wrap items-center gap-2 min-h-[3rem] h-auto py-1.5 px-3 pr-9 relative"
+        class="input input-bordered flex flex-wrap items-center gap-2 h-12 py-1.5 px-3 pr-9 relative"
         :class="{ 'input-focus': isFocused }"
         @click="focusInput"
       >
@@ -298,9 +298,3 @@ onUnmounted(() => {
 
 
 </script>
-
-<style scoped>
-.input-focus {
-
-}
-</style>

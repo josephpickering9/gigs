@@ -87,21 +87,56 @@
       No gigs found matching your criteria.
     </div>
 
-    <div v-else-if="viewMode === ViewMode.TABLE">
-      <GigTableView
-        :gigs="sortedGigs"
-        :sort-column="sortColumn"
-        :sort-direction="sortDirection"
-        @sort="handleSort"
-      />
-    </div>
+    <div v-else>
+      <!-- Upcoming Gigs Section -->
+      <section v-if="upcomingGigs.length > 0" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+          <Icon name="mdi:calendar-clock" class="text-primary" />
+          Upcoming Gigs
+        </h2>
+        
+        <div v-if="viewMode === ViewMode.TABLE">
+          <GigTableView
+            :gigs="upcomingGigs"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            @sort="handleSort"
+          />
+        </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <GigCard
-        v-for="gig in sortedGigs"
-        :key="gig.id"
-        :gig="gig"
-      />
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <GigCard
+            v-for="gig in upcomingGigs"
+            :key="gig.id"
+            :gig="gig"
+          />
+        </div>
+      </section>
+
+      <!-- Past Gigs Section -->
+      <section v-if="pastGigs.length > 0">
+        <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+          <Icon name="mdi:history" class="text-secondary" />
+          Past Gigs
+        </h2>
+
+        <div v-if="viewMode === ViewMode.TABLE">
+          <GigTableView
+            :gigs="pastGigs"
+            :sort-column="sortColumn"
+            :sort-direction="sortDirection"
+            @sort="handleSort"
+          />
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <GigCard
+            v-for="gig in pastGigs"
+            :key="gig.id"
+            :gig="gig"
+          />
+        </div>
+      </section>
     </div>
 
     <!-- Infinite Scroll Sentinel -->
@@ -139,6 +174,7 @@ import useAuth from '~/composables/useAuth';
 import { useDevice } from '~/composables/useDevice';
 import type { Filter } from '~/types/Filter';
 import { FilterType } from '~/types/FilterType';
+import type { GetGigResponse } from '~~/api';
 
 const { isAuthenticated } = useAuth();
 const { isMobile } = useDevice();
@@ -182,6 +218,26 @@ const viewMode = computed({
 const sortedGigs = computed(() => {
     // Rely on server-side sorting
     return gigStore.gigs || [];
+});
+
+const upcomingGigs = computed(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return sortedGigs.value.filter((gig: GetGigResponse) => {
+        if (!gig.date) return false;
+        const gigDate = new Date(gig.date);
+        return gigDate >= today;
+    });
+});
+
+const pastGigs = computed(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return sortedGigs.value.filter((gig: GetGigResponse) => {
+        if (!gig.date) return true; // Treat no date as past or handle elsewhere, usually implies old/imcomplete
+        const gigDate = new Date(gig.date);
+        return gigDate < today;
+    });
 });
 
 // Sync filters from UI to Store and URL

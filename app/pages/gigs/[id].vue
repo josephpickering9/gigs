@@ -1,9 +1,8 @@
 <template>
   <div class="min-h-screen bg-base-200 mx-auto">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center h-screen">
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
+    <!-- Loading State -->
+    <GigDetailSkeleton v-if="loading" />
 
     <!-- Error State -->
     <div v-else-if="!gig" class="container mx-auto p-4 pt-12">
@@ -57,7 +56,7 @@
                 </h1>
                 
                 <!-- Support Acts -->
-                <div v-if="supportActs.length > 0" class="flex flex-wrap justify-center gap-3 mb-8">
+                <div v-if="supportActs.length > 0" class="flex flex-wrap items-center justify-center gap-3 mb-8">
                     <span class="text-lg font-light text-white/80 uppercase tracking-widest border-r border-white/30 pr-3 mr-1">Support</span>
                     <span 
                         v-for="act in supportActs" 
@@ -161,9 +160,9 @@ import { format } from 'date-fns';
 import useAuth from '~/composables/useAuth';
 import GigSetlist from '~/components/gigs/GigSetlist.vue';
 import GigMap from '~/components/gigs/GigMap.vue';
+import GigDetailSkeleton from '~/components/gigs/GigDetailSkeleton.vue';
 import type { GetGigResponse } from '~~/api';
 import { getApiGigsById } from '~~/api';
-import { getImageUrl } from '~/utils/image-helper';
 
 const { isAuthenticated } = useAuth();
 
@@ -222,7 +221,7 @@ onMounted(async () => {
         // Always fetch fresh gig data from API to ensure we have complete setlist information
         const response = await getApiGigsById({ path: { id: gigId } });
         gig.value = response.data || null;
-    } catch (error) {
+    } catch {
         gig.value = null;
     } finally {
         loading.value = false;

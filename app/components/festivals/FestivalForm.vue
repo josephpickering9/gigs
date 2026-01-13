@@ -21,6 +21,9 @@
             placeholder="https://..."
             :error="errors['imageUrl']"
           />
+          <div v-if="imageUrlProxy" class="mt-2">
+            <img :src="imageUrlProxy" alt="Festival Image Preview" class="h-32 w-auto object-cover rounded-md shadow-sm" >
+          </div>
 
           <TextInput
             v-model="posterImageUrlProxy"
@@ -28,6 +31,9 @@
             placeholder="https://..."
             :error="errors['posterImageUrl']"
           />
+          <div v-if="posterImageUrlProxy" class="mt-2">
+            <img :src="posterImageUrlProxy" alt="Poster Image Preview" class="h-48 w-auto object-cover rounded-md shadow-sm" >
+          </div>
 
           <TextInput
             v-model="yearProxy"
@@ -164,7 +170,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
-import type { UpsertFestivalRequest, GetFestivalResponse, GetGigResponse } from '~~/api';
+import type { UpsertFestivalRequest, GetFestivalResponse, GetGigResponse, GetAttendeeResponse, GetVenueResponse } from '~~/api';
 import TextInput from '~/components/ui/input/TextInput.vue';
 import DatePicker from '~/components/ui/input/DatePicker.vue';
 import Combobox from '~/components/ui/input/Combobox.vue';
@@ -217,11 +223,11 @@ onMounted(async () => {
 });
 
 const attendeeOptions = computed<SelectListItem[]>(() => 
-    gigStore.attendees.map((a: { name?: string; id?: string }) => ({ text: a.name || 'Unknown', value: a.id || '' }))
+    gigStore.attendees.map((a: GetAttendeeResponse) => ({ text: a.name || 'Unknown', value: a.id || '' }))
 );
 
 const venueOptions = computed<SelectListItem[]>(() => 
-    gigStore.venues.map((v: { name?: string; id?: string }) => ({ text: v.name || 'Unknown', value: v.id || '' }))
+    gigStore.venues.map((v: GetVenueResponse) => ({ text: v.name || 'Unknown', value: v.id || '' }))
 );
 
 const imageUrlProxy = computed({
@@ -267,13 +273,13 @@ watch(() => props.initialData, async (newData) => {
             startDate: newData.startDate || null,
             endDate: newData.endDate || null,
             price: newData.price || null,
-            attendees: newData.attendees?.map((a: { id?: string }) => a.id!).filter(Boolean) || [],
+            attendees: newData.attendees?.map((a: any) => a.id!).filter(Boolean) || [],
             gigs: [], // Will be populated on submit
         };
         
         // Map venue
         if (newData.venueId) {
-            const v = gigStore.venues.find(v => v.id === newData.venueId);
+            const v = gigStore.venues.find((v: GetVenueResponse) => v.id === newData.venueId);
             if (v) {
                 selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
             }
@@ -293,12 +299,12 @@ watch(() => props.initialData, async (newData) => {
         }
         
         // Then set selected IDs - the watcher will fire but orderedGigs is already populated
-        const initialIds = newData.gigs?.map((g: { id?: string }) => g.id!).filter(Boolean) || [];
+        const initialIds = newData.gigs?.map((g: GetGigResponse) => g.id!).filter(Boolean) || [];
         selectedGigIds.value = initialIds;
 
         // Map existing attendees to SelectItems
         if (newData.attendees) {
-            selectedAttendees.value = newData.attendees.map((a: { name?: string; id?: string }) => ({
+            selectedAttendees.value = newData.attendees.map((a: any) => ({
                 text: a.name || 'Unknown',
                 value: a.id || ''
             }));
@@ -323,7 +329,7 @@ watch(selectedGigIds, async (newIds) => {
         orderedGigs.value = orderedGigs.value.filter(g => newIds.includes(g.id!));
 
         // 2. Add new gigs that are selected but not in orderedGigs
-        const missingIds = newIds.filter(id => !orderedGigs.value.some(g => g.id === id));
+        const missingIds = newIds.filter(id => !orderedGigs.value.some((g: GetGigResponse) => g.id === id));
         
         if (missingIds.length > 0) {
             // Fetch missing gigs
@@ -331,7 +337,7 @@ watch(selectedGigIds, async (newIds) => {
             const newGigs = await Promise.all(newGigsPromises);
             
             // Add valid new gigs
-            newGigs.forEach(g => {
+            newGigs.forEach((g: GetGigResponse | undefined) => {
                 if (g) orderedGigs.value.push(g);
             });
         }
@@ -355,7 +361,7 @@ watch(selectedVenue, (val) => {
 // Watch venues to populate selectedVenue if data comes in late
 watch(() => gigStore.venues, (newVenues) => {
     if (form.value.venueId && selectedVenue.value.length === 0) {
-        const v = newVenues.find(v => v.id === form.value.venueId);
+        const v = newVenues.find((v: GetVenueResponse) => v.id === form.value.venueId);
         if (v) {
             selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
         }
@@ -418,7 +424,7 @@ const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
     const reordered: GetGigResponse[] = [];
     
     // We need to know the order of groups to reconstruct the flat list properly sorted by date
-    const sortedGroups = sortBy(Object.keys(groupBy(orderedGigs.value, (g) => {
+    const sortedGroups = sortBy(Object.keys(groupBy(orderedGigs.value, (g: GetGigResponse) => {
          if (!g.date) return 'Unknown Date';
          const date = parseISO(g.date);
          return isValid(date) ? format(date, 'yyyy-MM-dd') : 'Unknown Date';
@@ -430,7 +436,7 @@ const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
             reordered.push(...newGroupGigs);
         } else {
             // Find the original gigs for this group
-            const groupGigs = orderedGigs.value.filter(g => {
+            const groupGigs = orderedGigs.value.filter((g: GetGigResponse) => {
                 const gDateKey = (!g.date || !isValid(parseISO(g.date))) ? 'Unknown Date' : format(parseISO(g.date), 'yyyy-MM-dd');
                 return gDateKey === groupKey;
             });
@@ -443,11 +449,11 @@ const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
 
 
 const getHeadlinerName = (gig: GetGigResponse) => {
-    return gig.acts?.find(a => a.isHeadliner)?.name || 'Unknown Artist';
+    return gig.acts?.find((a: any) => a.isHeadliner)?.name || 'Unknown Artist';
 };
 
 const getSupportActs = (gig: GetGigResponse) => {
-    return gig.acts?.filter(a => !a.isHeadliner).map(a => a.name).join(', ');
+    return gig.acts?.filter((a: any) => !a.isHeadliner).map((a: any) => a.name).join(', ');
 };
 
 const removeGig = (gigId: string) => {
@@ -470,7 +476,7 @@ const handleSubmit = () => {
     if (!validate()) return;
     
     // Update attendees from selected items
-    form.value.attendees = selectedAttendees.value.map(s => String(s.value));
+    form.value.attendees = selectedAttendees.value.map((s: SelectListItem) => String(s.value));
     
     // Construct gigs payload with Order
     // We use `orderedGigs` to determine the order.
@@ -484,7 +490,7 @@ const handleSubmit = () => {
     // Usually `order` is a simple sort key.
     // If we give unique increasing numbers across ALL gigs (sorted by date first, then drag order), it maintains the correct absolute order.
     
-    form.value.gigs = orderedGigs.value.map((gig, index) => ({
+    form.value.gigs = orderedGigs.value.map((gig: GetGigResponse, index: number) => ({
         gigId: gig.id,
         order: index + 1 // Global order
     }));

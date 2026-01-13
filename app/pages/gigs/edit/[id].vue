@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4 max-w-2xl">
+  <div class="container mx-auto p-4 max-w-4xl">
     <div class="flex items-center justify-between mb-8">
         <div class="flex items-center">
             <button class="btn btn-ghost mr-4" @click="router.back()">
@@ -57,7 +57,7 @@
         <span>Gig not found</span>
     </div>
 
-    <dialog :class="['modal', { 'modal-open': showDeleteConfirm }]">
+     <dialog :class="['modal', { 'modal-open': showDeleteConfirm }]">
         <div class="modal-box">
             <h3 class="font-bold text-lg mb-4">
                 <Icon name="mdi:alert" class="w-6 h-6 inline text-error" />
@@ -92,6 +92,12 @@
         </div>
         <div class="modal-backdrop" @click="showDeleteConfirm = false"/>
     </dialog>
+
+    <ImageSelectionModal 
+        v-model="showImageSelection"
+        :images="imageCandidates"
+        @select="handleImageSelection"
+    />
   </div>
 </template>
 
@@ -101,6 +107,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useGigStore } from '~/store/GigStore';
 import { useNotificationStore } from '~/store/NotificationStore';
 import GigForm from '~/components/gigs/GigForm.vue';
+import ImageSelectionModal from '~/components/ui/modal/ImageSelectionModal.vue';
 import type { UpsertGigRequest, GetGigResponse } from '~~/api';
 import { format } from 'date-fns';
 
@@ -116,6 +123,9 @@ const gigId = route.params['id'] as string;
 const gig = ref<GetGigResponse | null>(null);
 const loading = ref(true);
 const showDeleteConfirm = ref(false);
+
+const showImageSelection = ref(false);
+const imageCandidates = ref<string[]>([]);
 
 useHead({
   title: 'Edit Gig - Gigs',
@@ -150,14 +160,46 @@ const handleUpdate = async (data: UpsertGigRequest) => {
 const handleEnrich = async () => {
     if (!gig.value?.id) return;
     
-    const result = await gigStore.enrichGig(gig.value.id);
+    // store.enrichGig now returns the updated gig object
+    const updatedGig = await gigStore.enrichGig(gig.value.id);
     
-    if (result) {
-         useNotificationStore().displaySuccessNotification('Gig enriched successfully');
-        // Fetch the updated gig data
-        gig.value = await gigStore.fetchGig(gig.value.id) || null;
+    if (updatedGig) {
+        useNotificationStore().displaySuccessNotification('Gig enriched successfully');
+        gig.value = updatedGig;
+        
+        // If we have image candidates, show the selection modal
+        if (updatedGig.imageCandidates && updatedGig.imageCandidates.length > 0) {
+            imageCandidates.value = updatedGig.imageCandidates;
+            showImageSelection.value = true;
+        }
     } else {
         useNotificationStore().displayErrorNotification('Failed to enrich gig');
+    }
+};
+
+const handleImageSelection = async (imageUrl: string) => {
+    if (!gig.value) return;
+
+    const updateRequest: UpsertGigRequest = {
+        venueId: gig.value.venueId,
+        date: gig.value.date!,
+        ticketType: gig.value.ticketType!,
+        ticketCost: gig.value.ticketCost,
+        imageUrl: imageUrl, 
+        festivalId: gig.value.festivalId,
+        acts: gig.value.acts?.map(a => ({
+             artistId: a.artistId,
+             isHeadliner: a.isHeadliner,
+             setlist: a.setlist?.map(s => s.title || '') || []
+        }))
+    };
+
+    const result = await gigStore.updateGig(gigId, updateRequest);
+    if (result) {
+        useNotificationStore().displaySuccessNotification('Image updated successfully');
+        gig.value = result;
+    } else {
+        useNotificationStore().displayErrorNotification('Failed to update image');
     }
 };
 
