@@ -1,6 +1,6 @@
 <template>
   <form class="space-y-6" @submit.prevent="handleSubmit">
-    <div role="tablist" class="tabs tabs-lifted tabs-lg w-full">
+    <div role="tablist" class="tabs tabs-lifted overflow-x-auto flex-nowrap w-full md:tabs-lg">
       <a 
         role="tab" 
         class="tab font-semibold" 
@@ -10,15 +10,7 @@
         <Icon name="mdi:calendar-clock" class="w-4 h-4 mr-2" />
         Details
       </a>
-      <a 
-        role="tab" 
-        class="tab font-semibold" 
-        :class="{ 'tab-active text-primary': activeTab === 'lineup' }"
-        @click="activeTab = 'lineup'"
-      >
-        <Icon name="mdi:account-music" class="w-4 h-4 mr-2" />
-        Lineup
-      </a>
+
       <a 
         role="tab" 
         class="tab font-semibold" 
@@ -49,20 +41,14 @@
       </a>
     </div>
 
-    <div class="bg-base-100 border-base-300 rounded-b-box rounded-tr-box min-h-[400px]">
+    <div class="bg-base-100 border-base-300 rounded-b-box rounded-tr-box min-h-[400px] pb-20 md:pb-0">
         <div v-show="activeTab === 'details'" class="animate-fade-in">
             <GigDetailsStep 
                 v-model:form="form"
                 v-model:selected-venue="selectedVenue"
-                :venue-options="venueOptions"
-                :errors="errors"
-            />
-        </div>
-
-        <div v-show="activeTab === 'lineup'" class="animate-fade-in">
-             <GigLineupStep
                 v-model:headliners="headliners"
                 v-model:support-acts="supportActs"
+                :venue-options="venueOptions"
                 :artist-options="artistOptions"
                 :errors="errors"
             />
@@ -89,7 +75,7 @@
     </div>
 
 
-    <div class="flex justify-between items-center gap-3 pt-6 border-t border-base-content/10">
+    <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 pt-6 border-t border-base-content/10 sticky bottom-0 bg-base-100 z-20 pb-4 md:static md:pb-0 md:bg-transparent">
       <div>
         <slot name="left-actions" />
       </div>
@@ -118,7 +104,6 @@ import type { SelectListItem } from '~/types/SelectListItem';
 import { isEmpty } from 'lodash-es';
 // Steps
 import GigDetailsStep from './form/GigDetailsStep.vue';
-import GigLineupStep from './form/GigLineupStep.vue';
 import GigSetlistStep from './form/GigSetlistStep.vue';
 import GigAttendeesStep from './form/GigAttendeesStep.vue';
 import GigImagesStep from './form/GigImagesStep.vue';

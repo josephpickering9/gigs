@@ -8,8 +8,8 @@
       </NuxtLink>
     </div>
 
-    <div v-if="gigStore.loadingFestivals && gigStore.festivals.length === 0" class="flex justify-center items-center h-64">
-      <span class="loading loading-spinner loading-lg text-primary"/>
+    <div v-if="gigStore.loadingFestivals && gigStore.festivals.length === 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+       <FestivalCardSkeleton v-for="n in 6" :key="n" />
     </div>
 
     <div v-else-if="gigStore.festivals.length === 0" class="text-center text-lg text-gray-500">
@@ -34,6 +34,7 @@ import { onMounted } from 'vue';
 import { useGigStore } from '~/store/GigStore';
 import useAuth from '~/composables/useAuth';
 import FestivalCard from '~/components/festivals/FestivalCard.vue';
+import FestivalCardSkeleton from '~/components/festivals/FestivalCardSkeleton.vue';
 
 const gigStore = useGigStore();
 const { isAuthenticated } = useAuth();

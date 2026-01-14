@@ -31,24 +31,28 @@
           :value="dashboardStore.stats?.totalGigs || 0"
           icon="mdi:music-note"
           subtitle="All time"
+          to="/gigs"
         />
         <StatCard
           label="Top Artist"
           :value="dashboardStore.stats?.topArtist?.artistName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topArtist?.gigCount || 0} gigs`"
           icon="mdi:account-music"
+          :to="dashboardStore.topArtists[0]?.artistId ? `/gigs?artistId=${dashboardStore.topArtists[0].artistId}` : undefined"
         />
         <StatCard
           label="Top Venue"
           :value="dashboardStore.stats?.topVenue?.venueName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topVenue?.gigCount || 0} gigs`"
           icon="mdi:map-marker"
+          :to="dashboardStore.topVenues[0]?.venueId ? `/gigs?venueId=${dashboardStore.topVenues[0].venueId}` : undefined"
         />
         <StatCard
           label="Top City"
           :value="dashboardStore.stats?.topCity?.cityName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topCity?.gigCount || 0} gigs`"
           icon="mdi:city"
+          :to="dashboardStore.stats?.topCity?.cityName ? `/gigs?city=${dashboardStore.stats?.topCity.cityName}` : undefined"
         />
         <StatCard
           label="Next Gig"
@@ -62,6 +66,7 @@
           :value="dashboardStore.stats?.topAttendee?.personName || 'N/A'"
           :subtitle="`${dashboardStore.stats?.topAttendee?.gigCount || 0} gigs`"
           icon="mdi:account-star"
+          :to="dashboardStore.topAttendees[0]?.personId ? `/gigs?attendeeId=${dashboardStore.topAttendees[0].personId}` : undefined"
         />
         <StatCard
           label="Busiest Year"
@@ -118,28 +123,33 @@
       </div>
 
       <!-- Top Lists Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <!-- Top Artists -->
         <div class="card bg-base-100 shadow-xl border border-primary/20">
-          <div class="card-body">
-            <h3 class="card-title text-xl font-bold text-primary">
+          <div class="card-body p-4">
+            <h3 class="card-title text-lg font-bold text-primary mb-2">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Artists
             </h3>
             <div class="overflow-x-auto">
-              <table class="table table-sm">
+              <table class="table table-xs">
                 <thead>
                   <tr>
                     <th>#</th>
                     <th>Artist</th>
-                    <th>Gigs</th>
+                    <th class="text-right">Gigs</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(artist, index) in dashboardStore.topArtists.slice(0, 5)" :key="artist.artistId">
-                    <td>{{ index + 1 }}</td>
+                  <tr 
+                    v-for="(artist, index) in dashboardStore.topArtists.slice(0, 5)" 
+                    :key="artist.artistId"
+                    class="hover:bg-base-200 cursor-pointer transition-colors"
+                    @click="navigateToLink(`/gigs?artistId=${artist.artistId}`)"
+                  >
+                    <th>{{ index + 1 }}</th>
                     <td class="font-semibold">{{ artist.artistName }}</td>
-                    <td class="text-primary font-bold">{{ artist.totalAppearances }}</td>
+                    <td class="text-primary font-bold text-right">{{ artist.totalAppearances }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -149,25 +159,30 @@
 
         <!-- Top Venues -->
         <div class="card bg-base-100 shadow-xl border border-secondary/20">
-          <div class="card-body">
-            <h3 class="card-title text-xl font-bold text-secondary">
+          <div class="card-body p-4">
+            <h3 class="card-title text-lg font-bold text-secondary mb-2">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Venues
             </h3>
             <div class="overflow-x-auto">
-              <table class="table table-sm">
+              <table class="table table-xs">
                 <thead>
                   <tr>
                     <th>#</th>
                     <th>Venue</th>
-                    <th>Gigs</th>
+                    <th class="text-right">Gigs</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(venue, index) in dashboardStore.topVenues.slice(0, 5)" :key="venue.venueId">
-                    <td>{{ index + 1 }}</td>
-                    <td class="font-semibold">{{ venue.venueName }}</td>
-                    <td class="text-secondary font-bold">{{ venue.gigCount }}</td>
+                  <tr 
+                    v-for="(venue, index) in dashboardStore.topVenues.slice(0, 5)" 
+                    :key="venue.venueId"
+                    class="hover:bg-base-200 cursor-pointer transition-colors"
+                    @click="navigateToLink(`/gigs?venueId=${venue.venueId}`)"
+                  >
+                    <th>{{ index + 1 }}</th>
+                    <td class="font-semibold truncate max-w-[120px]" :title="venue.venueName">{{ venue.venueName }}</td>
+                    <td class="text-secondary font-bold text-right">{{ venue.gigCount }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -177,25 +192,63 @@
 
         <!-- Top Cities -->
         <div class="card bg-base-100 shadow-xl border border-accent/20">
-          <div class="card-body">
-            <h3 class="card-title text-xl font-bold text-accent">
+          <div class="card-body p-4">
+            <h3 class="card-title text-lg font-bold text-accent mb-2">
               <Icon name="mdi:trophy" class="w-5 h-5" />
               Top Cities
             </h3>
             <div class="overflow-x-auto">
-              <table class="table table-sm">
+              <table class="table table-xs">
                 <thead>
                   <tr>
                     <th>#</th>
                     <th>City</th>
-                    <th>Gigs</th>
+                    <th class="text-right">Gigs</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(city, index) in dashboardStore.topCities.slice(0, 5)" :key="city.city">
-                    <td>{{ index + 1 }}</td>
+                  <tr 
+                    v-for="(city, index) in dashboardStore.topCities.slice(0, 5)" 
+                    :key="city.city"
+                    class="hover:bg-base-200 cursor-pointer transition-colors"
+                    @click="navigateToLink(`/gigs?city=${city.city}`)"
+                  >
+                    <th>{{ index + 1 }}</th>
                     <td class="font-semibold">{{ city.city }}</td>
-                    <td class="text-accent font-bold">{{ city.gigCount }}</td>
+                    <td class="text-accent font-bold text-right">{{ city.gigCount }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Attendees -->
+        <div class="card bg-base-100 shadow-xl border border-warning/20">
+          <div class="card-body p-4">
+            <h3 class="card-title text-lg font-bold text-warning mb-2">
+              <Icon name="mdi:trophy" class="w-5 h-5" />
+              Top Attendees
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="table table-xs">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th class="text-right">Gigs</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr 
+                    v-for="(attendee, index) in dashboardStore.topAttendees.slice(0, 5)" 
+                    :key="attendee.personId"
+                    class="hover:bg-base-200 cursor-pointer transition-colors"
+                    @click="navigateToLink(`/gigs?attendeeId=${attendee.personId}`)"
+                  >
+                    <th>{{ index + 1 }}</th>
+                    <td class="font-semibold">{{ attendee.personName }}</td>
+                    <td class="text-warning font-bold text-right">{{ attendee.gigCount }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -243,6 +296,7 @@ import { useDashboardStore } from '~/store/DashboardStore';
 import StatCard from '~/components/dashboard/StatCard.vue';
 import TicketPriceChart from '~/components/dashboard/TicketPriceChart.vue';
 import GigsPerYearChart from '~/components/dashboard/GigsPerYearChart.vue';
+import { format, parseISO } from 'date-fns';
 
 const dashboardStore = useDashboardStore();
 
@@ -263,4 +317,8 @@ useHead({
 onMounted(() => {
   dashboardStore.fetchAll();
 });
+
+const navigateToLink = async (url: string) => {
+    await navigateTo(url);
+};
 </script>

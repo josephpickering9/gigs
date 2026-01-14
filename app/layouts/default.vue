@@ -2,7 +2,7 @@
   <div class="flex min-h-dvh flex-col">
     <HeaderBar />
     <main class="flex flex-grow overflow-hidden overflow-y-auto">
-      <div class="container mx-auto flex flex-grow flex-col overflow-hidden">
+      <div class="container mx-auto flex flex-grow flex-col overflow-hidden px-2 md:px-0">
         <div class="relative flex w-full flex-grow">
           <slot />
         </div>

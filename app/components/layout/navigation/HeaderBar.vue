@@ -36,7 +36,7 @@
       />
     </div>
     <div class="flex-none md:hidden">
-      <button class="btn-square" @click="toggleMobileMenu">
+      <button class="btn btn-square btn-ghost" @click="toggleMobileMenu">
         <Icon v-if="!showMobileMenu" name="mdi:hamburger-menu" size="2em" />
         <Icon v-else name="mdi:close" size="2em" />
       </button>

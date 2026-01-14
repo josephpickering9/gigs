@@ -1,7 +1,73 @@
 <template>
   <div class="space-y-6">
+    <!-- Lineup Section -->
     <div class="card bg-base-200/50 shadow-sm border border-base-content/5">
-      <div class="card-body">
+      <div class="card-body p-4 sm:p-6 md:p-8">
+        <div class="flex items-center gap-2 mb-6">
+            <div class="p-2 bg-primary/10 rounded-lg">
+                <Icon name="mdi:account-music" class="w-5 h-5 text-primary" />
+            </div>
+            <div>
+                <h3 class="card-title text-lg">Artists &amp; Lineup</h3>
+                <p class="text-sm text-base-content/60">Select the performers for this gig</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Headliners Section -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 pb-2 border-b border-base-content/10">
+                    <div class="badge badge-accent badge-lg gap-2 shadow-sm">
+                        <Icon name="mdi:star" class="w-4 h-4" />
+                        Headliners
+                    </div>
+                    <span class="text-xs text-base-content/50 uppercase tracking-widest font-semibold ml-auto">Main Acts</span>
+                </div>
+                
+                <div class="bg-base-100 rounded-xl p-3 md:p-4 border border-base-300">
+                    <Combobox
+                        v-model="headlinersModel"
+                        :options="artistOptions"
+                        placeholder="Search or add headliners..."
+                        class="w-full"
+                        :error="errors['artistIds']"
+                    />
+                    <p class="text-xs text-base-content/40 mt-2 ml-1">
+                        <Icon name="mdi:information-outline" class="w-3 h-3 inline mr-1"/>
+                        These artists will be highlighted on the event page.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Support Acts Section -->
+            <div class="space-y-4">
+                <div class="flex items-center gap-2 pb-2 border-b border-base-content/10">
+                    <div class="badge badge-ghost badge-lg gap-2 shadow-sm">
+                        <Icon name="mdi:account-group" class="w-4 h-4" />
+                        Support Acts
+                    </div>
+                    <span class="text-xs text-base-content/50 uppercase tracking-widest font-semibold ml-auto">Opening Acts</span>
+                </div>
+                
+                <div class="bg-base-100 rounded-xl p-3 md:p-4 border border-base-300">
+                    <Combobox
+                        v-model="supportActsModel"
+                        :options="artistOptions"
+                        placeholder="Search or add support..."
+                        class="w-full"
+                    />
+                    <p class="text-xs text-base-content/40 mt-2 ml-1">
+                        <Icon name="mdi:information-outline" class="w-3 h-3 inline mr-1"/>
+                        Supporting artists and opening acts.
+                    </p>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card bg-base-200/50 shadow-sm border border-base-content/5">
+      <div class="card-body p-4 sm:p-6 md:p-8">
         <div class="flex items-center justify-between mb-4">
             <h3 class="card-title text-lg flex items-center gap-2">
             <div class="p-2 bg-primary/10 rounded-lg">
@@ -30,7 +96,7 @@
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <template v-if="gigType === 'festival'">
               <FestivalSelector 
                 v-model="festivalId"
@@ -75,7 +141,7 @@
                 placeholder="Search or add venue..."
                 :options="venueOptions"
                 :multiple="false"
-                class="w-full"
+                class="col-span-2 md:col-span-1"
                 :error="errors['venueId']"
               />
 
@@ -83,7 +149,7 @@
                 v-model="date"
                 label="Date"
                 placeholder="Pick a date"
-                class="w-full"
+                class="col-span-2 md:col-span-1"
                 :error="errors['date']"
               />
           </template>
@@ -91,6 +157,7 @@
           <TextInput
             v-model="imageUrl"
             label="Image URL"
+            type="url"
             placeholder="https://..."
             :error="errors['imageUrl']"
             class="col-span-2"
@@ -113,7 +180,7 @@
     </div>
 
     <div v-if="gigType === 'regular'" class="card bg-base-200/50 shadow-sm border border-base-content/5">
-      <div class="card-body">
+      <div class="card-body p-4 sm:p-6 md:p-8">
         <h3 class="card-title text-lg mb-4 flex items-center gap-2">
           <div class="p-2 bg-secondary/10 rounded-lg">
             <Icon name="mdi:ticket" class="w-5 h-5 text-secondary" />
@@ -121,7 +188,7 @@
           Ticket Information
         </h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <SelectMenu
             v-model="ticketType"
             label="Ticket Type"
@@ -164,10 +231,13 @@ const props = defineProps<{
   venueOptions: SelectListItem[];
   selectedVenue: SelectListItem[];
   isFestival?: boolean;
+  headliners: SelectListItem[];
+  supportActs: SelectListItem[];
+  artistOptions: SelectListItem[];
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:selectedVenue', value: SelectListItem[]): void;
+  (e: 'update:selectedVenue' | 'update:headliners' | 'update:supportActs', value: SelectListItem[]): void;
   (e: 'update:form', value: any): void;
 }>();
 
@@ -177,6 +247,16 @@ const gigType = ref<'regular' | 'festival'>('regular');
 const venueModel = computed({
   get: () => props.selectedVenue,
   set: (val) => emit('update:selectedVenue', val),
+});
+
+const headlinersModel = computed({
+  get: () => props.headliners,
+  set: (val) => emit('update:headliners', val),
+});
+
+const supportActsModel = computed({
+  get: () => props.supportActs,
+  set: (val) => emit('update:supportActs', val),
 });
 
 // Computed properties for form fields to prevent direct mutation

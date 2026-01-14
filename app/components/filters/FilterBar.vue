@@ -1,109 +1,146 @@
 <template>
-  <div class="flex flex-wrap items-center gap-2">
-    <FilterChip
-      v-for="(filter, index) in filters"
-      :key="`${filter.type}-${index}`"
-      :filter="filter"
-      @remove="removeFilter(index)"
-    />
+  <div class="flex flex-row items-center flex-wrap gap-2 w-full">
+    <!-- Filter Controls & Chips Row -->
+    <!-- Button Wrapper -->
+    <div class="flex items-center gap-2 w-full md:w-auto order-1 md:order-last">
+       <!-- Filter Trigger -->
+       <div ref="container" class="dropdown" :class="{ 'dropdown-open': isOpen }">
+        <button
+          type="button"
+          class="btn btn-sm gap-2 whitespace-nowrap"
+          :class="filters.length > 0 ? 'btn-primary' : 'btn-outline'"
+          @click="toggle"
+        >
+          <Icon name="heroicons:funnel" size="1.2em" />
+          <span class="hidden md:inline">{{ filters.length > 0 ? 'Edit Filters' : 'Filter' }}</span>
+          <span v-if="filters.length > 0" class="badge badge-sm badge-white text-primary rounded-full md:ml-1">{{ filters.length }}</span>
+        </button>
 
-    <div ref="container" class="dropdown" :class="{ 'dropdown-open': isOpen }">
-      <button
-        type="button"
-        class="btn btn-sm gap-2"
-        :class="filters.length > 0 ? 'btn-ghost' : 'btn-outline'"
-        @click="toggle"
-      >
-        <Icon name="heroicons:funnel" size="1.2em" />
-        <span>{{ filters.length > 0 ? 'Add Filter' : 'Filter' }}</span>
-      </button>
-
-      <div 
-        v-if="isOpen" 
-        class="fixed inset-0 z-[100] w-full h-full bg-base-100 flex flex-col md:absolute md:inset-auto md:mt-2 md:w-72 md:h-auto md:rounded-box md:p-2 md:shadow-xl md:ring-1 md:ring-base-content/10 md:overflow-hidden md:z-[1]" 
-        :class="dropdownPosition === 'left' ? 'md:dropdown-left' : 'md:dropdown-right'" 
-        @click.stop 
-        @keydown="handleMainMenuKeydown"
-      >
-        <!-- Mobile Header -->
-        <div class="flex items-center justify-between p-4 border-b border-base-content/10 md:hidden">
-            <h3 class="text-lg font-bold">Filters</h3>
-            <button class="btn btn-circle btn-ghost btn-sm" @click="close">
-                <Icon name="heroicons:x-mark" size="1.5em" />
-            </button>
-        </div>
-        
-        <!-- Submenu View -->
-        <div v-if="activeSubmenu" class="flex flex-col animate-slide-in-right h-full md:min-h-[300px] md:max-h-[400px]">
-          <button 
-            class="btn btn-sm btn-ghost gap-2 justify-start mb-2 px-1 mx-2 mt-2 md:mx-0 md:mt-0 text-base-content/60 hover:text-base-content"
-            @click="closeSubmenu"
-          >
-            <Icon name="heroicons:chevron-left" size="1em" />
-            Back
-          </button>
+        <!-- Dropdown Content -->
+        <Teleport to="body" :disabled="!isMobile">
+        <div 
+          v-if="isOpen"
+          ref="dropdownContent"
+          class="fixed inset-0 z-[100] w-full h-full bg-base-100 flex flex-col md:absolute md:inset-auto md:mt-2 md:w-80 md:h-auto md:rounded-box md:p-2 md:shadow-xl md:ring-1 md:ring-base-content/10 md:overflow-hidden md:z-[1]" 
+          :class="dropdownPosition === 'left' ? 'md:dropdown-left' : 'md:dropdown-right'" 
+          @click.stop 
+          @keydown="handleMainMenuKeydown"
+        >
+          <!-- Mobile Header -->
+          <div class="flex items-center justify-between p-4 border-b border-base-content/10 md:hidden">
+              <h3 class="text-lg font-bold">Filters</h3>
+              <div class="flex items-center gap-2">
+                  <button v-if="filters.length > 0" class="btn btn-ghost btn-sm text-error" @click="removeAllFilters">
+                      Clear All
+                  </button>
+                  <button class="btn btn-circle btn-ghost btn-sm" @click="close">
+                      <Icon name="heroicons:x-mark" size="1.5em" />
+                  </button>
+              </div>
+          </div>
           
-          <div class="flex-1 overflow-y-auto overscroll-contain px-4 md:px-0 py-1">
-            <VenueFilterList
-              v-if="activeSubmenu === FilterType.VENUE"
-              @select="handleVenueSelect"
-              @close="handleSubmenuClose"
-            />
-
-            <ArtistFilterList
-              v-else-if="activeSubmenu === FilterType.ARTIST"
-              @select="handleArtistSelect"
-              @close="handleSubmenuClose"
-            />
-
-            <CityFilterList
-              v-else-if="activeSubmenu === FilterType.CITY"
-              @select="handleCitySelect"
-              @close="handleSubmenuClose"
-            />
-
-            <AttendeeFilterList
-              v-else-if="activeSubmenu === FilterType.ATTENDEE"
-              @select="handleAttendeeSelect"
-              @close="handleSubmenuClose"
-            />
-          </div>
-        </div>
-
-        <!-- Main Menu View -->
-        <div v-else class="flex flex-col gap-1 p-4 md:p-0">
-          <div class="md:px-2 md:py-1">
-            <TextInput
-              ref="searchInputRef"
-              v-model="searchValue"
-              placeholder="Search gigs..."
-              size="sm"
-              @keydown="handleSearchKeydown"
-            />
-          </div>
-
-          <div class="divider my-0" />
-
-          <div
-            v-for="(filterType, index) in availableFilterTypes"
-            :key="filterType.value"
-            class="relative"
-          >
-            <button
-              ref="filterTypeRefs"
-              type="button"
-              class="btn btn-sm btn-ghost focus-visible:outline-none w-full justify-start gap-3 font-normal py-3 h-auto"
-              :class="{ 'ring-2 ring-primary': focusedFilterTypeIndex === index }"
-              @click="openSubmenu(filterType.value)"
+          <!-- Submenu View -->
+          <div v-if="activeSubmenu" class="flex flex-col flex-1 animate-slide-in-right h-full md:min-h-[300px] md:max-h-[400px]">
+            <button 
+              class="btn btn-sm btn-ghost gap-2 justify-start mb-2 px-1 mx-2 mt-2 md:mx-0 md:mt-0 text-base-content/60 hover:text-base-content shrink-0"
+              @click="closeSubmenu"
             >
-              <Icon :name="filterType.icon" size="1.2em" class="text-base-content/70" />
-              <span class="flex-1 text-left">{{ filterType.label }}</span>
-              <Icon name="heroicons:chevron-right" size="1em" class="opacity-50" />
+              <Icon name="heroicons:chevron-left" size="1em" />
+              Back
             </button>
+            
+            <div class="flex-1 overflow-y-auto overscroll-contain px-4 md:px-0 py-1">
+              <VenueFilterList
+                v-if="activeSubmenu === FilterType.VENUE"
+                @select="handleVenueSelect"
+                @close="handleSubmenuClose"
+              />
+
+              <ArtistFilterList
+                v-else-if="activeSubmenu === FilterType.ARTIST"
+                @select="handleArtistSelect"
+                @close="handleSubmenuClose"
+              />
+
+              <CityFilterList
+                v-else-if="activeSubmenu === FilterType.CITY"
+                @select="handleCitySelect"
+                @close="handleSubmenuClose"
+              />
+
+              <AttendeeFilterList
+                v-else-if="activeSubmenu === FilterType.ATTENDEE"
+                @select="handleAttendeeSelect"
+                @close="handleSubmenuClose"
+              />
+            </div>
+          </div>
+
+          <!-- Main Menu View -->
+          <div v-else class="flex flex-col h-full md:h-auto overflow-y-auto md:overflow-visible">
+            <div class="p-4 md:p-0 flex flex-col gap-1">
+                <div class="md:px-2 md:py-1">
+                    <TextInput
+                    ref="searchInputRef"
+                    v-model="searchValue"
+                    placeholder="Search gigs..."
+                    size="sm"
+                    @keydown="handleSearchKeydown"
+                    />
+                </div>
+
+                <div class="divider my-0" />
+
+                <div
+                    v-for="(filterType, index) in availableFilterTypes"
+                    :key="filterType.value"
+                    class="relative"
+                >
+                    <button
+                    ref="filterTypeRefs"
+                    type="button"
+                    class="btn btn-sm btn-ghost focus-visible:outline-none w-full justify-start gap-3 font-normal py-3 h-auto"
+                    :class="{ 'ring-2 ring-primary': focusedFilterTypeIndex === index }"
+                    @click="openSubmenu(filterType.value)"
+                    >
+                    <Icon :name="filterType.icon" size="1.2em" class="text-base-content/70" />
+                    <span class="flex-1 text-left">{{ filterType.label }}</span>
+                    <Icon name="heroicons:chevron-right" size="1em" class="opacity-50" />
+                    </button>
+                </div>
+            </div>
+            
+             <!-- Mobile Footer - Active Filters List -->
+            <div v-if="filters.length > 0" class="mt-auto border-t border-base-content/10 p-4 md:hidden">
+                 <h4 class="text-xs font-bold uppercase text-base-content/50 mb-2">Active Filters</h4>
+                 <div class="flex flex-wrap gap-2">
+                     <FilterChip
+                        v-for="(filter, index) in filters"
+                        :key="`${filter.type}-${index}`"
+                        :filter="filter"
+                        @remove="removeFilter(index)"
+                     />
+                 </div>
+            </div>
           </div>
         </div>
+        </Teleport>
       </div>
     </div>
+      
+      <!-- Horizontal Scrollable Chips -->
+      <div 
+        v-if="filters.length > 0" 
+        class="flex-1 text-sm overflow-x-auto flex flex-nowrap md:flex-wrap items-center gap-2 pb-2 md:pb-0 -mb-2 md:mb-0 mask-linear-fade order-2 md:order-first md:justify-end"
+      >
+        <FilterChip
+          v-for="(filter, index) in filters"
+          :key="`${filter.type}-${index}`"
+          :filter="filter"
+          class="shrink-0"
+          @remove="removeFilter(index)"
+        />
+      </div>
   </div>
 </template>
 
@@ -131,12 +168,14 @@ const emit = defineEmits<{
 }>();
 
 const gigStore = useGigStore();
+const { isMobile } = useDevice();
 
 const isOpen = ref(false);
 const searchValue = ref<string>('');
 const activeSubmenu = ref<string | null>(null);
 const dropdownPosition = ref<'left' | 'right'>('right');
 const container = ref<HTMLElement | null>(null);
+const dropdownContent = ref<HTMLElement | null>(null);
 
 const focusedFilterTypeIndex = ref(-1); // -1 means search is focused
 const filterTypeRefs = ref<HTMLElement[]>([]);
@@ -331,6 +370,12 @@ function removeFilter(index: number) {
   emit('update:filters', updatedFilters);
 }
 
+function removeAllFilters() {
+    searchValue.value = '';
+    emit('update:filters', []);
+    close();
+}
+
 function applySearchFilter() {
   if (!searchValue.value.trim()) {
     const searchFilterIndex = props.filters.findIndex(f => f.type === FilterType.SEARCH);
@@ -356,8 +401,22 @@ function applySearchFilter() {
 }
 
 function handleClickOutside(event: MouseEvent) {
-  if (container.value && !container.value.contains(event.target as Node)) {
-    close();
+  const target = event.target as Node;
+  const isOutsideContainer = container.value && !container.value.contains(target);
+  const isOutsideDropdown = dropdownContent.value && !dropdownContent.value.contains(target);
+  
+  // If clicking outside both container AND dropdown (teleported), close it.
+  // Note: if dropdown is NOT open/teleported, isOutsideDropdown is true (null).
+  // But we only care if isOpen.
+  
+  if (isOpen.value) {
+       // If dropdown is open, we must be careful.
+       // If teleported (isMobile), container click is toggle/keep open (but toggle handles its own click).
+       // We only want to close if click is NEITHER in container NOR in content.
+       
+       if (isOutsideContainer && (dropdownContent.value ? isOutsideDropdown : true)) {
+           close();
+       }
   }
 }
 
@@ -404,5 +463,17 @@ onUnmounted(() => {
 
 .animate-slide-in-right {
   animation: slideInRight 0.2s ease-out forwards;
+}
+
+.mask-linear-fade {
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+}
+
+@media (min-width: 768px) {
+  .mask-linear-fade {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
 }
 </style>

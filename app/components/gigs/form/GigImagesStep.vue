@@ -25,7 +25,7 @@
         </label>
         <input 
           v-model="localImageUrl"
-          type="text" 
+          type="url" 
           placeholder="Enter image URL" 
           class="input input-bordered w-full"
           @input="handleInput"
