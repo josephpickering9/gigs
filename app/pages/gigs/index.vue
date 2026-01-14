@@ -17,19 +17,19 @@
                  </div>
                  <ul tabindex="0" class="dropdown-content z-[60] menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-content/10">
                      <li>
-                       <button @click="navigateToCreate" class="flex gap-2 items-center w-full text-left">
+                       <button class="flex gap-2 items-center w-full text-left" @click="navigateToCreate">
                            <Icon name="mdi:plus" class="w-5 h-5" />
                            Create Gig
                        </button>
                      </li>
                      <li>
-                         <button @click="openImportModal" class="flex gap-2 items-center w-full text-left">
+                         <button class="flex gap-2 items-center w-full text-left" @click="openImportModal">
                              <Icon name="mdi:file-upload" class="w-5 h-5" />
                              Import CSV
                          </button>
                      </li>
                      <li>
-                         <button @click="openCalendarModal" class="flex gap-2 items-center w-full text-left">
+                         <button class="flex gap-2 items-center w-full text-left" @click="openCalendarModal">
                              <Icon name="mdi:calendar-import" class="w-5 h-5" />
                              Sync Calendar
                          </button>

@@ -15,7 +15,7 @@
       
       <div class="flex items-center justify-between mt-auto gap-4">
         <p v-if="subtitle" class="text-sm text-base-content/60 font-medium truncate">{{ subtitle }}</p>
-        <span v-else></span> <!-- Spacer to push link to right if no subtitle -->
+        <span v-else/> <!-- Spacer to push link to right if no subtitle -->
         
         <NuxtLink 
             v-if="to"

@@ -237,10 +237,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:selectedVenue', value: SelectListItem[]): void;
+  (e: 'update:selectedVenue' | 'update:headliners' | 'update:supportActs', value: SelectListItem[]): void;
   (e: 'update:form', value: any): void;
-  (e: 'update:headliners', value: SelectListItem[]): void;
-  (e: 'update:supportActs', value: SelectListItem[]): void;
 }>();
 
 const gigStore = useGigStore();

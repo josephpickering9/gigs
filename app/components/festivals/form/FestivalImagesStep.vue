@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="divider"/>
 
         <div>
             <TextInput

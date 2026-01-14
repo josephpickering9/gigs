@@ -103,7 +103,6 @@ import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { groupBy, sortBy } from 'lodash-es';
 import { format, parseISO, isValid } from 'date-fns';
-
 // Steps
 import FestivalDetailsStep from './form/FestivalDetailsStep.vue';
 import FestivalLineupStep from './form/FestivalLineupStep.vue';
