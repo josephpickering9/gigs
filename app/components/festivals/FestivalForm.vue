@@ -1,153 +1,83 @@
 <template>
   <form class="space-y-6" @submit.prevent="handleSubmit">
-    <div class="card bg-base-200/50 shadow-sm">
-      <div class="card-body">
-        <h3 class="card-title text-lg mb-4">
-          <Icon name="mdi:party-popper" class="w-5 h-5" />
-          Festival Details
-        </h3>
-        
-        <div class="space-y-4">
-          <TextInput
-            v-model="form.name"
-            label="Name"
-            placeholder="e.g. Glastonbury"
-            :error="errors['name']"
-          />
-
-          <TextInput
-            v-model="imageUrlProxy"
-            label="Image URL"
-            placeholder="https://..."
-            :error="errors['imageUrl']"
-          />
-          <div v-if="imageUrlProxy" class="mt-2">
-            <img :src="imageUrlProxy" alt="Festival Image Preview" class="h-32 w-auto object-cover rounded-md shadow-sm" >
-          </div>
-
-          <TextInput
-            v-model="posterImageUrlProxy"
-            label="Poster Image URL"
-            placeholder="https://..."
-            :error="errors['posterImageUrl']"
-          />
-          <div v-if="posterImageUrlProxy" class="mt-2">
-            <img :src="posterImageUrlProxy" alt="Poster Image Preview" class="h-48 w-auto object-cover rounded-md shadow-sm" >
-          </div>
-
-          <TextInput
-            v-model="yearProxy"
-            label="Year"
-            placeholder="e.g. 2023"
-            type="number"
-            :error="errors['year']"
-          />
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DatePicker
-                v-model="startDateProxy"
-                label="Start Date"
-                :error="errors['startDate']"
-            />
-            <DatePicker
-                v-model="endDateProxy"
-                label="End Date"
-                :error="errors['endDate']"
-            />
-          </div>
-
-
-
-          <Combobox
-             v-model="selectedVenue"
-             :options="venueOptions"
-             label="Venue"
-             placeholder="Select venue..."
-             :multiple="false"
-             :error="errors['venueId']"
-          />
-
-          <RangeSlider
-            v-model="form.price"
-            label="Price (£)"
-            :min="0"
-            :max="1000"
-            :step="0.01"
-            :error="errors['price']"
-          />
-
-          <Combobox
-             v-model="selectedAttendees"
-             :options="attendeeOptions"
-             label="Attendees"
-             placeholder="Select attendees..."
-             :multiple="true"
-          />
-
-          <GigSelector
-            v-model="selectedGigIds"
-            :initial-gigs="initialData?.gigs || undefined"
-            :hide-selected-gigs="true"
-          />
-        </div>
-      </div>
+    <div role="tablist" class="tabs tabs-lifted overflow-x-auto flex-nowrap w-full md:tabs-lg">
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'details' }"
+        @click="activeTab = 'details'"
+      >
+        <Icon name="mdi:party-popper" class="w-4 h-4 mr-2" />
+        Details
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'lineup' }"
+        @click="activeTab = 'lineup'"
+      >
+        <Icon name="mdi:music-note-eighth" class="w-4 h-4 mr-2" />
+        Lineup
+        <span v-if="selectedGigIds.length" class="badge badge-sm badge-ghost ml-2">{{ selectedGigIds.length }}</span>
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'attendees' }"
+        @click="activeTab = 'attendees'"
+      >
+        <Icon name="mdi:account-group" class="w-4 h-4 mr-2" />
+        Attendees
+      </a>
+      <a 
+        role="tab" 
+        class="tab font-semibold" 
+        :class="{ 'tab-active text-primary': activeTab === 'images' }"
+        @click="activeTab = 'images'"
+      >
+        <Icon name="mdi:image-album" class="w-4 h-4 mr-2" />
+        Images
+      </a>
     </div>
 
-    <div v-if="selectedGigIds.length > 0" class="card bg-base-200/50 shadow-sm mt-6">
-      <div class="card-body">
-        <div v-if="loadingGigs" class="flex justify-center py-4">
-            <span class="loading loading-spinner text-primary" />
+    <div class="bg-base-100 border-base-300 rounded-b-box rounded-tr-box min-h-[400px] mb-20 md:mb-0">
+        <div v-show="activeTab === 'details'" class="animate-fade-in">
+            <FestivalDetailsStep
+                v-model:form="form"
+                v-model:selected-venue="selectedVenue"
+                :venue-options="venueOptions"
+                :errors="errors"
+            />
         </div>
 
-        <div v-else class="space-y-6">
-            <div v-for="group in gigGroups" :key="group.dateKey" class="bg-base-100 rounded-lg p-4 shadow-sm">
-                <h4 class="font-bold text-md mb-3 flex items-center gap-2">
-                    <Icon name="mdi:calendar" class="w-4 h-4 text-secondary" />
-                    {{ group.title }}
-                </h4>
-                
-                <Draggable 
-                    v-model="group.gigs" 
-                    item-key="id"
-                    handle=".drag-handle"
-                    class="space-y-2"
-                    @end="updateOrders(group.dateKey, group.gigs)"
-                >
-                    <template #item="{ element }">
-                        <div class="flex items-center gap-3 bg-base-200 p-3 rounded-md hover:bg-base-200/80 transition-colors">
-                            <button type="button" class="drag-handle btn btn-circle btn-ghost btn-sm cursor-grab active:cursor-grabbing">
-                                <Icon name="mdi:drag" class="w-5 h-5" />
-                            </button>
-                            
-                            <div class="flex-1">
-                                <div class="font-bold">
-                                    {{ getHeadlinerName(element) }}
-                                </div>
-                                <div class="text-xs text-base-content/60 flex gap-2">
-                                    <span v-if="element.venueName">
-                                        <Icon name="mdi:map-marker" class="w-3 h-3 inline" />
-                                        {{ element.venueName }}
-                                    </span>
-                                    <span v-if="getSupportActs(element)">
-                                        <Icon name="mdi:account-group" class="w-3 h-3 inline" />
-                                        {{ getSupportActs(element) }}
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            <button type="button" class="btn btn-ghost btn-xs text-error" @click="removeGig(element.id)">
-                                <Icon name="heroicons:trash" class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </template>
-                </Draggable>
-            </div>
+        <div v-show="activeTab === 'lineup'" class="animate-fade-in">
+             <FestivalLineupStep
+                v-model:selected-gig-ids="selectedGigIds"
+                :initial-gigs="initialData?.gigs || undefined"
+                :gig-groups="gigGroups"
+                :loading-gigs="loadingGigs"
+                @update-orders="updateOrders"
+                @remove-gig="removeGig"
+             />
         </div>
-      </div>
+
+        <div v-show="activeTab === 'attendees'" class="animate-fade-in">
+            <FestivalAttendeesStep
+                v-model:selected-attendees="selectedAttendees"
+                :attendee-options="attendeeOptions"
+            />
+        </div>
+
+        <div v-show="activeTab === 'images'" class="animate-fade-in">
+            <FestivalImagesStep
+                v-model:form="form"
+                :errors="errors"
+            />
+        </div>
     </div>
 
     <!-- Form Actions -->
-    <div class="flex justify-between items-center gap-3 pt-4">
+    <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 pt-6 border-t border-base-content/10 sticky bottom-0 bg-base-100 z-20 pb-4 md:static md:pb-0 md:bg-transparent">
       <div>
         <slot name="left-actions" />
       </div>
@@ -166,20 +96,19 @@
   </form>
 </template>
 
-
-
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, nextTick } from 'vue';
 import type { UpsertFestivalRequest, GetFestivalResponse, GetGigResponse, GetAttendeeResponse, GetVenueResponse } from '~~/api';
-import TextInput from '~/components/ui/input/TextInput.vue';
-import DatePicker from '~/components/ui/input/DatePicker.vue';
-import Combobox from '~/components/ui/input/Combobox.vue';
-import GigSelector from '~/components/gigs/GigSelector.vue';
-import RangeSlider from '~/components/ui/input/RangeSlider.vue';
 import { useGigStore } from '~/store/GigStore';
 import type { SelectListItem } from '~/types/SelectListItem';
 import { groupBy, sortBy } from 'lodash-es';
 import { format, parseISO, isValid } from 'date-fns';
+
+// Steps
+import FestivalDetailsStep from './form/FestivalDetailsStep.vue';
+import FestivalLineupStep from './form/FestivalLineupStep.vue';
+import FestivalAttendeesStep from './form/FestivalAttendeesStep.vue';
+import FestivalImagesStep from './form/FestivalImagesStep.vue';
 
 const props = defineProps<{
   initialData?: GetFestivalResponse;
@@ -193,6 +122,7 @@ const emit = defineEmits<{
 }>();
 
 const gigStore = useGigStore();
+const activeTab = ref('details');
 
 const form = ref<UpsertFestivalRequest>({
   name: '',
@@ -213,7 +143,7 @@ const selectedAttendees = ref<SelectListItem[]>([]);
 const selectedVenue = ref<SelectListItem[]>([]);
 const orderedGigs = ref<GetGigResponse[]>([]);
 const loadingGigs = ref(false);
-const isInitializing = ref(false); // Flag to prevent watch interference during init
+const isInitializing = ref(false);
 
 onMounted(async () => {
     const promises = [];
@@ -229,33 +159,6 @@ const attendeeOptions = computed<SelectListItem[]>(() =>
 const venueOptions = computed<SelectListItem[]>(() => 
     gigStore.venues.map((v: GetVenueResponse) => ({ text: v.name || 'Unknown', value: v.id || '' }))
 );
-
-const imageUrlProxy = computed({
-    get: () => form.value.imageUrl || '',
-    set: (val: string) => form.value.imageUrl = val
-});
-
-const posterImageUrlProxy = computed({
-    get: () => form.value.posterImageUrl || '',
-    set: (val: string) => form.value.posterImageUrl = val
-});
-
-const yearProxy = computed({
-    get: () => form.value.year?.toString() || '',
-    set: (val: string) => form.value.year = val ? parseInt(val) : null
-});
-
-const startDateProxy = computed({
-    get: () => form.value.startDate || undefined,
-    set: (val: string | undefined) => form.value.startDate = val || null
-});
-
-const endDateProxy = computed({
-    get: () => form.value.endDate || undefined,
-    set: (val: string | undefined) => form.value.endDate = val || null
-});
-
-
 
 const errors = ref<Record<string, string>>({});
 
@@ -277,32 +180,26 @@ watch(() => props.initialData, async (newData) => {
             gigs: [], // Will be populated on submit
         };
         
-        // Map venue
         if (newData.venueId) {
             const v = gigStore.venues.find((v: GetVenueResponse) => v.id === newData.venueId);
             if (v) {
                 selectedVenue.value = [{ text: v.name || 'Unknown', value: v.id || '' }];
             }
         } else if (newData.venueName) {
-             // If we have a name but no ID matches (or just data oddity), use name
              selectedVenue.value = [{ text: newData.venueName, value: newData.venueName }];
         } else {
             selectedVenue.value = [];
         }
         
-        // Populate orderedGigs FIRST from initial data if available
-        // This ensures that when we set selectedGigIds below, the watcher won't think these are "missing"
         if (newData.gigs && newData.gigs.length > 0) {
             orderedGigs.value = [...newData.gigs];
         } else {
             orderedGigs.value = [];
         }
         
-        // Then set selected IDs - the watcher will fire but orderedGigs is already populated
         const initialIds = newData.gigs?.map((g: GetGigResponse) => g.id!).filter(Boolean) || [];
         selectedGigIds.value = initialIds;
 
-        // Map existing attendees to SelectItems
         if (newData.attendees) {
             selectedAttendees.value = newData.attendees.map((a: any) => ({
                 text: a.name || 'Unknown',
@@ -310,33 +207,26 @@ watch(() => props.initialData, async (newData) => {
             }));
         }
         
-        // Use nextTick to ensure all reactive updates are processed before clearing the flag
         await nextTick();
         isInitializing.value = false;
     }
 }, { immediate: true });
 
-// Watch for changes in selectedGigIds to update orderedGigs
 watch(selectedGigIds, async (newIds) => {
-    // Don't run this watch during initialization from initialData
     if (isInitializing.value) {
         return;
     }
     
     loadingGigs.value = true;
     try {
-        // 1. Remove gigs that are no longer selected
         orderedGigs.value = orderedGigs.value.filter(g => newIds.includes(g.id!));
 
-        // 2. Add new gigs that are selected but not in orderedGigs
         const missingIds = newIds.filter(id => !orderedGigs.value.some((g: GetGigResponse) => g.id === id));
         
         if (missingIds.length > 0) {
-            // Fetch missing gigs
             const newGigsPromises = missingIds.map(id => gigStore.fetchGig(id));
             const newGigs = await Promise.all(newGigsPromises);
             
-            // Add valid new gigs
             newGigs.forEach((g: GetGigResponse | undefined) => {
                 if (g) orderedGigs.value.push(g);
             });
@@ -348,8 +238,6 @@ watch(selectedGigIds, async (newIds) => {
 
 watch(selectedVenue, (val) => {
     if (val.length > 0 && val[0]) {
-        // Use value if it isn't the name (implies it's an ID), or if it matches an existing ID
-        // If it's a new name, value might be the name.
         form.value.venueId = String(val[0].value);
         form.value.venueName = val[0].text;
     } else {
@@ -358,7 +246,6 @@ watch(selectedVenue, (val) => {
     }
 });
 
-// Watch venues to populate selectedVenue if data comes in late
 watch(() => gigStore.venues, (newVenues) => {
     if (form.value.venueId && selectedVenue.value.length === 0) {
         const v = newVenues.find((v: GetVenueResponse) => v.id === form.value.venueId);
@@ -378,17 +265,15 @@ interface GigGroup {
 const gigGroups = computed<GigGroup[]>(() => {
     if (orderedGigs.value.length === 0) return [];
 
-    // Group by date
     const grouped = groupBy(orderedGigs.value, (gig) => {
         if (!gig.date) return 'Unknown Date';
         const date = parseISO(gig.date);
         return isValid(date) ? format(date, 'yyyy-MM-dd') : 'Unknown Date';
     });
     
-    // Convert to array and sort groups by date
     const groups = Object.entries(grouped).map(([dateKey, gigs]) => {
          let title = 'Unknown Date';
-         let dateObj = new Date(8640000000000000); // Far future
+         let dateObj = new Date(8640000000000000);
 
          if (dateKey !== 'Unknown Date') {
              const date = parseISO(dateKey);
@@ -396,18 +281,11 @@ const gigGroups = computed<GigGroup[]>(() => {
              dateObj = date;
          }
 
-         // Within each group, sort by existing order if present, or fallback logic
-         // We trust the current order of the array 'gigs' as reliable since we maintain it in `orderedGigs`
-         // However, `groupBy` might not preserve order depending on implementation, so we should rely on `orderedGigs` order.
-         // Actually, lodash groupBy preserves order of values.
-         // But we need to make sure the user can reorder within this group.
-         // Since `vuedraggable` needs a writable request (v-model), we need to reflect changes back to `orderedGigs`.
-         
          return {
             dateKey,
             title,
             dateObj,
-            gigs: gigs // This is a reference, modifying it might not directly reactively update `orderedGigs` purely securely without handling @end
+            gigs: gigs
          };
     });
 
@@ -415,15 +293,8 @@ const gigGroups = computed<GigGroup[]>(() => {
 });
 
 const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
-    // When drag ends, we have a new order for this group.
-    // We need to reconstruct `orderedGigs` to reflect this new order while keeping other groups intact.
-    
-    // 1. Filter out the gigs that belong to this group from the main list
-    // (Logic simplified to just rebuilding the list from sorted groups)
-
     const reordered: GetGigResponse[] = [];
     
-    // We need to know the order of groups to reconstruct the flat list properly sorted by date
     const sortedGroups = sortBy(Object.keys(groupBy(orderedGigs.value, (g: GetGigResponse) => {
          if (!g.date) return 'Unknown Date';
          const date = parseISO(g.date);
@@ -435,7 +306,6 @@ const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
         if (groupKey === dateKey) {
             reordered.push(...newGroupGigs);
         } else {
-            // Find the original gigs for this group
             const groupGigs = orderedGigs.value.filter((g: GetGigResponse) => {
                 const gDateKey = (!g.date || !isValid(parseISO(g.date))) ? 'Unknown Date' : format(parseISO(g.date), 'yyyy-MM-dd');
                 return gDateKey === groupKey;
@@ -445,15 +315,6 @@ const updateOrders = (dateKey: string, newGroupGigs: GetGigResponse[]) => {
     }
     
     orderedGigs.value = reordered;
-};
-
-
-const getHeadlinerName = (gig: GetGigResponse) => {
-    return gig.acts?.find((a: any) => a.isHeadliner)?.name || 'Unknown Artist';
-};
-
-const getSupportActs = (gig: GetGigResponse) => {
-    return gig.acts?.filter((a: any) => !a.isHeadliner).map((a: any) => a.name).join(', ');
 };
 
 const removeGig = (gigId: string) => {
@@ -466,6 +327,7 @@ const validate = () => {
 
     if (!form.value.name) {
         errors.value['name'] = 'Name is required';
+        activeTab.value = 'details';
         isValid = false;
     }
 
@@ -475,26 +337,24 @@ const validate = () => {
 const handleSubmit = () => {
     if (!validate()) return;
     
-    // Update attendees from selected items
     form.value.attendees = selectedAttendees.value.map((s: SelectListItem) => String(s.value));
-    
-    // Construct gigs payload with Order
-    // We use `orderedGigs` to determine the order.
-    // Since `orderedGigs` is a flat list, we need to assign order per day or global?
-    // The requirement is "drag to update the order". Usually means order within the day.
-    // The API `FestivalGigOrderRequest` has `gigId` and `order`.
-    // Let's assign an increasing integer to `order` based on the flat list position, 
-    // OR position within the day. 
-    // `FestivalGigOrderRequest` is per festival.
-    // If we want to maintain order across the whole festival or per day?
-    // Usually `order` is a simple sort key.
-    // If we give unique increasing numbers across ALL gigs (sorted by date first, then drag order), it maintains the correct absolute order.
     
     form.value.gigs = orderedGigs.value.map((gig: GetGigResponse, index: number) => ({
         gigId: gig.id,
-        order: index + 1 // Global order
+        order: index + 1
     }));
 
     emit('submit', form.value);
 };
 </script>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
