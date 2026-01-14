@@ -231,6 +231,7 @@ import { getImageUrl } from '~/utils/image-helper';
 import { format, parseISO, isValid } from 'date-fns';
 import { groupBy, sortBy } from 'lodash-es';
 import GigMap from '~/components/gigs/GigMap.vue';
+import FestivalLoadingSkeleton from '~/components/festivals/FestivalLoadingSkeleton.vue';
 
 const route = useRoute();
 const router = useRouter();
