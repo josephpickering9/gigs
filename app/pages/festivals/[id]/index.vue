@@ -1,9 +1,7 @@
 <template>
-  <div class="min-h-screen bg-base-200 mx-auto">
+  <div class="min-h-screen bg-base-200 w-full md:mx-auto">
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center h-screen">
-        <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
+    <FestivalLoadingSkeleton v-if="loading" />
 
     <!-- Error State -->
     <div v-else-if="!festival" class="container mx-auto p-4 pt-12">

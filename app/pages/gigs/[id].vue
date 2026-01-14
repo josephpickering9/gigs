@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-base-200 mx-auto">
+  <div class="min-h-screen bg-base-200 w-full md:mx-auto">
     <!-- Loading State -->
     <!-- Loading State -->
     <GigDetailSkeleton v-if="loading" />

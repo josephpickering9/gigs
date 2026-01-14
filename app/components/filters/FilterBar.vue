@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:flex-row md:items-center gap-2 w-full md:w-auto max-w-[50vw] md:max-w-none">
+  <div class="flex flex-row items-center flex-wrap gap-2 w-full">
     <!-- Filter Controls & Chips Row -->
     <!-- Button Wrapper -->
     <div class="flex items-center gap-2 w-full md:w-auto order-1 md:order-last">
