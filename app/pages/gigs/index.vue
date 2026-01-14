@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4 min-h-screen">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-      <h1 class="text-4xl font-bold text-primary">Gigs</h1>
+      <h1 class="text-3xl md:text-4xl font-bold text-primary">Gigs</h1>
       <div class="flex flex-wrap gap-2 items-center">
          <FilterBar v-model:filters="activeFilters" />
          <ViewToggle v-if="!isMobile" v-model="viewMode" />

@@ -1,6 +1,6 @@
 <template>
   <form class="space-y-6" @submit.prevent="handleSubmit">
-    <div role="tablist" class="tabs tabs-lifted tabs-lg w-full">
+    <div role="tablist" class="tabs tabs-lifted overflow-x-auto flex-nowrap w-full md:tabs-lg">
       <a 
         role="tab" 
         class="tab font-semibold" 
@@ -89,7 +89,7 @@
     </div>
 
 
-    <div class="flex justify-between items-center gap-3 pt-6 border-t border-base-content/10">
+    <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 pt-6 border-t border-base-content/10 sticky bottom-0 bg-base-100 z-20 pb-4 md:static md:pb-0 md:bg-transparent">
       <div>
         <slot name="left-actions" />
       </div>

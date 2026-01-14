@@ -15,7 +15,7 @@
 
     <template v-else>
         <!-- Hero Section -->
-        <div class="relative w-full h-[60vh] min-h-[400px] flex items-center justify-center text-white overflow-hidden group">
+        <div class="relative w-full h-[40vh] md:h-[60vh] min-h-[300px] md:min-h-[400px] flex items-center justify-center text-white overflow-hidden group">
             <!-- Background Image -->
             <div 
                 class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] ease-out select-none"
@@ -50,7 +50,7 @@
             <!-- Hero Content -->
             <div class="relative z-10 text-center px-4 max-w-4xl mx-auto transform transition-all duration-700 translate-y-0 opacity-100">
                 <!-- Headliner -->
-                <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-lg">
+                <h1 class="text-3xl md:text-7xl font-bold mb-4 tracking-tight drop-shadow-lg">
                     <span v-if="headliner">{{ headliner.name }}</span>
                     <span v-else class="text-white/50">Unknown Artist</span>
                 </h1>
@@ -61,7 +61,7 @@
                     <span 
                         v-for="act in supportActs" 
                         :key="act.artistId" 
-                        class="text-xl md:text-2xl font-medium text-white/90 drop-shadow-md"
+                        class="text-lg md:text-2xl font-medium text-white/90 drop-shadow-md"
                     >
                         {{ act.name }}
                     </span>
@@ -82,7 +82,7 @@
                 <div class="lg:col-span-1 space-y-6 animate-slide-up order-1 lg:order-2" style="animation-delay: 100ms;">
                     
                     <!-- Info Card -->
-                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none sticky top-0 sm:top-6 z-30 sm:z-10">
+                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none relative lg:sticky lg:top-6 z-30 sm:z-10">
                         <div class="card-body p-4 sm:p-6">
                             <div class="space-y-4">
                                 <!-- Date -->
@@ -143,7 +143,7 @@
                     </div>
 
                     <!-- Map Card -->
-                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none overflow-hidden h-[350px] sticky top-[400px]">
+                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none overflow-hidden h-[350px] relative lg:sticky lg:top-[400px]">
                         <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
                     </div>
                 </div>

@@ -91,6 +91,7 @@
           <TextInput
             v-model="imageUrl"
             label="Image URL"
+            type="url"
             placeholder="https://..."
             :error="errors['imageUrl']"
             class="col-span-2"
