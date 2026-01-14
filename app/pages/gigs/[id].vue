@@ -79,10 +79,10 @@
                 </div>
 
                 <!-- Sidebar -->
-                <div class="lg:col-span-1 space-y-6 animate-slide-up order-1 lg:order-2" style="animation-delay: 100ms;">
+                <div class="contents lg:block lg:col-span-1 lg:space-y-6 lg:order-2">
                     
                     <!-- Info Card -->
-                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none relative lg:sticky lg:top-6 z-30 sm:z-10">
+                    <div class="animate-slide-up order-1 card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none relative lg:sticky lg:top-6 z-30 sm:z-10" style="animation-delay: 100ms;">
                         <div class="card-body p-4 sm:p-6">
                             <div class="space-y-4">
                                 <!-- Date -->
@@ -143,7 +143,7 @@
                     </div>
 
                     <!-- Map Card -->
-                    <div class="card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none overflow-hidden h-[350px] relative lg:sticky lg:top-[400px]">
+                    <div class="animate-slide-up order-3 card bg-base-100 shadow-sm sm:shadow-xl border-y border-base-content/5 sm:border sm:rounded-2xl rounded-none overflow-hidden h-[350px] relative lg:sticky lg:top-[400px]" style="animation-delay: 200ms;">
                         <GigMap :venue-name="gig.venueName" :city="gigVenue?.city" />
                     </div>
                 </div>
@@ -180,16 +180,16 @@ useHead({
 
 // Helper to find headliner
 const headliner = computed(() => {
-    return gig.value?.acts?.find(a => a.isHeadliner);
+    return gig.value?.acts?.find((a: any) => a.isHeadliner);
 });
 
 const supportActs = computed(() => {
-    return gig.value?.acts?.filter(a => !a.isHeadliner) || [];
+    return gig.value?.acts?.filter((a: any) => !a.isHeadliner) || [];
 });
 
 const gigVenue = computed(() => {
     if (!gig.value?.venueId) return null;
-    return gigStore.venues.find(v => v.id === gig.value?.venueId);
+    return gigStore.venues.find((v: any) => v.id === gig.value?.venueId);
 });
 
 // Hero image logic: User Gig Image > Headliner Artist Image > Fallback

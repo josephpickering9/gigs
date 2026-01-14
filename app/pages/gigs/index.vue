@@ -1,37 +1,48 @@
 <template>
   <div class="container mx-auto p-4 min-h-screen">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-primary">Gigs</h1>
-      <div class="flex flex-wrap gap-2 items-center">
-         <FilterBar v-model:filters="activeFilters" />
-         <ViewToggle v-if="!isMobile" v-model="viewMode" />
-        <template v-if="isAuthenticated">
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-square">
-                <Icon name="heroicons:ellipsis-vertical" size="1.5em" />
+    <div class="flex flex-col gap-4 mb-4">
+      <div class="flex flex-row justify-between items-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-primary">Gigs</h1>
+        <div class="flex gap-2 items-center">
+            <!-- Desktop Filter Bar Position -->
+            <div class="hidden md:block">
+              <FilterBar v-model:filters="activeFilters" />
             </div>
-            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                <li>
-                  <NuxtLink to="/gigs/create" class="btn btn-primary">
-                      <Icon name="mdi:plus" class="w-5 h-5 mr-2" />
-                      Create Gig
-                  </NuxtLink>
-                </li>
-                <li>
-                    <button @click="showImportModal = true">
-                        <Icon name="mdi:file-upload" class="w-5 h-5 mr-2" />
-                        Import CSV
-                    </button>
-                </li>
-                <li>
-                    <button @click="showCalendarModal = true">
-                        <Icon name="mdi:calendar-import" class="w-5 h-5 mr-2" />
-                        Sync Calendar
-                    </button>
-                </li>
-            </ul>
-          </div>
-        </template>
+
+            <ViewToggle v-if="!isMobile" v-model="viewMode" />
+             <template v-if="isAuthenticated">
+               <div class="dropdown dropdown-bottom dropdown-end">
+                 <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+                     <Icon name="heroicons:ellipsis-vertical" size="1.5em" />
+                 </div>
+                 <ul tabindex="0" class="dropdown-content z-[60] menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-content/10">
+                     <li>
+                       <button @click="navigateToCreate" class="flex gap-2 items-center w-full text-left">
+                           <Icon name="mdi:plus" class="w-5 h-5" />
+                           Create Gig
+                       </button>
+                     </li>
+                     <li>
+                         <button @click="openImportModal" class="flex gap-2 items-center w-full text-left">
+                             <Icon name="mdi:file-upload" class="w-5 h-5" />
+                             Import CSV
+                         </button>
+                     </li>
+                     <li>
+                         <button @click="openCalendarModal" class="flex gap-2 items-center w-full text-left">
+                             <Icon name="mdi:calendar-import" class="w-5 h-5" />
+                             Sync Calendar
+                         </button>
+                     </li>
+                 </ul>
+               </div>
+             </template>
+        </div>
+      </div>
+      
+      <!-- Sticky Filter Bar (Mobile Only) -->
+      <div class="md:hidden sticky top-0 z-40 bg-base-100/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b border-base-content/5 mb-4 shadow-sm transition-all duration-200">
+         <FilterBar v-model:filters="activeFilters" />
       </div>
     </div>
     
@@ -298,6 +309,27 @@ function handleSort(column: string) {
 const handleImportSuccess = () => {
     showImportModal.value = false;
     gigStore.fetchGigs({ page: 1 });
+};
+
+const navigateToCreate = async () => {
+    closeDropdown();
+    await router.push('/gigs/create');
+};
+
+const openImportModal = () => {
+    closeDropdown();
+    showImportModal.value = true;
+};
+
+const openCalendarModal = () => {
+    closeDropdown();
+    showCalendarModal.value = true;
+};
+
+const closeDropdown = () => {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
 };
 
 const handleCalendarImportSuccess = () => {

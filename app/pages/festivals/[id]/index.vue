@@ -61,13 +61,13 @@
         </div>
 
         <!-- Content Container -->
-        <div class="container max-w-6xl mx-auto px-4 -mt-20 relative z-20 pb-20">
+        <div class="w-full max-w-6xl mx-auto px-0 md:px-4 -mt-20 relative z-20 pb-20">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 <!-- Main Content (Gig List) -->
                 <div class="lg:col-span-2 space-y-8">
                      <!-- Empty State -->
-                    <div v-if="!festival.gigs || festival.gigs.length === 0" class="card bg-base-100 shadow-xl p-12 text-center text-base-content/60">
+                    <div v-if="!festival.gigs || festival.gigs.length === 0" class="card bg-base-100 shadow-none sm:shadow-xl rounded-none sm:rounded-xl border-y sm:border border-base-content/5 p-12 text-center text-base-content/60">
                          <div class="max-w-md mx-auto">
                             <Icon name="mdi:music-note-off" class="w-16 h-16 mx-auto mb-4 opacity-50" />
                             <h3 class="text-xl font-bold mb-2">No lineup announced yet</h3>
@@ -80,7 +80,7 @@
                          <div 
                             v-for="group in groupedGigs" 
                             :key="group.title + group.dateObj.toString()"
-                            class="card bg-base-100 shadow-xl overflow-hidden border border-base-content/5"
+                            class="card bg-base-100 shadow-none sm:shadow-xl rounded-none sm:rounded-xl overflow-hidden border-y sm:border border-base-content/5"
                          >
                             <!-- Date Header -->
                             <div class="bg-base-200/50 p-4 border-b border-base-content/10 sticky top-0 z-10 backdrop-blur-sm flex items-center gap-3">
@@ -163,7 +163,7 @@
                 <!-- Sidebar -->
                 <div class="lg:col-span-1 space-y-6">
                     <!-- Poster Card -->
-                    <div v-if="festival.posterImageUrl" class="card bg-base-100 shadow-xl border border-base-content/5 overflow-hidden">
+                    <div v-if="festival.posterImageUrl" class="card bg-base-100 shadow-none sm:shadow-xl rounded-none sm:rounded-xl border-y sm:border border-base-content/5 overflow-hidden">
                         <img 
                             :src="getImageUrl(festival.posterImageUrl)" 
                             :alt="festival.name + ' Poster'" 
@@ -172,7 +172,7 @@
                     </div>
 
                     <!-- Info Card -->
-                    <div class="card bg-base-100 shadow-xl border border-base-content/5 sticky top-6">
+                    <div class="card bg-base-100 shadow-none sm:shadow-xl rounded-none sm:rounded-xl border-y sm:border border-base-content/5 sticky top-6">
                         <div class="card-body">
                             <div class="space-y-4">
                                 <!-- Venue -->
@@ -212,7 +212,7 @@
                     </div>
 
                     <!-- Map Card -->
-                    <div v-if="mainVenue" class="card bg-base-100 shadow-xl border border-base-content/5 overflow-hidden h-[350px] sticky top-6">
+                    <div v-if="mainVenue" class="card bg-base-100 shadow-none sm:shadow-xl rounded-none sm:rounded-xl border-y sm:border border-base-content/5 overflow-hidden h-[350px] sticky top-6">
                         <GigMap :venue-name="mainVenue.name" :city="mainVenue.city" />
                     </div>
                 </div>
@@ -257,7 +257,7 @@ const mainVenue = computed(() => {
     if (!festival.value?.gigs || festival.value.gigs.length === 0) return null;
 
     // Count venue occurrences
-    const venueCounts = festival.value.gigs.reduce((acc, gig) => {
+    const venueCounts = festival.value.gigs.reduce((acc: Record<string, number>, gig: GetGigResponse) => {
         if (gig.venueId) {
             acc[gig.venueId] = (acc[gig.venueId] || 0) + 1;
         }
@@ -269,8 +269,8 @@ const mainVenue = computed(() => {
     let mainVenueId: string | null = null;
     
     for (const [id, count] of Object.entries(venueCounts)) {
-        if (count > maxCount) {
-            maxCount = count;
+        if ((count as number) > maxCount) {
+            maxCount = count as number;
             mainVenueId = id;
         }
     }
@@ -278,7 +278,7 @@ const mainVenue = computed(() => {
     if (!mainVenueId) return null;
 
     // Find full venue details from store
-    const venue = gigStore.venues.find(v => v.id === mainVenueId);
+    const venue = gigStore.venues.find((v: any) => v.id === mainVenueId);
     return venue ? { name: venue.name, city: venue.city } : null;
 });
 
@@ -286,14 +286,14 @@ const groupedGigs = computed<GroupedGigSection[]>(() => {
     if (!festival.value?.gigs) return [];
 
     // Sort gigs by date first
-    const sortedGigs = sortBy(festival.value.gigs, (gig) => {
+    const sortedGigs = sortBy(festival.value.gigs, (gig: GetGigResponse) => {
         if (!gig.date) return new Date(8640000000000000); // Max date for gigs without dates
         const date = parseISO(gig.date);
         return isValid(date) ? date.getTime() : new Date(8640000000000000).getTime();
     });
 
     // Group by date key
-    const grouped = groupBy(sortedGigs, (gig) => {
+    const grouped = groupBy(sortedGigs, (gig: GetGigResponse) => {
         if (!gig.date) return 'Unknown Date';
         const date = parseISO(gig.date);
         if (!isValid(date)) return 'Unknown Date';
@@ -321,7 +321,7 @@ const groupedGigs = computed<GroupedGigSection[]>(() => {
 
 const venueNames = computed(() => {
     if (!festival.value?.gigs) return null;
-    const venues = new Set(festival.value.gigs.map(g => g.venueName).filter(Boolean));
+    const venues = new Set(festival.value.gigs.map((g: GetGigResponse) => g.venueName).filter(Boolean));
     return Array.from(venues).join(', ');
 });
 
