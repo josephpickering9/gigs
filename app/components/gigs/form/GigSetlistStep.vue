@@ -44,8 +44,8 @@
               >
                   <template #item="{ index: songIndex }">
                        <div class="flex items-center gap-2 group bg-base-200/50 p-2 rounded-lg hover:bg-base-200 transition-colors">
-                          <button type="button" class="drag-handle btn btn-ghost btn-xs btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content hover:bg-base-300">
-                              <Icon name="mdi:drag" class="w-5 h-5" />
+                          <button type="button" class="drag-handle btn btn-ghost btn-sm btn-square cursor-grab active:cursor-grabbing text-base-content/40 hover:text-base-content hover:bg-base-300 touch-manipulation">
+                              <Icon name="mdi:drag" class="w-6 h-6" />
                           </button>
                           
                           <div v-if="act.setlist && act.setlist[songIndex]" class="relative flex-1 flex items-center gap-2">
@@ -55,8 +55,8 @@
                               <input 
                                   v-model="act.setlist[songIndex].title" 
                                   type="text" 
-                                  class="input input-bordered input-sm w-full focus:outline-none focus:border-primary" 
-                                  placeholder="Enter song name..." 
+                                  class="input input-bordered input-sm w-full min-w-[100px] focus:outline-none focus:border-primary" 
+                                  placeholder="Song name" 
                                   @keydown.enter.prevent="addSong(index, songIndex + 1)"
                               >
                               
@@ -73,7 +73,7 @@ class="swap swap-rotate btn btn-xs btn-circle transition-all duration-300"
                           
                           <button 
                               type="button" 
-                              class="btn btn-ghost btn-xs btn-square text-error/40 hover:text-error hover:bg-error/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                              class="btn btn-ghost btn-sm btn-square text-error/40 hover:text-error hover:bg-error/10 transition-opacity"
                               @click="removeSong(index, songIndex)"
                           >
                               <Icon name="heroicons:trash" class="w-4 h-4" />

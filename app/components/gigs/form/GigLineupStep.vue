@@ -22,7 +22,7 @@
             <span class="text-xs text-base-content/50 uppercase tracking-widest font-semibold ml-auto">Main Acts</span>
           </div>
           
-          <div class="bg-base-100 rounded-xl p-4 border border-base-300">
+          <div class="bg-base-100 rounded-xl p-3 md:p-4 border border-base-300">
              <Combobox
                 v-model="headlinersModel"
                 :options="artistOptions"
